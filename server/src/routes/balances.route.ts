@@ -1,78 +1,72 @@
 import { Hono } from "hono";
 import * as sim from "../util/util_sim.js";
 import { TokenBalance } from "../data/api-token-schema.js";
-import type { BlankEnv } from "hono/types";
+import { ApiService } from "../services/api.service.js";
+import { StorageService } from "../services/storage.service.js";
+import { validateParam, addressParamSchema } from "../middleware/validation.middleware.js";
+import type { RawBalance } from "../types/api.types.js";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const app = new Hono();
+const __filename = fileURLToPath(import.meta.url);
+const currentDir = dirname(__filename);
 
-app.get("/", async (c) => {
+// Constants
+const CHAIN = "solana";
+const DEFAULT_LIMIT = 100;
+
+app.get("/", (c) => {
   return c.json({ message: "Balances endpoint" }, 200);
 });
 
-app.get("/:address", async (c) => {
-  try {
-    const address = c.req.param("address");
-    if (!address) {
-      return c.json({ error: "Missing address param" }, 400);
-    }
+app.get("/:address", validateParam(addressParamSchema), async (c) => {
+  const { address } = c.req.valid("param");
 
-    const simEndpoint = sim.getEndpoint(`/balances/${address}`);
-    simEndpoint.searchParams.append("chains", "solana");
-    simEndpoint.searchParams.append("limit", "100");
+  const simEndpoint = sim.getEndpoint(`/balances/${address}`);
+  simEndpoint.searchParams.append("chains", CHAIN);
+  simEndpoint.searchParams.append("limit", String(DEFAULT_LIMIT));
 
-    const req = new Request(simEndpoint, {
-      method: "GET",
-      headers: sim.getRequiredHeaders(),
-    });
+  const request = new Request(simEndpoint, {
+    method: "GET",
+    headers: sim.getRequiredHeaders(),
+  });
 
-    const resp = await fetch(req);
+  const result = await ApiService.fetchWithErrorHandling<{
+    balances: RawBalance[];
+  }>(request, "Fetching balances");
 
-    if (resp.ok) {
-      const data = await resp.json();
-
-      const balances: TokenBalance[] = data.balances.map(
-        (rawApiBalance: {
-          name: string;
-          symbol: string;
-          address: string;
-          amount: string;
-          balance: string;
-          value_usd: string;
-          raw_balance: string;
-          decimals: number;
-        }): TokenBalance => ({
-          name: rawApiBalance.name,
-          symbol: rawApiBalance.symbol,
-          address: rawApiBalance.address,
-          amount: rawApiBalance.amount,
-          balance: rawApiBalance.balance,
-          valueUsd: Number(rawApiBalance.value_usd),
-          rawBalance: rawApiBalance.raw_balance,
-          decimals: rawApiBalance.decimals,
-        }),
-      );
-
-      // TODO: Save to temp file if needed in production
-      // const outPath = join(currentDir, `../temp/balance-${address}.json`);
-      // await ensureFile(outPath);
-      // const pretty = JSON.stringify(balances, null, 2);
-      // await Deno.writeTextFile(outPath, pretty);
-
-      return c.json(balances, 200);
-    } else {
-      return c.json(
-        { error: `External API failed: ${resp.status} ${resp.statusText}` },
-        502,
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching balances:", err);
-    return c.json({ error: String(err) }, 500);
+  if ("error" in result) {
+    return c.json(result.error, result.status as 502 | 500);
   }
+
+  const balances: TokenBalance[] = result.data.balances.map(
+    mapRawBalanceToTokenBalance
+  );
+
+  // Optional: Save to temp file in development
+  if (StorageService.shouldSaveDebugFiles()) {
+    const outPath = join(currentDir, `../temp/balance-${address}.json`);
+    await StorageService.saveJson(outPath, balances);
+  }
+
+  return c.json(balances, 200);
 });
 
-async function getAddressData(context: any)  {
-
+/**
+ * Maps raw API balance response to TokenBalance schema
+ */
+function mapRawBalanceToTokenBalance(raw: RawBalance): TokenBalance {
+  return {
+    name: raw.name,
+    symbol: raw.symbol,
+    address: raw.address,
+    amount: raw.amount,
+    balance: raw.balance,
+    valueUsd: Number(raw.value_usd),
+    rawBalance: raw.raw_balance,
+    decimals: raw.decimals,
+  };
 }
 
 export default app;

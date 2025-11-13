@@ -2,516 +2,235 @@ import { Hono } from "hono";
 import * as cg from "../util/util_cg.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, writeFile } from "node:fs/promises";
 import type { TokenMarketData, TokenMeta, TokenPrice } from "../data/schema.js";
+import { ApiService } from "../services/api.service.js";
+import { StorageService } from "../services/storage.service.js";
+import {
+  validateQuery,
+  validateParam,
+  paginationSchema,
+  tokenIdParamSchema,
+  tokenAddressesQuerySchema,
+} from "../middleware/validation.middleware.js";
+import type { RawCoinListItem, RawTokenPrice, RawMarketData } from "../types/api.types.js";
 
 const app = new Hono();
 const __filename = fileURLToPath(import.meta.url);
 const currentDir = dirname(__filename);
 
-app.get("/", getSolTokens);
-app.get("/prices/token/:id", getTokenPricesById);
-app.get("/prices", getTokenPrices);
-app.get("/markets/:id", getTokenMarkets);
+// Constants
+const PLATFORM = "solana";
+const VS_CURRENCY = "usd";
+
+app.get("/", validateQuery(paginationSchema), getSolTokens);
+app.get("/prices/token/:id", validateParam(tokenIdParamSchema), getTokenPricesById);
+app.get("/prices", validateQuery(tokenAddressesQuerySchema), getTokenPrices);
+app.get("/markets/:id", validateParam(tokenIdParamSchema), getTokenMarkets);
 
 export default app;
 
-async function getSolTokens(c: { req: { url: string }; json: (data: unknown, status: number) => Response }) {
-  try {
-    const reqUrl = new URL(c.req.url);
-    const limit = Number(reqUrl.searchParams.get("limit") ?? 50);
+/**
+ * Get list of Solana tokens from CoinGecko
+ */
+async function getSolTokens(c: any) {
+  const { limit } = c.req.valid("query") as { limit: number };
 
-    const cgEndpoint = cg.getEndpoint("/coins/list");
-    cgEndpoint.searchParams.append("include_platform", "true");
+  const cgEndpoint = cg.getEndpoint("/coins/list");
+  cgEndpoint.searchParams.append("include_platform", "true");
 
-    const req = new Request(cgEndpoint, {
-      method: "GET",
-      headers: cg.getRequiredHeaders(),
-    });
+  const request = new Request(cgEndpoint, {
+    method: "GET",
+    headers: cg.getRequiredHeaders(),
+  });
 
-    const resp = await fetch(req);
+  const result = await ApiService.fetchWithErrorHandling<RawCoinListItem[]>(
+    request,
+    "Fetching Solana tokens"
+  );
 
-    if (resp.ok) {
-      const data = await resp.json();
-
-      const solanaCoins: TokenMeta[] = data
-        .filter((rawToken: { platforms?: { solana?: string } }) => rawToken.platforms?.solana)
-        .map((rawToken: { name: string; symbol: string; platforms: { solana: string } }): TokenMeta => {
-          const token = {
-            name: rawToken.name,
-            symbol: rawToken.symbol,
-            address: rawToken.platforms.solana,
-          };
-          return token;
-        })
-        .slice(0, limit);
-
-      const outPath = join(currentDir, "../temp/solana-coin-list.json");
-      const tempDir = dirname(outPath);
-      await mkdir(tempDir, { recursive: true });
-      await writeFile(outPath, JSON.stringify(solanaCoins, null, 2), "utf-8");
-
-      return c.json(solanaCoins, 200);
-    } else {
-      return c.json({ error: "External API failed" }, 502);
-    }
-  } catch (err) {
-    console.error("Error fetching Solana tokens:", err);
-    return c.json({ error: String(err) }, 500);
+  if ("error" in result) {
+    return c.json(result.error, result.status as 502 | 500);
   }
-}    
 
-async function getTokenPricesById(c: { req: { param: (name: string) => string }; json: (data: unknown, status: number) => Response }) {
-  try {
-    const tokenId = c.req.param("id");
-    if (!tokenId) {
-      return c.json({ error: "Missing token id" }, 400);
-    }
+  const solanaCoins: TokenMeta[] = result.data
+    .filter((rawToken) => rawToken.platforms?.solana)
+    .map((rawToken): TokenMeta => ({
+      name: rawToken.name,
+      symbol: rawToken.symbol,
+      address: rawToken.platforms!.solana!,
+    }))
+    .slice(0, limit);
 
-    const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
-    cgEndpoint.search = new URLSearchParams({
-      contract_addresses: tokenId,
-      vs_currencies: "usd",
-      include_market_cap: "true",
-      include_24hr_vol: "true",
-      include_24hr_change: "true",
-    }).toString();
-    console.log(cgEndpoint);
-
-    const req = new Request(cgEndpoint, {
-      method: "GET",
-      headers: cg.getRequiredHeaders(),
-    });
-
-    const resp = await fetch(req);
-
-    if (resp.ok) {
-      const data = await resp.json();
-      const rawTokenPrice = data[tokenId] as {
-        usd: number;
-        usd_market_cap: number;
-        usd_24h_vol: number;
-        usd_24h_change: number;
-      };
-
-      const tokenPrice: TokenPrice = {
-        usd: rawTokenPrice.usd,
-        usdMarketCap: rawTokenPrice.usd_market_cap,
-        usd24hVol: rawTokenPrice.usd_24h_vol,
-        usd24hChange: rawTokenPrice.usd_24h_change,
-      };
-
-      const outPath = join(currentDir, `../temp/token-price-${tokenId}.json`);
-      const tempDir = dirname(outPath);
-      await mkdir(tempDir, { recursive: true });
-      await writeFile(outPath, JSON.stringify(tokenPrice, null, 2), "utf-8");
-
-      return c.json(tokenPrice, 200);
-    } else {
-      return c.json(
-        { error: `External API failed: ${resp.status} ${resp.statusText}` },
-        502,
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching token price:", err);
-    return c.json({ error: String(err) }, 500);
+  // Optional: Save to temp file in development
+  if (StorageService.shouldSaveDebugFiles()) {
+    const outPath = join(currentDir, "../temp/solana-coin-list.json");
+    await StorageService.saveJson(outPath, solanaCoins);
   }
+
+  return c.json(solanaCoins, 200);
 }
 
-// Get token prices for multiple contract addresses (comma separated)
-async function getTokenPrices(c: { req: { url: string }; json: (data: unknown, status: number) => Response }) {
-  try {
-    const reqUrl = new URL(c.req.url);
-    const tokenAddresses = reqUrl.searchParams.get("addresses");
-    if (!tokenAddresses) {
-      return c.json({ error: "Missing token addresses" }, 400);
-    }
+/**
+ * Get token price by token contract address
+ */
+async function getTokenPricesById(c: any) {
+  const { id: tokenId } = c.req.valid("param") as { id: string };
 
-    const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
-    cgEndpoint.search = new URLSearchParams({
-      contract_addresses: tokenAddresses,
-      vs_currencies: "usd",
-      include_market_cap: "true",
-      include_24hr_vol: "true",
-      include_24hr_change: "true",
-    }).toString();
+  const cgEndpoint = cg.getEndpoint(`/simple/token_price/${PLATFORM}`);
+  cgEndpoint.search = new URLSearchParams({
+    contract_addresses: tokenId,
+    vs_currencies: VS_CURRENCY,
+    include_market_cap: "true",
+    include_24hr_vol: "true",
+    include_24hr_change: "true",
+  }).toString();
 
-    const req = new Request(cgEndpoint, {
-      method: "GET",
-      headers: cg.getRequiredHeaders(),
-    });
+  const request = new Request(cgEndpoint, {
+    method: "GET",
+    headers: cg.getRequiredHeaders(),
+  });
 
-    const resp = await fetch(req);
+  const result = await ApiService.fetchWithErrorHandling<Record<string, RawTokenPrice>>(
+    request,
+    "Fetching token price"
+  );
 
-    if (resp.ok) {
-      const data = await resp.json();
-
-      // data is an object keyed by contract address
-      const tokenPrices: TokenPrice[] = Object.keys(data).map((key) => {
-        const raw = data[key] as {
-          usd: number;
-          usd_market_cap: number;
-          usd_24h_vol: number;
-          usd_24h_change: number;
-        };
-        return {
-          usd: raw.usd,
-          usdMarketCap: raw.usd_market_cap,
-          usd24hVol: raw.usd_24h_vol,
-          usd24hChange: raw.usd_24h_change,
-        } as TokenPrice;
-      });
-
-      const outPath = join(currentDir, `../temp/token-prices.json`);
-      const tempDir = dirname(outPath);
-      await mkdir(tempDir, { recursive: true });
-      await writeFile(outPath, JSON.stringify(tokenPrices, null, 2), "utf-8");
-
-      return c.json(tokenPrices, 200);
-    } else {
-      return c.json(
-        { error: `External API failed: ${resp.status} ${resp.statusText}` },
-        502,
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching token prices:", err);
-    return c.json({ error: String(err) }, 500);
+  if ("error" in result) {
+    return c.json(result.error, result.status as 502 | 500);
   }
+
+  const rawTokenPrice = result.data[tokenId];
+
+  if (!rawTokenPrice) {
+    return c.json({ error: "Token price not found" }, 404);
+  }
+
+  const tokenPrice: TokenPrice = {
+    usd: rawTokenPrice.usd,
+    usdMarketCap: rawTokenPrice.usd_market_cap,
+    usd24hVol: rawTokenPrice.usd_24h_vol,
+    usd24hChange: rawTokenPrice.usd_24h_change,
+  };
+
+  // Optional: Save to temp file in development
+  if (StorageService.shouldSaveDebugFiles()) {
+    const outPath = join(currentDir, `../temp/token-price-${tokenId}.json`);
+    await StorageService.saveJson(outPath, tokenPrice);
+  }
+
+  return c.json(tokenPrice, 200);
 }
 
-// Get market data for a coin id (id = coin id used by CoinGecko)
-async function getTokenMarkets(c: { req: { url: string; param: (name: string) => string }; json: (data: unknown, status: number) => Response }) {
-  try {
-    const id = c.req.param("id");
-    if (!id) {
-      return c.json({ error: "Missing id param" }, 400);
-    }
+/**
+ * Get token prices for multiple contract addresses (comma separated)
+ */
+async function getTokenPrices(c: any) {
+  const { addresses: tokenAddresses } = c.req.valid("query") as { addresses: string };
 
-    const reqUrl = new URL(c.req.url);
-    const limit = Number(reqUrl.searchParams.get("limit") ?? 50);
+  const cgEndpoint = cg.getEndpoint(`/simple/token_price/${PLATFORM}`);
+  cgEndpoint.search = new URLSearchParams({
+    contract_addresses: tokenAddresses,
+    vs_currencies: VS_CURRENCY,
+    include_market_cap: "true",
+    include_24hr_vol: "true",
+    include_24hr_change: "true",
+  }).toString();
 
-    const cgEndpoint = cg.getEndpoint("/coins/markets");
+  const request = new Request(cgEndpoint, {
+    method: "GET",
+    headers: cg.getRequiredHeaders(),
+  });
 
-    cgEndpoint.search = new URLSearchParams({
-      ids: id,
-      vs_currency: "usd",
-      order: "market_cap_desc",
-      price_percentage_change: "1h",
-      page: "1",
-      per_page: limit.toString(),
-    }).toString();
+  const result = await ApiService.fetchWithErrorHandling<Record<string, RawTokenPrice>>(
+    request,
+    "Fetching token prices"
+  );
 
-    const req = new Request(cgEndpoint, {
-      method: "GET",
-      headers: cg.getRequiredHeaders(),
-    });
-
-    const resp = await fetch(req);
-
-    if (resp.ok) {
-      const data = (await resp.json()) as {
-        current_price: number;
-        market_cap: number;
-        market_cap_rank: number;
-        fully_diluted_valuation: number;
-        total_volume: number;
-        high_24h: number;
-        low_24h: number;
-        price_change_24h: number;
-        price_change_percentage_24h: number;
-        market_cap_change_24h: number;
-        market_cap_change_percentage_24h: number;
-        circulating_supply: number;
-        total_supply: number;
-        max_supply: number;
-        ath: number;
-        ath_change_percentage: number;
-        atl: number;
-        atl_change_percentage: number;
-      }[];
-      const rawMarketData = data[0];
-
-      const marketData: TokenMarketData = {
-        currentPrice: rawMarketData.current_price,
-        marketCap: rawMarketData.market_cap,
-        marketCapRank: rawMarketData.market_cap_rank,
-        fullyDilutedValuation: rawMarketData.fully_diluted_valuation,
-        totalVolume: rawMarketData.total_volume,
-        high24h: rawMarketData.high_24h,
-        low24h: rawMarketData.low_24h,
-        priceChange24h: rawMarketData.price_change_24h,
-        priceChangePercentage24h: rawMarketData.price_change_percentage_24h,
-        marketCapChange24h: rawMarketData.market_cap_change_24h,
-        marketCapChangePercentage24h:
-          rawMarketData.market_cap_change_percentage_24h,
-        circulatingSupply: rawMarketData.circulating_supply,
-        totalSupply: rawMarketData.total_supply,
-        maxSupply: rawMarketData.max_supply,
-        ath: rawMarketData.ath,
-        athChangePercentage: rawMarketData.ath_change_percentage,
-        atl: rawMarketData.atl,
-        atlChangePercentage: rawMarketData.atl_change_percentage,
-      };
-
-      const outPath = join(currentDir, `../temp/token-markets-${id}.json`);
-      const tempDir = dirname(outPath);
-      await mkdir(tempDir, { recursive: true });
-      await writeFile(outPath, JSON.stringify(marketData, null, 2), "utf-8");
-
-      return c.json(marketData, 200);
-    } else {
-      return c.json(
-        { error: `External API failed: ${resp.status} ${resp.statusText}` },
-        502,
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching token markets:", err);
-    return c.json({ error: String(err) }, 500);
+  if ("error" in result) {
+    return c.json(result.error, result.status as 502 | 500);
   }
+
+  // Convert object to array of token prices
+  const tokenPrices: TokenPrice[] = Object.values(result.data).map((raw): TokenPrice => ({
+    usd: raw.usd,
+    usdMarketCap: raw.usd_market_cap,
+    usd24hVol: raw.usd_24h_vol,
+    usd24hChange: raw.usd_24h_change,
+  }));
+
+  // Optional: Save to temp file in development
+  if (StorageService.shouldSaveDebugFiles()) {
+    const outPath = join(currentDir, `../temp/token-prices.json`);
+    await StorageService.saveJson(outPath, tokenPrices);
+  }
+
+  return c.json(tokenPrices, 200);
 }
-//   try {
-//     const reqUrl = new URL(ctx.request.url ?? "");
-//     const limit = Number(reqUrl.searchParams.get("limit") ?? 50);
 
-//     const cgEndpoint = cg.getEndpoint("/coins/list");
-//     cgEndpoint.searchParams.append("include_platform", "true");
+/**
+ * Get market data for a coin (using CoinGecko coin ID)
+ */
+async function getTokenMarkets(c: any) {
+  const { id } = c.req.valid("param") as { id: string };
+  const reqUrl = new URL(c.req.url);
+  const limit = Number(reqUrl.searchParams.get("limit") ?? 50);
 
-//     const req = new Request(cgEndpoint, {
-//       method: "GET",
-//       headers: cg.getRequiredHeaders(),
-//     });
+  const cgEndpoint = cg.getEndpoint("/coins/markets");
+  cgEndpoint.search = new URLSearchParams({
+    ids: id,
+    vs_currency: VS_CURRENCY,
+    order: "market_cap_desc",
+    price_percentage_change: "1h",
+    page: "1",
+    per_page: limit.toString(),
+  }).toString();
 
-//     const resp = await fetch(req);
+  const request = new Request(cgEndpoint, {
+    method: "GET",
+    headers: cg.getRequiredHeaders(),
+  });
 
-//     if (resp.ok) {
-//       const data = await resp.json();
+  const result = await ApiService.fetchWithErrorHandling<RawMarketData[]>(
+    request,
+    "Fetching token markets"
+  );
 
-//       const solanaCoins: TokenMeta[] = data
-//         .filter((rawToken: any) => rawToken.platforms?.solana)
-//         .map((rawToken: any): TokenMeta => {
-//           const token = {
-//             name: rawToken.name,
-//             symbol: rawToken.symbol,
-//             address: rawToken.platforms.solana,
-//           };
-//           return token;
-//         })
-//         .slice(0, limit);
+  if ("error" in result) {
+    return c.json(result.error, result.status as 502 | 500);
+  }
 
-//       const outPath = join(currentDir, "../temp/solana-coin-list.json");
-//       await ensureFile(outPath);
-//       await Deno.writeTextFile(outPath, JSON.stringify(solanaCoins, null, 2));
+  const rawMarketData = result.data[0];
 
-//       ctx.response.status = Status.OK;
-//       ctx.response.body = JSON.stringify(solanaCoins);
-//     } else {
-//       ctx.response.status = Status.BadGateway;
-//       ctx.response.body = "External API failed us :(";
-//     }
-//   } catch (err) {
-//     ctx.response.status = Status.InternalServerError;
-//     ctx.response.body = JSON.stringify(err);
-//   }
-// });
+  if (!rawMarketData) {
+    return c.json({ error: "Market data not found" }, 404);
+  }
 
-// // For Demo: 2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv
-// // Get token price for a platform id and save to temp file
-// router.get("/prices/token/:id", async (ctx) => {
-//   try {
-//     // token addresses is comma seperated
-//     const tokenId = ctx.params.id;
-//     if (!tokenId) {
-//       ctx.response.status = Status.BadRequest;
-//       ctx.response.body = "Missing token id";
-//       return;
-//     }
+  const marketData: TokenMarketData = {
+    currentPrice: rawMarketData.current_price,
+    marketCap: rawMarketData.market_cap,
+    marketCapRank: rawMarketData.market_cap_rank,
+    fullyDilutedValuation: rawMarketData.fully_diluted_valuation,
+    totalVolume: rawMarketData.total_volume,
+    high24h: rawMarketData.high_24h,
+    low24h: rawMarketData.low_24h,
+    priceChange24h: rawMarketData.price_change_24h,
+    priceChangePercentage24h: rawMarketData.price_change_percentage_24h,
+    marketCapChange24h: rawMarketData.market_cap_change_24h,
+    marketCapChangePercentage24h: rawMarketData.market_cap_change_percentage_24h,
+    circulatingSupply: rawMarketData.circulating_supply,
+    totalSupply: rawMarketData.total_supply,
+    maxSupply: rawMarketData.max_supply,
+    ath: rawMarketData.ath,
+    athChangePercentage: rawMarketData.ath_change_percentage,
+    atl: rawMarketData.atl,
+    atlChangePercentage: rawMarketData.atl_change_percentage,
+  };
 
-//     const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
-//     cgEndpoint.search = new URLSearchParams({
-//       contract_addresses: tokenId,
-//       vs_currencies: "usd",
-//       include_market_cap: "true",
-//       include_24hr_vol: "true",
-//       include_24hr_change: "true",
-//     }).toString();
-//     console.log(cgEndpoint);
+  // Optional: Save to temp file in development
+  if (StorageService.shouldSaveDebugFiles()) {
+    const outPath = join(currentDir, `../temp/token-markets-${id}.json`);
+    await StorageService.saveJson(outPath, marketData);
+  }
 
-//     const req = new Request(cgEndpoint, {
-//       method: "GET",
-//       headers: cg.getRequiredHeaders(),
-//     });
-
-//     const resp = await fetch(req);
-
-//     if (resp.ok) {
-//       const data = await resp.json();
-//       const rawTokenPrice = data[tokenId];
-
-//       const tokenPrice: TokenPrice = {
-//         usd: rawTokenPrice.usd,
-//         usdMarketCap: rawTokenPrice.usd_market_cap,
-//         usd24hVol: rawTokenPrice.usd_24h_vol,
-//         usd24hChange: rawTokenPrice.usd_24h_change,
-//       };
-
-//       const outPath = join(currentDir, `../temp/token-price-${tokenId}.json`);
-//       await ensureFile(outPath);
-//       await Deno.writeTextFile(outPath, JSON.stringify(tokenPrice, null, 2));
-
-//       ctx.response.status = Status.OK;
-//       ctx.response.body = JSON.stringify(tokenPrice);
-//     } else {
-//       ctx.response.status = Status.BadGateway;
-//       ctx.response.body = JSON.stringify(
-//         `External API failed: ${resp.status} ${resp.statusText}`,
-//       );
-//     }
-//   } catch (err) {
-//     ctx.response.status = Status.InternalServerError;
-//     ctx.response.body = JSON.stringify(err);
-//   }
-// });
-
-// // Get token price for a platform id and save to temp file
-// router.get("/prices", async (ctx) => {
-//   try {
-//     // token addresses is comma seperated
-//     const tokenAddresses = ctx.request.url.searchParams.get("addresses");
-//     if (!tokenAddresses) {
-//       ctx.response.status = Status.BadRequest;
-//       ctx.response.body = "Missing token addresses";
-//       return;
-//     }
-
-//     const cgEndpoint = cg.getEndpoint(`/simple/token-price/`);
-//     cgEndpoint.search = new URLSearchParams({
-//       id: "solana",
-//       contract_addresses: tokenAddresses,
-//       vs_currencies: "usd",
-//       include_market_cap: "true",
-//       include_24hr_vol: "true",
-//       include_24hr_change: "true",
-//     }).toString();
-
-//     const req = new Request(cgEndpoint, {
-//       method: "GET",
-//       headers: cg.getRequiredHeaders(),
-//     });
-
-//     const resp = await fetch(req);
-
-//     if (resp.ok) {
-//       const data = await resp.json();
-
-//       const tokenPrices: TokenPrice[] = data.map(
-//         (rawTokenPrice: any): TokenPrice => {
-//           return {
-//             usd: rawTokenPrice.usd,
-//             usdMarketCap: rawTokenPrice.usd_market_cap,
-//             usd24hVol: rawTokenPrice.usd_24h_vol,
-//             usd24hChange: rawTokenPrice.usd_24h_change,
-//           };
-//         },
-//       );
-
-//       const outPath = join(currentDir, `../temp/token-prices.json`);
-//       await ensureFile(outPath);
-//       await Deno.writeTextFile(outPath, JSON.stringify(tokenPrices, null, 2));
-
-//       ctx.response.status = Status.OK;
-//       ctx.response.body = JSON.stringify(tokenPrices);
-//     } else {
-//       ctx.response.status = Status.BadGateway;
-//       ctx.response.body = JSON.stringify(
-//         `External API failed: ${resp.status} ${resp.statusText}`,
-//       );
-//     }
-//   } catch (err) {
-//     ctx.response.status = Status.InternalServerError;
-//     ctx.response.body = JSON.stringify(err);
-//   }
-// });
-
-// router.get("/markets/:id", async (ctx) => {
-//   try {
-//     const id = ctx.params.id;
-//     if (!id) {
-//       ctx.response.status = Status.BadRequest;
-//       ctx.response.body = "Missing id param";
-//       return;
-//     }
-
-//     const reqUrl = new URL(ctx.request.url ?? "");
-
-//     const limit = Number(reqUrl.searchParams.get("limit")) ?? 50;
-
-//     const cgEndpoint = cg.getEndpoint("/coins/markets");
-
-//     cgEndpoint.search = new URLSearchParams({
-//       "ids": id,
-//       "vs_currency": "usd",
-//       "order": "market_cap_desc",
-//       "price_percentage_change": "1h",
-//       "page": "1",
-//       "per_page": limit.toString(),
-//     }).toString();
-
-//     const req = new Request(cgEndpoint, {
-//       method: "GET",
-//       headers: cg.getRequiredHeaders(),
-//     });
-
-//     const resp = await fetch(req);
-
-//     if (resp.ok) {
-//       const data: any = (await resp.json()) as any[];
-//       console.log(JSON.stringify(data));
-//       const rawMarketData: any = data[0];
-
-//       // Map to MarketData instances
-//       const marketData: TokenMarketData = {
-//         currentPrice: rawMarketData.current_price,
-//         marketCap: rawMarketData.market_cap,
-//         marketCapRank: rawMarketData.market_cap_rank,
-//         fullyDilutedValuation: rawMarketData.fully_diluted_valuation,
-//         totalVolume: rawMarketData.total_volume,
-//         high24h: rawMarketData.high_24h,
-//         low24h: rawMarketData.low_24h,
-//         priceChange24h: rawMarketData.price_change_24h,
-//         priceChangePercentage24h: rawMarketData.price_change_percentage_24h,
-//         marketCapChange24h: rawMarketData.market_cap_change_24h,
-//         marketCapChangePercentage24h:
-//           rawMarketData.market_cap_change_percentage_24h,
-//         circulatingSupply: rawMarketData.circulating_supply,
-//         totalSupply: rawMarketData.total_supply,
-//         maxSupply: rawMarketData.max_supply,
-//         ath: rawMarketData.ath,
-//         athChangePercentage: rawMarketData.ath_change_percentage,
-//         atl: rawMarketData.atl,
-//         atlChangePercentage: rawMarketData.atl_change_percentage,
-//       };
-
-//       // Save pretty JSON
-//       const outPath = join(currentDir, `../temp/token-markets-${id}.json`);
-//       await ensureFile(outPath);
-//       await Deno.writeTextFile(outPath, JSON.stringify(marketData, null, 2));
-
-//       ctx.response.status = Status.OK;
-//       ctx.response.body = JSON.stringify(marketData);
-//     } else {
-//       ctx.response.status = Status.BadGateway;
-//       ctx.response.body = JSON.stringify(
-//         `External API failed: ${resp.status} ${resp.statusText}`,
-//       );
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     ctx.response.status = Status.InternalServerError;
-//     ctx.response.body = JSON.stringify(err);
-//   }
-// });
-
-// export default router;
+  return c.json(marketData, 200);
+}
