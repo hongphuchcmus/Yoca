@@ -34,7 +34,7 @@ const app = new Hono().post(
         },
         201,
       );
-    } catch (err) {
+    } catch {
       return c.json(
         {
           error: "UnknownError",
