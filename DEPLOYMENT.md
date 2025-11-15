@@ -30,14 +30,14 @@ separation makes deployment simpler and more secure.
 
 ## Installation
 
-Install all dependencies for both packages:
+Install all dependencies for both packages (run from the repository root):
 
 ```bash
-npm install
+# Install all workspace dependencies from the root
+npm install --workspaces
 ```
 
-This will install dependencies for both client and server workspaces
-automatically.
+Running `npm install` from the root will also work, but `--workspaces` makes the intent explicit and is useful in CI.
 
 ## Development
 
@@ -76,6 +76,7 @@ npm run server:build  # Builds to server/build/
 Deploy both frontend and backend on the same server.
 
 1. Build both applications:
+
    ```bash
    npm run build
    ```
@@ -83,6 +84,7 @@ Deploy both frontend and backend on the same server.
 2. Copy the entire project to your server
 
 3. On the server, install production dependencies only:
+
    ```bash
    npm install --production
    ```
@@ -91,6 +93,7 @@ Deploy both frontend and backend on the same server.
    `client/build/`
 
 5. Run the backend:
+
    ```bash
    npm run server:start
    ```
@@ -131,6 +134,7 @@ backend).
 #### Deploying the Backend
 
 1. Navigate to server directory:
+
    ```bash
    cd server
    ```
@@ -145,6 +149,7 @@ backend).
    - AWS EC2 / Elastic Beanstalk
 
 4. Make sure the hosting service runs:
+
    ```bash
    npm install
    npm run build
@@ -156,6 +161,7 @@ backend).
 #### Deploying the Frontend
 
 1. Update `client/.env.production` with your backend URL:
+
    ```
    VITE_API_DOMAIN=https://api.yourdomain.com
    ```
@@ -204,6 +210,34 @@ cd server
 docker build -t my-app-server .
 docker run -p 8000:8000 my-app-server
 ```
+
+Alternatively, use Docker Compose to build and run client and server together. Example `docker-compose.yml` (place at repository root):
+
+```yaml
+version: "3.8"
+services:
+  server:
+    build: ./server
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_DOMAIN=http://localhost:8000
+    depends_on:
+      - server
+```
+
+Notes:
+
+- The client Dockerfile should serve static files or run a static server; adjust the `client` service accordingly for production (e.g., use nginx and point to `client/build/`).
+- In many deployments you will build the client once (`npm run build`) and serve the static output from a small web server or CDN, rather than running the Vite dev server in production.
 
 For the client, most static hosting providers support automatic deployment from
 Git repositories.

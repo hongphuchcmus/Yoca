@@ -152,7 +152,7 @@ The client can import types from the server for end-to-end type safety:
 
 ```typescript
 // client/src/api/main.ts
-import type { Users } from "@server/routes/users.route";
+import type { AppType } from "@server/src/main";
 ```
 
 This is configured via path aliases in `client/tsconfig.json` and only imports
@@ -279,6 +279,25 @@ Verify the path alias in `client/tsconfig.json` points to `../server/src/*`.
 - [Hono Documentation](https://hono.dev/)
 - [TypeScript Documentation](https://www.typescriptlang.org/)
 - [npm Workspaces](https://docs.npmjs.com/cli/v10/using-npm/workspaces)
+
+## Contributing
+
+We welcome contributions. If you'd like to contribute:
+
+- Fork the repository and create a feature branch.
+- Open a pull request describing your change and the reasoning.
+- Keep changes small and focused; add tests when applicable.
+- Follow the existing TypeScript and linting rules. Run `npm run lint` in the workspace where you made changes.
+
+For larger changes, open an issue first to discuss the design.
+
+## Changelog
+
+This project follows a lightweight changelog in the repository. For notable releases or breaking changes, add a short entry here with the date and changes.
+
+Example:
+
+- 2025-11-09: Initial monorepo template and documentation updates.
 
 ## License
 
