@@ -1,11 +1,37 @@
-/**
- * Schema definitions for token-related data structures
- */
+export interface TokenBalance {
+  name: string;
+  symbol: string;
+  // "native" for SOL
+  address: string;
+  price_usd?: number;
+  // in lamports
+  amount: number;
+  // in SOLs
+  balance: number;
+  // in SOLs, usually = balance, unless token has custom scaling logic
+  rawBalance: number;
+  // digit count after the decimal point in lamports. SOL has decimals of 9.
+  decimals: number;
+  valueUsd: number;
+}
 
 export interface TokenMeta {
   name: string;
   symbol: string;
   address: string;
+  isNative?: boolean;
+  isWrapped?: boolean;
+  imageUrl?: string;
+  description?: string;
+}
+
+export interface Transfer {
+  from: string;
+  to: string;
+  amount: number;
+  amountUsd: number;
+  time: number;
+  tokenMeta: TokenMeta;
 }
 
 export interface TokenPrice {

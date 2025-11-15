@@ -6,79 +6,126 @@ import {
   validateQuery,
   paginationSchema,
 } from "../middleware/validation.middleware.js";
-import { ApiService } from "../services/api.service.js";
+import type { Transfer } from "../data/schema.js";
 import { StorageService } from "../services/storage.service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const currentDir = dirname(__filename);
 
-// GraphQL query for fetching Solana transactions
-const TRANSACTIONS_QUERY = `
-  query GetTransactions($limit: Int!) {
-    Solana {
-      Transactions(limit: {count: $limit}) {
-        Transaction {
-          Signature
-          Signer
-          FeePayer
-          Fee
-          Index
-          Result {
-            ErrorMessage
-            Success
-          }
-          RecentBlockhash
-          TokenBalanceUpdatesCount
-          InstructionsCount
-          BalanceUpdatesCount
-        }
-        Block {
-          Slot
-          Time
-          Height
-          Hash
-        }
-      }
-    }
+async function getTokenImage(uri: string): Promise<string> {
+  // Get metadata through provided URI
+  const resp = await fetch(uri, { method: "GET" });
+  if (resp.ok) {
+    const metaData = await resp.json();
+    return metaData.image ?? "";
+  } else {
+    // TODO: Set placeholder image
+    return "placeholder";
   }
-`;
+}
 
 const app = new Hono()
-  /**
-   * Get Solana transactions from Bitquery
-   */
-  .get("/", validateQuery(paginationSchema), async (c: any) => {
-    const { limit } = c.req.valid("query") as { limit: number };
+  // Get Solana transactions from Bitquery
+  .get("/", validateQuery(paginationSchema), async (c) => {
+    try {
+      const { limit } = c.req.valid("query");
+      const query = `
+        {
+          Solana {
+            Transfers(limit: { count : ${limit}}, orderBy: {descending: Block_Time}) {
+              Transfer {
+                Amount
+                AmountInUSD
+                Sender {
+                  Address
+                }
+                Receiver {
+                  Address
+                }
+                Currency {
+                  Symbol
+                  Name
+                  MintAddress
+                  Native
+                  Uri
+                }
+              }
+              Block {
+                Time
+              }
+            }
+          }
+        }
+      `;
 
-    const request = new Request(bit.getStreamingEndpoint(), {
-      method: "POST",
-      headers: bit.getRequiredHeaders(),
-      body: JSON.stringify({
-        query: TRANSACTIONS_QUERY,
-        variables: { limit },
-      }),
-    });
+      const req = new Request(bit.getStreamingEndpoint(), {
+        method: "POST",
+        headers: bit.getRequiredHeaders(),
+        body: JSON.stringify({
+          query,
+          variables: {},
+        }),
+      });
 
-    const result = await ApiService.fetch<any>(
-      request,
-      "Fetching transactions",
-    );
+      const resp = await fetch(req);
 
-    if ("error" in result) {
-      return c.json(result.error, result.status as 502 | 500);
-    }
+      if (resp.ok) {
+        const res = await resp.json();
 
-    // Optional: Save to temp file in development
-    if (StorageService.shouldSaveDebugFiles()) {
-      const timestamp = StorageService.generateTimestamp();
-      const outPath = join(
-        currentDir,
-        `../temp/transactions-${limit}-${timestamp}.json`,
+        const transfers: Transfer[] = await Promise.all(
+          // bitquery wraps their return values in a "data" field
+          res.data.Solana.Transfers.map(
+            async (rawTransfer: any): Promise<Transfer> => {
+              let tokenImgUrl = "";
+              try {
+                tokenImgUrl = await getTokenImage(
+                  rawTransfer.Transfer.Currency.Uri,
+                );
+              } catch (err) {
+                console.log("Unable to fetch image");
+              }
+
+              return {
+                from: rawTransfer.Transfer.Sender.Address,
+                to: rawTransfer.Transfer.Receiver.Address,
+                amount: rawTransfer.Transfer.Amount,
+                amountUsd: rawTransfer.Transfer.AmountInUSD,
+                time: rawTransfer.Block.Time,
+                tokenMeta: {
+                  name: rawTransfer.Transfer.Currency.Name,
+                  symbol: rawTransfer.Transfer.Currency.Symbol,
+                  isNative: rawTransfer.Transfer.Currency.Native,
+                  isWrapped: rawTransfer.Transfer.Currency.Wrapped,
+                  address: rawTransfer.Transfer.Currency.MintAddress,
+                  imageUrl: tokenImgUrl,
+                },
+              };
+            },
+          ),
+        );
+
+        if (StorageService.shouldSaveDebugFiles()) {
+          const timestamp = StorageService.generateTimestamp();
+          const outPath = join(
+            currentDir,
+            `../temp/transactions-${limit}-${timestamp}.json`,
+          );
+          await StorageService.saveJson(outPath, transfers);
+        }
+
+        return c.json(transfers, 200);
+      } else {
+        return c.json("Failed to fetch data from external sources", 502);
+      }
+    } catch (err) {
+      return c.json(
+        {
+          message: "Internal Error",
+          error: err,
+        },
+        500,
       );
-      await StorageService.saveJson(outPath, result.data);
     }
-
-    return c.json(result.data, 200);
   });
 
 export default app;
