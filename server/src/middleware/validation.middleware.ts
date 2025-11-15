@@ -35,9 +35,9 @@ export function validateQuery<T extends z.ZodType>(schema: T) {
         {
           error: "ValidationError",
           message: "Invalid query parameters",
-          details: parsed.error.format(),
+          details: parsed.error.issues,
         },
-        400
+        400,
       );
     }
     return parsed.data;
@@ -55,9 +55,9 @@ export function validateParam<T extends z.ZodType>(schema: T) {
         {
           error: "ValidationError",
           message: "Invalid route parameters",
-          details: parsed.error.format(),
+          details: parsed.error.issues,
         },
-        400
+        400,
       );
     }
     return parsed.data;
