@@ -2,7 +2,10 @@ import { Hono } from "hono";
 import * as bit from "../util/util_bit.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validateQuery, paginationSchema } from "../middleware/validation.middleware.js";
+import {
+  validateQuery,
+  paginationSchema,
+} from "../middleware/validation.middleware.js";
 import { ApiService } from "../services/api.service.js";
 import { StorageService } from "../services/storage.service.js";
 
@@ -56,10 +59,7 @@ app.get("/", validateQuery(paginationSchema), async (c: any) => {
     }),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<any>(
-    request,
-    "Fetching transactions"
-  );
+  const result = await ApiService.fetch<any>(request, "Fetching transactions");
 
   if ("error" in result) {
     return c.json(result.error, result.status as 502 | 500);
@@ -70,7 +70,7 @@ app.get("/", validateQuery(paginationSchema), async (c: any) => {
     const timestamp = StorageService.generateTimestamp();
     const outPath = join(
       currentDir,
-      `../temp/transactions-${limit}-${timestamp}.json`
+      `../temp/transactions-${limit}-${timestamp}.json`,
     );
     await StorageService.saveJson(outPath, result.data);
   }

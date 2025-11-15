@@ -12,18 +12,22 @@ import {
   tokenIdParamSchema,
   tokenAddressesQuerySchema,
 } from "../middleware/validation.middleware.js";
-import type { RawCoinListItem, RawTokenPrice, RawMarketData } from "../types/api.types.js";
+import type {
+  RawCoinListItem,
+  RawTokenPrice,
+  RawMarketData,
+} from "../types/api.types.js";
 
 const app = new Hono();
 const __filename = fileURLToPath(import.meta.url);
 const currentDir = dirname(__filename);
 
-// Constants
-const PLATFORM = "solana";
-const VS_CURRENCY = "usd";
-
 app.get("/", validateQuery(paginationSchema), getSolTokens);
-app.get("/prices/token/:id", validateParam(tokenIdParamSchema), getTokenPricesById);
+app.get(
+  "/prices/token/:id",
+  validateParam(tokenIdParamSchema),
+  getTokenPricesById,
+);
 app.get("/prices", validateQuery(tokenAddressesQuerySchema), getTokenPrices);
 app.get("/markets/:id", validateParam(tokenIdParamSchema), getTokenMarkets);
 
@@ -43,9 +47,9 @@ async function getSolTokens(c: any) {
     headers: cg.getRequiredHeaders(),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<RawCoinListItem[]>(
+  const result = await ApiService.fetch<RawCoinListItem[]>(
     request,
-    "Fetching Solana tokens"
+    "Fetching Solana tokens",
   );
 
   if ("error" in result) {
@@ -54,11 +58,13 @@ async function getSolTokens(c: any) {
 
   const solanaCoins: TokenMeta[] = result.data
     .filter((rawToken) => rawToken.platforms?.solana)
-    .map((rawToken): TokenMeta => ({
-      name: rawToken.name,
-      symbol: rawToken.symbol,
-      address: rawToken.platforms!.solana!,
-    }))
+    .map(
+      (rawToken): TokenMeta => ({
+        name: rawToken.name,
+        symbol: rawToken.symbol,
+        address: rawToken.platforms!.solana!,
+      }),
+    )
     .slice(0, limit);
 
   // Optional: Save to temp file in development
@@ -76,10 +82,10 @@ async function getSolTokens(c: any) {
 async function getTokenPricesById(c: any) {
   const { id: tokenId } = c.req.valid("param") as { id: string };
 
-  const cgEndpoint = cg.getEndpoint(`/simple/token_price/${PLATFORM}`);
+  const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
   cgEndpoint.search = new URLSearchParams({
     contract_addresses: tokenId,
-    vs_currencies: VS_CURRENCY,
+    vs_currencies: "usd",
     include_market_cap: "true",
     include_24hr_vol: "true",
     include_24hr_change: "true",
@@ -90,9 +96,9 @@ async function getTokenPricesById(c: any) {
     headers: cg.getRequiredHeaders(),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<Record<string, RawTokenPrice>>(
+  const result = await ApiService.fetch<Record<string, RawTokenPrice>>(
     request,
-    "Fetching token price"
+    "Fetching token price",
   );
 
   if ("error" in result) {
@@ -125,12 +131,14 @@ async function getTokenPricesById(c: any) {
  * Get token prices for multiple contract addresses (comma separated)
  */
 async function getTokenPrices(c: any) {
-  const { addresses: tokenAddresses } = c.req.valid("query") as { addresses: string };
+  const { addresses: tokenAddresses } = c.req.valid("query") as {
+    addresses: string;
+  };
 
-  const cgEndpoint = cg.getEndpoint(`/simple/token_price/${PLATFORM}`);
+  const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
   cgEndpoint.search = new URLSearchParams({
     contract_addresses: tokenAddresses,
-    vs_currencies: VS_CURRENCY,
+    vs_currencies: "usd",
     include_market_cap: "true",
     include_24hr_vol: "true",
     include_24hr_change: "true",
@@ -141,9 +149,9 @@ async function getTokenPrices(c: any) {
     headers: cg.getRequiredHeaders(),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<Record<string, RawTokenPrice>>(
+  const result = await ApiService.fetch<Record<string, RawTokenPrice>>(
     request,
-    "Fetching token prices"
+    "Fetching token prices",
   );
 
   if ("error" in result) {
@@ -151,12 +159,14 @@ async function getTokenPrices(c: any) {
   }
 
   // Convert object to array of token prices
-  const tokenPrices: TokenPrice[] = Object.values(result.data).map((raw): TokenPrice => ({
-    usd: raw.usd,
-    usdMarketCap: raw.usd_market_cap,
-    usd24hVol: raw.usd_24h_vol,
-    usd24hChange: raw.usd_24h_change,
-  }));
+  const tokenPrices: TokenPrice[] = Object.values(result.data).map(
+    (raw): TokenPrice => ({
+      usd: raw.usd,
+      usdMarketCap: raw.usd_market_cap,
+      usd24hVol: raw.usd_24h_vol,
+      usd24hChange: raw.usd_24h_change,
+    }),
+  );
 
   // Optional: Save to temp file in development
   if (StorageService.shouldSaveDebugFiles()) {
@@ -178,7 +188,7 @@ async function getTokenMarkets(c: any) {
   const cgEndpoint = cg.getEndpoint("/coins/markets");
   cgEndpoint.search = new URLSearchParams({
     ids: id,
-    vs_currency: VS_CURRENCY,
+    usd: "usd",
     order: "market_cap_desc",
     price_percentage_change: "1h",
     page: "1",
@@ -190,9 +200,9 @@ async function getTokenMarkets(c: any) {
     headers: cg.getRequiredHeaders(),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<RawMarketData[]>(
+  const result = await ApiService.fetch<RawMarketData[]>(
     request,
-    "Fetching token markets"
+    "Fetching token markets",
   );
 
   if ("error" in result) {
@@ -216,7 +226,8 @@ async function getTokenMarkets(c: any) {
     priceChange24h: rawMarketData.price_change_24h,
     priceChangePercentage24h: rawMarketData.price_change_percentage_24h,
     marketCapChange24h: rawMarketData.market_cap_change_24h,
-    marketCapChangePercentage24h: rawMarketData.market_cap_change_percentage_24h,
+    marketCapChangePercentage24h:
+      rawMarketData.market_cap_change_percentage_24h,
     circulatingSupply: rawMarketData.circulating_supply,
     totalSupply: rawMarketData.total_supply,
     maxSupply: rawMarketData.max_supply,
@@ -226,7 +237,6 @@ async function getTokenMarkets(c: any) {
     atlChangePercentage: rawMarketData.atl_change_percentage,
   };
 
-  // Optional: Save to temp file in development
   if (StorageService.shouldSaveDebugFiles()) {
     const outPath = join(currentDir, `../temp/token-markets-${id}.json`);
     await StorageService.saveJson(outPath, marketData);

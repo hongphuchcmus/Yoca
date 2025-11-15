@@ -4,19 +4,11 @@ import { Hono } from "hono";
 
 // User validation schema
 const userSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  email: z.email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-type UserInput = z.infer<typeof userSchema>;
-
-const app = new Hono();
-
-/**
- * Create a new user
- * POST /users
- */
-app.post(
+const app = new Hono().post(
   "/",
   validator("json", (value, c) => {
     const parsed = userSchema.safeParse(value);
@@ -25,15 +17,15 @@ app.post(
         {
           error: "ValidationError",
           message: "Invalid user data",
-          details: parsed.error.format(),
+          details: parsed.error.issues,
         },
-        400
+        400,
       );
     }
     return parsed.data;
   }),
-  async (c: any) => {
-    const user: UserInput = c.req.valid("json");
+  async (c) => {
+    const user = c.req.valid("json");
 
     // TODO: Implement actual user creation logic
     // - Hash password using bcrypt or similar
@@ -50,9 +42,9 @@ app.post(
           // Never return password in response
         },
       },
-      201
+      201,
     );
-  }
+  },
 );
 
 export default app;

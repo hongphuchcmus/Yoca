@@ -3,17 +3,18 @@ import * as sim from "../util/util_sim.js";
 import { TokenBalance } from "../data/api-token-schema.js";
 import { ApiService } from "../services/api.service.js";
 import { StorageService } from "../services/storage.service.js";
-import { validateParam, addressParamSchema } from "../middleware/validation.middleware.js";
+import {
+  validateParam,
+  addressParamSchema,
+} from "../middleware/validation.middleware.js";
 import type { RawBalance } from "../types/api.types.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const app = new Hono();
 const __filename = fileURLToPath(import.meta.url);
 const currentDir = dirname(__filename);
+const app = new Hono();
 
-// Constants
-const CHAIN = "solana";
 const DEFAULT_LIMIT = 100;
 
 app.get("/", (c) => {
@@ -24,15 +25,17 @@ app.get("/:address", validateParam(addressParamSchema), async (c) => {
   const { address } = c.req.valid("param");
 
   const simEndpoint = sim.getEndpoint(`/balances/${address}`);
-  simEndpoint.searchParams.append("chains", CHAIN);
-  simEndpoint.searchParams.append("limit", String(DEFAULT_LIMIT));
+  simEndpoint.search = new URLSearchParams({
+    chains: "solana",
+    limit: DEFAULT_LIMIT.toString(),
+  }).toString();
 
   const request = new Request(simEndpoint, {
     method: "GET",
     headers: sim.getRequiredHeaders(),
   });
 
-  const result = await ApiService.fetchWithErrorHandling<{
+  const result = await ApiService.fetch<{
     balances: RawBalance[];
   }>(request, "Fetching balances");
 
@@ -41,10 +44,9 @@ app.get("/:address", validateParam(addressParamSchema), async (c) => {
   }
 
   const balances: TokenBalance[] = result.data.balances.map(
-    mapRawBalanceToTokenBalance
+    mapRawBalanceToTokenBalance,
   );
 
-  // Optional: Save to temp file in development
   if (StorageService.shouldSaveDebugFiles()) {
     const outPath = join(currentDir, `../temp/balance-${address}.json`);
     await StorageService.saveJson(outPath, balances);
@@ -53,9 +55,6 @@ app.get("/:address", validateParam(addressParamSchema), async (c) => {
   return c.json(balances, 200);
 });
 
-/**
- * Maps raw API balance response to TokenBalance schema
- */
 function mapRawBalanceToTokenBalance(raw: RawBalance): TokenBalance {
   return {
     name: raw.name,
