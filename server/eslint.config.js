@@ -6,9 +6,10 @@ export default [
   {
     ignores: ["build/**"],
   },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ["**/*.{ts,js}"],
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2023,
       globals: globals.node,

@@ -31,7 +31,7 @@ export default function WalletPage(props : WalletProps) {
         const response = await fetch(`/api/v0/balances/${address}`);
         const data = await response.json();
         const balances = data.map((
-          balance: any,
+          balance: { symbol: string; balance: string; valueUsd: string },
           index: number,
         ) => ({
           id: index,
@@ -47,7 +47,7 @@ export default function WalletPage(props : WalletProps) {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [address]);
 
   return <Tble loading={loading} rows={transfers} headers={headers} />;
 }

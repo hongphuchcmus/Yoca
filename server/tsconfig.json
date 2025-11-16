@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "esModuleInterop": true,
@@ -11,7 +11,6 @@
     "types": ["node"],
     
     "outDir": "./build",
-    "rootDir": "./src",
     
     "strict": true,
     "noUnusedLocals": true,
