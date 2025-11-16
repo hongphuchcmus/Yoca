@@ -15,9 +15,10 @@
     "noEmit": true,
     
     "types": ["vite/client", "node"],
+    "rootDir": "./src",
     
     "paths": {
-      "@server/*": ["../server/src/*"]
+      "@server/*": ["../server/src/*"],
     },
     
     "strict": true,

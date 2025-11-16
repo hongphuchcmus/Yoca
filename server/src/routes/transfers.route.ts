@@ -1,16 +1,14 @@
 import { Hono } from "hono";
-import * as bit from "../util/util_bit.js";
+import * as bit from "../util/util-bit.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  validateQuery,
-  paginationSchema,
-} from "../middleware/validation.middleware.js";
+import { validateQuery } from "../middlewares/validation.middleware.js";
 import type { Transfer } from "../data/schema.js";
+import { paginationSchema } from "../data/schema.js";
 import { StorageService } from "../services/storage.service.js";
+import { Message, messageText } from "../util/response-messages.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const currentDir = dirname(__filename);
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 async function getTokenImage(uri: string): Promise<string> {
   // Get metadata through provided URI
@@ -29,6 +27,7 @@ const app = new Hono()
   .get("/", validateQuery(paginationSchema), async (c) => {
     try {
       const { limit } = c.req.valid("query");
+      // GraphQL query to Bitquery
       const query = `
         {
           Solana {
@@ -73,7 +72,7 @@ const app = new Hono()
         const res = await resp.json();
 
         const transfers: Transfer[] = await Promise.all(
-          // bitquery wraps their return values in a "data" field
+          // Bitquery wraps their return values in a "data" field
           res.data.Solana.Transfers.map(
             async (rawTransfer: any): Promise<Transfer> => {
               let tokenImgUrl = "";
@@ -115,7 +114,7 @@ const app = new Hono()
 
         return c.json(transfers, 200);
       } else {
-        return c.json("Failed to fetch data from external sources", 502);
+        return c.json(messageText[Message.FailedToFetchExternalData], 502);
       }
     } catch (err) {
       return c.json(

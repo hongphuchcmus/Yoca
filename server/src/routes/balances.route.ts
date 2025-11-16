@@ -1,30 +1,30 @@
 import { Hono } from "hono";
-import * as sim from "../util/util_sim.js";
-import { TokenBalance } from "../data/api-token-schema.js";
+import * as sim from "../util/util-sim.js";
+import { addressSchema, type TokenBalance } from "../data/schema.js";
 import { StorageService } from "../services/storage.service.js";
-import {
-  validateParam,
-  addressParamSchema,
-} from "../middleware/validation.middleware.js";
+import { validateParam } from "../middlewares/validation.middleware.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Message, messageText } from "../util/response-messages.js";
 
-const DEFAULT_LIMIT = 100;
+const defaultLimit = 100;
 
-const __filename = fileURLToPath(import.meta.url);
-const currentDir = dirname(__filename);
+const currentDir = dirname(fileURLToPath(import.meta.url));
+
 const app = new Hono()
+  // Demo endpoint
   .get("/", (c) => {
     return c.json({ message: "Balances endpoint" }, 200);
   })
-  .get("/:address", validateParam(addressParamSchema), async (c) => {
+  // Get balances of native token (SOL) & SPL tokens of an wallet using the wallet's address
+  .get("/:address", validateParam(addressSchema), async (c) => {
     try {
       const { address } = c.req.valid("param");
 
       const simEndpoint = sim.getEndpoint(`/balances/${address}`);
       simEndpoint.search = new URLSearchParams({
         chains: "solana",
-        limit: DEFAULT_LIMIT.toString(),
+        limit: defaultLimit.toString(),
       }).toString();
 
       const req = new Request(simEndpoint, {
@@ -54,9 +54,18 @@ const app = new Hono()
         }
         return c.json(balances, 200);
       } else {
-        return c.json("Failed to fetch data from external sources", 502);
+        return c.json(messageText[Message.FailedToFetchExternalData], 500);
       }
-    } catch (err) {}
+    } catch (err) {
+      return c.json(
+        {
+          message:
+            "There is a problem happended on the server. Please try again later.",
+          error: err,
+        },
+        500,
+      );
+    }
   });
 
 export default app;

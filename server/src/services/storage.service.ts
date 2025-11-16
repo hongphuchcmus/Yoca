@@ -1,13 +1,10 @@
-/**
- * Storage Service
- * Handles file system operations for temporary data storage
- */
-
+// Storage Service: Handles file system operations for temporary data storage
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import dayjs from "dayjs";
 
 export class StorageService {
-  // Save data locally in pretty jsn format
+  // Save data locally in pretty json format
   static async saveJson(filePath: string, data: unknown): Promise<void> {
     const dir = dirname(filePath);
     await mkdir(dir, { recursive: true });
@@ -16,11 +13,7 @@ export class StorageService {
 
   // Generate a timestamp  in "YYYY-MM-DD HH-MM-SS" format
   static generateTimestamp(): string {
-    return new Date()
-      .toISOString()
-      .replace(/:/g, "-")
-      .replace(/T/, " ")
-      .replace(/\..+/, "");
+    return dayjs().format("YYYY-MM-DD HH-MM-SS");
   }
 
   // Check if we should save debug files

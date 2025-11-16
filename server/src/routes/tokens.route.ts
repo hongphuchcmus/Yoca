@@ -1,19 +1,22 @@
 import { Hono } from "hono";
-import * as cg from "../util/util_cg.js";
+import * as cg from "../util/util-cg.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { TokenMarketData, TokenMeta, TokenPrice } from "../data/schema.js";
+import {
+  paginationSchema,
+  tokenAddressListSchema,
+  tokenIdSchema,
+} from "../data/schema.js";
+
 import { StorageService } from "../services/storage.service.js";
 import {
   validateQuery,
   validateParam,
-  paginationSchema,
-  tokenIdParamSchema,
-  tokenAddressesQuerySchema,
-} from "../middleware/validation.middleware.js";
+} from "../middlewares/validation.middleware.js";
+import { Message, messageText } from "../util/response-messages.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const currentDir = dirname(__filename);
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 const app = new Hono()
   // Get all solana tokens
@@ -56,11 +59,11 @@ const app = new Hono()
         return c.json("Failed to fetch data from external sources", 502);
       }
     } catch (err) {
-      return c.json("Internal Server Error", 200);
+      return c.json(messageText[Message.FailedToFetchExternalData], 500);
     }
   })
   // Get price of tokens by token addresses (comma seperated)
-  .get("/prices", validateQuery(tokenAddressesQuerySchema), async (c) => {
+  .get("/prices", validateQuery(tokenAddressListSchema), async (c) => {
     try {
       const { addresses } = c.req.valid("query");
 
@@ -108,63 +111,67 @@ const app = new Hono()
         return c.json("Failed to fetch data from external sources", 502);
       }
     } catch (err) {
-      return c.json("Internal Server Error", 500);
+      return c.json(messageText[Message.InternalServerError], 500);
     }
   })
   // Get market data for a specific token by CoinGecko id
-  .get("/markets/:id", validateParam(tokenIdParamSchema), async (c) => {
-    const { id } = c.req.valid("param");
+  .get("/markets/:id", validateParam(tokenIdSchema), async (c) => {
+    try {
+      const { id } = c.req.valid("param");
 
-    const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
+      const cgEndpoint = cg.getEndpoint(`/simple/token_price/solana`);
 
-    cgEndpoint.search = new URLSearchParams({
-      ids: id,
-      vs_currency: "usd",
-      order: "market_cap_desc",
-      price_percentage_change: "1h",
-      page: "1",
-      per_page: "1",
-    }).toString();
+      cgEndpoint.search = new URLSearchParams({
+        ids: id,
+        vs_currency: "usd",
+        order: "market_cap_desc",
+        price_percentage_change: "1h",
+        page: "1",
+        per_page: "1",
+      }).toString();
 
-    const req = new Request(cgEndpoint, {
-      method: "GET",
-      headers: cg.getRequiredHeaders(),
-    });
+      const req = new Request(cgEndpoint, {
+        method: "GET",
+        headers: cg.getRequiredHeaders(),
+      });
 
-    const resp = await fetch(req);
+      const resp = await fetch(req);
 
-    if (resp.ok) {
-      const res = await resp.json();
+      if (resp.ok) {
+        const res = await resp.json();
 
-      const marketData: TokenMarketData = {
-        currentPrice: res.current_price,
-        marketCap: res.market_cap,
-        marketCapRank: res.market_cap_rank,
-        fullyDilutedValuation: res.fully_diluted_valuation,
-        totalVolume: res.total_volume,
-        high24h: res.high_24h,
-        low24h: res.low_24h,
-        priceChange24h: res.price_change_24h,
-        priceChangePercentage24h: res.price_change_percentage_24h,
-        marketCapChange24h: res.market_cap_change_24h,
-        marketCapChangePercentage24h: res.market_cap_change_percentage_24h,
-        circulatingSupply: res.circulating_supply,
-        totalSupply: res.total_supply,
-        maxSupply: res.max_supply,
-        ath: res.ath,
-        athChangePercentage: res.ath_change_percentage,
-        atl: res.atl,
-        atlChangePercentage: res.atl_change_percentage,
-      };
+        const marketData: TokenMarketData = {
+          currentPrice: res.current_price,
+          marketCap: res.market_cap,
+          marketCapRank: res.market_cap_rank,
+          fullyDilutedValuation: res.fully_diluted_valuation,
+          totalVolume: res.total_volume,
+          high24h: res.high_24h,
+          low24h: res.low_24h,
+          priceChange24h: res.price_change_24h,
+          priceChangePercentage24h: res.price_change_percentage_24h,
+          marketCapChange24h: res.market_cap_change_24h,
+          marketCapChangePercentage24h: res.market_cap_change_percentage_24h,
+          circulatingSupply: res.circulating_supply,
+          totalSupply: res.total_supply,
+          maxSupply: res.max_supply,
+          ath: res.ath,
+          athChangePercentage: res.ath_change_percentage,
+          atl: res.atl,
+          atlChangePercentage: res.atl_change_percentage,
+        };
 
-      if (StorageService.shouldSaveDebugFiles()) {
-        const outPath = join(currentDir, `../temp/token-market-${id}.json`);
-        await StorageService.saveJson(outPath, marketData);
+        if (StorageService.shouldSaveDebugFiles()) {
+          const outPath = join(currentDir, `../temp/token-market-${id}.json`);
+          await StorageService.saveJson(outPath, marketData);
+        }
+
+        return c.json(marketData, 200);
+      } else {
+        return c.json(messageText[Message.FailedToFetchExternalData], 502);
       }
-
-      return c.json(marketData, 200);
-    } else {
-      return c.json("Failed to fetch data from external sources", 502);
+    } catch (err) {
+      return c.json(messageText[Message.InternalServerError], 500);
     }
   });
 

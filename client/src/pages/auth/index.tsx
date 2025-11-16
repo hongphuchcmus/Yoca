@@ -1,6 +1,14 @@
 import { useState, type FormEvent } from "react";
 import client from "../../api/main";
-import { Button, PasswordInput, Stack, TextInput, Form } from "@carbon/react";
+import z from "zod";
+import { 
+  Button, 
+  PasswordInput,
+  Stack,
+  TextInput,
+  Form
+} from "@carbon/react";
+import { StatusCodes } from "http-status-codes";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,7 +22,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     // Basic client-side validation
-    const emailValid = /\S+@\S+\.\S+/.test(email);
+    const emailValid = z.email(email);
     const passwordValid = password.length >= 8;
 
     setEmailInvalid(!emailValid);
@@ -23,6 +31,9 @@ export default function LoginPage() {
     if (!emailValid || !passwordValid) return;
 
     try {
+      client.api.tokens.$get();
+      
+
       const res = await client.api.users.$post({
         json: { email, password },
       });

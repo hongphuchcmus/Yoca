@@ -1,8 +1,3 @@
-/**
- * Utility for Bitquery API calls
- * Reference: https://docs.bitquery.io/
- */
-
 const BITQUERY_STREAMING_API_URL = "https://asia.streaming.bitquery.io/graphql";
 
 export function getStreamingEndpoint(): URL {
@@ -16,7 +11,7 @@ export function getRequiredHeaders(): Record<string, string> {
   }
 
   return {
-    "Authorization": `Bearer ${apiKey}`,
+    Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
   };
 }

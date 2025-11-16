@@ -1,8 +1,3 @@
-/**
- * Utility for SimpleHash API calls
- * Reference: https://docs.simplehash.com/
- */
-
 const SIMPLEHASH_API_URL = "https://api.simplehash.com/api/v0";
 
 export function getEndpoint(path: string): URL {
