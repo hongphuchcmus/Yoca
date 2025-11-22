@@ -15,10 +15,12 @@ export const db = drizzle({ client, schema: dbSchema });
 export const { schema: graphqlSchema } = buildSchema(db);
 
 const graphqlSchemaLocation = join(currentDir, "schema.graphql");
-const genComment = `
-#######################################################
-# Generated GraphQL schema for preview, has no usage  #
-#######################################################
+const genComment =
+`#######################################################
+ # Generated GraphQL schema for preview, has no usage  #
+ #######################################################\n`
 
-`
-Storage.saveText(graphqlSchemaLocation, genComment + printSchema(graphqlSchema));
+Storage.saveText(
+    graphqlSchemaLocation,
+    genComment + printSchema(graphqlSchema)
+);

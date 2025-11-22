@@ -51,5 +51,6 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 CREATE TABLE "wallets" (
 	"address" varchar(44) PRIMARY KEY NOT NULL,
-	"balanceCount" integer DEFAULT 0 NOT NULL
+	"balanceCount" integer DEFAULT 0 NOT NULL,
+	"updated_at" timestamp NOT NULL
 );

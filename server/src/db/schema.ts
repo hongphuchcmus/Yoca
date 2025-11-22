@@ -71,6 +71,9 @@ export const tokenTransfers = pgTable("token_transfers", {
 export const wallets = pgTable("wallets", {
   address: varchar("address", { length: 44 }).primaryKey(),
   balanceCount: integer().notNull().default(0),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdate(() => new Date()),
 });
 
 export const tokenMarketData_tokenMeta_relation = relations(

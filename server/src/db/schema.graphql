@@ -1,8 +1,6 @@
-
 #######################################################
-# Generated GraphQL schema for preview, has no usage  #
-#######################################################
-
+ # Generated GraphQL schema for preview, has no usage  #
+ #######################################################
 input TokenMarketDataInsertInput {
   address: String
   priceUsd: String!
