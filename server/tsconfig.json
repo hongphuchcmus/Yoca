@@ -11,6 +11,11 @@
     "types": ["node"],
     
     "outDir": "./build",
+
+    "paths": {
+      "@util/*": ["./src/util/*"],
+      "@services/*": ["./src/services/*"],
+    },
     
     "strict": true,
     "noUnusedLocals": true,

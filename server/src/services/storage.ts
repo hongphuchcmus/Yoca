@@ -3,7 +3,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import dayjs from "dayjs";
 
-export class StorageService {
+export class Storage {
+  // Save data locally in pretty json format
+  static async saveText(filePath: string, data: string): Promise<void> {
+    const dir = dirname(filePath);
+    await mkdir(dir, { recursive: true });
+    await writeFile(filePath, data, "utf-8");
+  }
+
   // Save data locally in pretty json format
   static async saveJson(filePath: string, data: unknown): Promise<void> {
     const dir = dirname(filePath);

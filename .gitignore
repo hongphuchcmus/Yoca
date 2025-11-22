@@ -28,7 +28,6 @@ client/build
 server/build
 
 # Environment variables
-.env
 .env.local
 .env.*.local
 client/.env

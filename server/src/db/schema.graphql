@@ -1,0 +1,2300 @@
+
+#######################################################
+# Generated GraphQL schema for preview, has no usage  #
+#######################################################
+
+input TokenMarketDataInsertInput {
+  address: String
+  priceUsd: String!
+  marketCap: String!
+  usd24hVol: String!
+  usd24hChange: String!
+  high24h: String!
+  low24h: String!
+  fullyDilutedValuation: String!
+  totalVolume: String!
+  circulatingSupply: String!
+  totalSupply: String!
+  maxSupply: String!
+  ath: String!
+  athChangePercentage: String!
+  atl: String!
+  atlChangePercentage: String!
+
+  """Date"""
+  updatedAt: String
+}
+
+input TokenMarketDataUpdateInput {
+  address: String
+  priceUsd: String
+  marketCap: String
+  usd24hVol: String
+  usd24hChange: String
+  high24h: String
+  low24h: String
+  fullyDilutedValuation: String
+  totalVolume: String
+  circulatingSupply: String
+  totalSupply: String
+  maxSupply: String
+  ath: String
+  athChangePercentage: String
+  atl: String
+  atlChangePercentage: String
+
+  """Date"""
+  updatedAt: String
+}
+
+input TokenMarketDataFilters {
+  address: TokenMarketDataAddressFilters
+  priceUsd: TokenMarketDataPriceUsdFilters
+  marketCap: TokenMarketDataMarketCapFilters
+  usd24hVol: TokenMarketDataUsd24hVolFilters
+  usd24hChange: TokenMarketDataUsd24hChangeFilters
+  high24h: TokenMarketDataHigh24hFilters
+  low24h: TokenMarketDataLow24hFilters
+  fullyDilutedValuation: TokenMarketDataFullyDilutedValuationFilters
+  totalVolume: TokenMarketDataTotalVolumeFilters
+  circulatingSupply: TokenMarketDataCirculatingSupplyFilters
+  totalSupply: TokenMarketDataTotalSupplyFilters
+  maxSupply: TokenMarketDataMaxSupplyFilters
+  ath: TokenMarketDataAthFilters
+  athChangePercentage: TokenMarketDataAthChangePercentageFilters
+  atl: TokenMarketDataAtlFilters
+  atlChangePercentage: TokenMarketDataAtlChangePercentageFilters
+  updatedAt: TokenMarketDataUpdatedAtFilters
+  OR: [TokenMarketDataFiltersOr!]
+}
+
+input TokenMarketDataAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataAddressfiltersOr!]
+}
+
+input TokenMarketDataAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataPriceUsdFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataPriceUsdfiltersOr!]
+}
+
+input TokenMarketDataPriceUsdfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataMarketCapFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataMarketCapfiltersOr!]
+}
+
+input TokenMarketDataMarketCapfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataUsd24hVolFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataUsd24hVolfiltersOr!]
+}
+
+input TokenMarketDataUsd24hVolfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataUsd24hChangeFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataUsd24hChangefiltersOr!]
+}
+
+input TokenMarketDataUsd24hChangefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataHigh24hFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataHigh24hfiltersOr!]
+}
+
+input TokenMarketDataHigh24hfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataLow24hFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataLow24hfiltersOr!]
+}
+
+input TokenMarketDataLow24hfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataFullyDilutedValuationFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataFullyDilutedValuationfiltersOr!]
+}
+
+input TokenMarketDataFullyDilutedValuationfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataTotalVolumeFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataTotalVolumefiltersOr!]
+}
+
+input TokenMarketDataTotalVolumefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataCirculatingSupplyFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataCirculatingSupplyfiltersOr!]
+}
+
+input TokenMarketDataCirculatingSupplyfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataTotalSupplyFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataTotalSupplyfiltersOr!]
+}
+
+input TokenMarketDataTotalSupplyfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataMaxSupplyFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataMaxSupplyfiltersOr!]
+}
+
+input TokenMarketDataMaxSupplyfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataAthFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataAthfiltersOr!]
+}
+
+input TokenMarketDataAthfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataAthChangePercentageFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataAthChangePercentagefiltersOr!]
+}
+
+input TokenMarketDataAthChangePercentagefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataAtlFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataAtlfiltersOr!]
+}
+
+input TokenMarketDataAtlfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataAtlChangePercentageFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataAtlChangePercentagefiltersOr!]
+}
+
+input TokenMarketDataAtlChangePercentagefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataUpdatedAtFilters {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMarketDataUpdatedAtfiltersOr!]
+}
+
+input TokenMarketDataUpdatedAtfiltersOr {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMarketDataFiltersOr {
+  address: TokenMarketDataAddressFilters
+  priceUsd: TokenMarketDataPriceUsdFilters
+  marketCap: TokenMarketDataMarketCapFilters
+  usd24hVol: TokenMarketDataUsd24hVolFilters
+  usd24hChange: TokenMarketDataUsd24hChangeFilters
+  high24h: TokenMarketDataHigh24hFilters
+  low24h: TokenMarketDataLow24hFilters
+  fullyDilutedValuation: TokenMarketDataFullyDilutedValuationFilters
+  totalVolume: TokenMarketDataTotalVolumeFilters
+  circulatingSupply: TokenMarketDataCirculatingSupplyFilters
+  totalSupply: TokenMarketDataTotalSupplyFilters
+  maxSupply: TokenMarketDataMaxSupplyFilters
+  ath: TokenMarketDataAthFilters
+  athChangePercentage: TokenMarketDataAthChangePercentageFilters
+  atl: TokenMarketDataAtlFilters
+  atlChangePercentage: TokenMarketDataAtlChangePercentageFilters
+  updatedAt: TokenMarketDataUpdatedAtFilters
+}
+
+input TokenMarketDataOrderBy {
+  address: InnerOrder
+  priceUsd: InnerOrder
+  marketCap: InnerOrder
+  usd24hVol: InnerOrder
+  usd24hChange: InnerOrder
+  high24h: InnerOrder
+  low24h: InnerOrder
+  fullyDilutedValuation: InnerOrder
+  totalVolume: InnerOrder
+  circulatingSupply: InnerOrder
+  totalSupply: InnerOrder
+  maxSupply: InnerOrder
+  ath: InnerOrder
+  athChangePercentage: InnerOrder
+  atl: InnerOrder
+  atlChangePercentage: InnerOrder
+  updatedAt: InnerOrder
+}
+
+input InnerOrder {
+  direction: OrderDirection!
+
+  """Priority of current field"""
+  priority: Int!
+}
+
+"""Order by direction"""
+enum OrderDirection {
+  """Ascending order"""
+  asc
+
+  """Descending order"""
+  desc
+}
+
+input TokenMetaInsertInput {
+  address: String!
+  name: String!
+  symbol: String!
+  isNative: Boolean
+  isWrapped: Boolean
+  imageUrl: String
+  description: String
+
+  """Date"""
+  updatedAt: String
+}
+
+input TokenMetaUpdateInput {
+  address: String
+  name: String
+  symbol: String
+  isNative: Boolean
+  isWrapped: Boolean
+  imageUrl: String
+  description: String
+
+  """Date"""
+  updatedAt: String
+}
+
+input TokenMetaFilters {
+  address: TokenMetaAddressFilters
+  name: TokenMetaNameFilters
+  symbol: TokenMetaSymbolFilters
+  isNative: TokenMetaIsNativeFilters
+  isWrapped: TokenMetaIsWrappedFilters
+  imageUrl: TokenMetaImageUrlFilters
+  description: TokenMetaDescriptionFilters
+  updatedAt: TokenMetaUpdatedAtFilters
+  OR: [TokenMetaFiltersOr!]
+}
+
+input TokenMetaAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaAddressfiltersOr!]
+}
+
+input TokenMetaAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaNameFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaNamefiltersOr!]
+}
+
+input TokenMetaNamefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaSymbolFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaSymbolfiltersOr!]
+}
+
+input TokenMetaSymbolfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaIsNativeFilters {
+  eq: Boolean
+  ne: Boolean
+  lt: Boolean
+  lte: Boolean
+  gt: Boolean
+  gte: Boolean
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaIsNativefiltersOr!]
+}
+
+input TokenMetaIsNativefiltersOr {
+  eq: Boolean
+  ne: Boolean
+  lt: Boolean
+  lte: Boolean
+  gt: Boolean
+  gte: Boolean
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaIsWrappedFilters {
+  eq: Boolean
+  ne: Boolean
+  lt: Boolean
+  lte: Boolean
+  gt: Boolean
+  gte: Boolean
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaIsWrappedfiltersOr!]
+}
+
+input TokenMetaIsWrappedfiltersOr {
+  eq: Boolean
+  ne: Boolean
+  lt: Boolean
+  lte: Boolean
+  gt: Boolean
+  gte: Boolean
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Boolean!]
+
+  """Array<undefined>"""
+  notInArray: [Boolean!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaImageUrlFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaImageUrlfiltersOr!]
+}
+
+input TokenMetaImageUrlfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaDescriptionFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaDescriptionfiltersOr!]
+}
+
+input TokenMetaDescriptionfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaUpdatedAtFilters {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenMetaUpdatedAtfiltersOr!]
+}
+
+input TokenMetaUpdatedAtfiltersOr {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenMetaFiltersOr {
+  address: TokenMetaAddressFilters
+  name: TokenMetaNameFilters
+  symbol: TokenMetaSymbolFilters
+  isNative: TokenMetaIsNativeFilters
+  isWrapped: TokenMetaIsWrappedFilters
+  imageUrl: TokenMetaImageUrlFilters
+  description: TokenMetaDescriptionFilters
+  updatedAt: TokenMetaUpdatedAtFilters
+}
+
+input TokenMetaOrderBy {
+  address: InnerOrder
+  name: InnerOrder
+  symbol: InnerOrder
+  isNative: InnerOrder
+  isWrapped: InnerOrder
+  imageUrl: InnerOrder
+  description: InnerOrder
+  updatedAt: InnerOrder
+}
+
+input TokenTransfersInsertInput {
+  id: String
+  fromAddress: String!
+  toAddress: String!
+  amount: String!
+  amountUsd: String!
+  time: Int!
+  tokenAddress: String!
+}
+
+input TokenTransfersUpdateInput {
+  id: String
+  fromAddress: String
+  toAddress: String
+  amount: String
+  amountUsd: String
+  time: Int
+  tokenAddress: String
+}
+
+input TokenTransfersFilters {
+  id: TokenTransfersIdFilters
+  fromAddress: TokenTransfersFromAddressFilters
+  toAddress: TokenTransfersToAddressFilters
+  amount: TokenTransfersAmountFilters
+  amountUsd: TokenTransfersAmountUsdFilters
+  time: TokenTransfersTimeFilters
+  tokenAddress: TokenTransfersTokenAddressFilters
+  OR: [TokenTransfersFiltersOr!]
+}
+
+input TokenTransfersIdFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersIdfiltersOr!]
+}
+
+input TokenTransfersIdfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersFromAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersFromAddressfiltersOr!]
+}
+
+input TokenTransfersFromAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersToAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersToAddressfiltersOr!]
+}
+
+input TokenTransfersToAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersAmountFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersAmountfiltersOr!]
+}
+
+input TokenTransfersAmountfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersAmountUsdFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersAmountUsdfiltersOr!]
+}
+
+input TokenTransfersAmountUsdfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersTimeFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersTimefiltersOr!]
+}
+
+input TokenTransfersTimefiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersTokenAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [TokenTransfersTokenAddressfiltersOr!]
+}
+
+input TokenTransfersTokenAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input TokenTransfersFiltersOr {
+  id: TokenTransfersIdFilters
+  fromAddress: TokenTransfersFromAddressFilters
+  toAddress: TokenTransfersToAddressFilters
+  amount: TokenTransfersAmountFilters
+  amountUsd: TokenTransfersAmountUsdFilters
+  time: TokenTransfersTimeFilters
+  tokenAddress: TokenTransfersTokenAddressFilters
+}
+
+input TokenTransfersOrderBy {
+  id: InnerOrder
+  fromAddress: InnerOrder
+  toAddress: InnerOrder
+  amount: InnerOrder
+  amountUsd: InnerOrder
+  time: InnerOrder
+  tokenAddress: InnerOrder
+}
+
+input UsersInsertInput {
+  id: String
+  name: String!
+  age: Int!
+  email: String!
+
+  """Date"""
+  createdAt: String
+
+  """Date"""
+  updatedAt: String
+}
+
+input UsersUpdateInput {
+  id: String
+  name: String
+  age: Int
+  email: String
+
+  """Date"""
+  createdAt: String
+
+  """Date"""
+  updatedAt: String
+}
+
+input UsersFilters {
+  id: UsersIdFilters
+  name: UsersNameFilters
+  age: UsersAgeFilters
+  email: UsersEmailFilters
+  createdAt: UsersCreatedAtFilters
+  updatedAt: UsersUpdatedAtFilters
+  OR: [UsersFiltersOr!]
+}
+
+input UsersIdFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersIdfiltersOr!]
+}
+
+input UsersIdfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersNameFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersNamefiltersOr!]
+}
+
+input UsersNamefiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersAgeFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersAgefiltersOr!]
+}
+
+input UsersAgefiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersEmailFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersEmailfiltersOr!]
+}
+
+input UsersEmailfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersCreatedAtFilters {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersCreatedAtfiltersOr!]
+}
+
+input UsersCreatedAtfiltersOr {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersUpdatedAtFilters {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [UsersUpdatedAtfiltersOr!]
+}
+
+input UsersUpdatedAtfiltersOr {
+  """Date"""
+  eq: String
+
+  """Date"""
+  ne: String
+
+  """Date"""
+  lt: String
+
+  """Date"""
+  lte: String
+
+  """Date"""
+  gt: String
+
+  """Date"""
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<Date>"""
+  inArray: [String!]
+
+  """Array<Date>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input UsersFiltersOr {
+  id: UsersIdFilters
+  name: UsersNameFilters
+  age: UsersAgeFilters
+  email: UsersEmailFilters
+  createdAt: UsersCreatedAtFilters
+  updatedAt: UsersUpdatedAtFilters
+}
+
+input UsersOrderBy {
+  id: InnerOrder
+  name: InnerOrder
+  age: InnerOrder
+  email: InnerOrder
+  createdAt: InnerOrder
+  updatedAt: InnerOrder
+}
+
+input WalletsInsertInput {
+  address: String!
+  balanceCount: Int
+}
+
+input WalletsUpdateInput {
+  address: String
+  balanceCount: Int
+}
+
+input WalletsFilters {
+  address: WalletsAddressFilters
+  balanceCount: WalletsBalanceCountFilters
+  OR: [WalletsFiltersOr!]
+}
+
+input WalletsAddressFilters {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [WalletsAddressfiltersOr!]
+}
+
+input WalletsAddressfiltersOr {
+  eq: String
+  ne: String
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [String!]
+
+  """Array<undefined>"""
+  notInArray: [String!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input WalletsBalanceCountFilters {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+  OR: [WalletsBalanceCountfiltersOr!]
+}
+
+input WalletsBalanceCountfiltersOr {
+  eq: Int
+  ne: Int
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  like: String
+  notLike: String
+  ilike: String
+  notIlike: String
+
+  """Array<undefined>"""
+  inArray: [Int!]
+
+  """Array<undefined>"""
+  notInArray: [Int!]
+  isNull: Boolean
+  isNotNull: Boolean
+}
+
+input WalletsFiltersOr {
+  address: WalletsAddressFilters
+  balanceCount: WalletsBalanceCountFilters
+}
+
+input WalletsOrderBy {
+  address: InnerOrder
+  balanceCount: InnerOrder
+}
+
+type TokenMarketDataSelectItem {
+  address: String
+  priceUsd: String!
+  marketCap: String!
+  usd24hVol: String!
+  usd24hChange: String!
+  high24h: String!
+  low24h: String!
+  fullyDilutedValuation: String!
+  totalVolume: String!
+  circulatingSupply: String!
+  totalSupply: String!
+  maxSupply: String!
+  ath: String!
+  athChangePercentage: String!
+  atl: String!
+  atlChangePercentage: String!
+
+  """Date"""
+  updatedAt: String!
+  tokenMeta(where: TokenMetaFilters): TokenMarketDataTokenMetaRelation
+}
+
+type TokenMarketDataTokenMetaRelation {
+  address: String!
+  name: String!
+  symbol: String!
+  isNative: Boolean!
+  isWrapped: Boolean!
+  imageUrl: String
+  description: String
+
+  """Date"""
+  updatedAt: String!
+}
+
+type TokenMarketDataItem {
+  address: String
+  priceUsd: String!
+  marketCap: String!
+  usd24hVol: String!
+  usd24hChange: String!
+  high24h: String!
+  low24h: String!
+  fullyDilutedValuation: String!
+  totalVolume: String!
+  circulatingSupply: String!
+  totalSupply: String!
+  maxSupply: String!
+  ath: String!
+  athChangePercentage: String!
+  atl: String!
+  atlChangePercentage: String!
+
+  """Date"""
+  updatedAt: String!
+}
+
+type TokenMetaSelectItem {
+  address: String!
+  name: String!
+  symbol: String!
+  isNative: Boolean!
+  isWrapped: Boolean!
+  imageUrl: String
+  description: String
+
+  """Date"""
+  updatedAt: String!
+}
+
+type TokenMetaItem {
+  address: String!
+  name: String!
+  symbol: String!
+  isNative: Boolean!
+  isWrapped: Boolean!
+  imageUrl: String
+  description: String
+
+  """Date"""
+  updatedAt: String!
+}
+
+type TokenTransfersSelectItem {
+  id: String!
+  fromAddress: String!
+  toAddress: String!
+  amount: String!
+  amountUsd: String!
+  time: Int!
+  tokenAddress: String!
+}
+
+type TokenTransfersItem {
+  id: String!
+  fromAddress: String!
+  toAddress: String!
+  amount: String!
+  amountUsd: String!
+  time: Int!
+  tokenAddress: String!
+}
+
+type UsersSelectItem {
+  id: String!
+  name: String!
+  age: Int!
+  email: String!
+
+  """Date"""
+  createdAt: String!
+
+  """Date"""
+  updatedAt: String!
+}
+
+type UsersItem {
+  id: String!
+  name: String!
+  age: Int!
+  email: String!
+
+  """Date"""
+  createdAt: String!
+
+  """Date"""
+  updatedAt: String!
+}
+
+type WalletsSelectItem {
+  address: String!
+  balanceCount: Int!
+}
+
+type WalletsItem {
+  address: String!
+  balanceCount: Int!
+}
+
+type Query {
+  tokenMarketData(offset: Int, limit: Int, orderBy: TokenMarketDataOrderBy, where: TokenMarketDataFilters): [TokenMarketDataSelectItem!]!
+  tokenMarketDataSingle(offset: Int, orderBy: TokenMarketDataOrderBy, where: TokenMarketDataFilters): TokenMarketDataSelectItem
+  tokenMeta(offset: Int, limit: Int, orderBy: TokenMetaOrderBy, where: TokenMetaFilters): [TokenMetaSelectItem!]!
+  tokenMetaSingle(offset: Int, orderBy: TokenMetaOrderBy, where: TokenMetaFilters): TokenMetaSelectItem
+  tokenTransfers(offset: Int, limit: Int, orderBy: TokenTransfersOrderBy, where: TokenTransfersFilters): [TokenTransfersSelectItem!]!
+  tokenTransfersSingle(offset: Int, orderBy: TokenTransfersOrderBy, where: TokenTransfersFilters): TokenTransfersSelectItem
+  users(offset: Int, limit: Int, orderBy: UsersOrderBy, where: UsersFilters): [UsersSelectItem!]!
+  usersSingle(offset: Int, orderBy: UsersOrderBy, where: UsersFilters): UsersSelectItem
+  wallets(offset: Int, limit: Int, orderBy: WalletsOrderBy, where: WalletsFilters): [WalletsSelectItem!]!
+  walletsSingle(offset: Int, orderBy: WalletsOrderBy, where: WalletsFilters): WalletsSelectItem
+}
+
+type Mutation {
+  insertIntoTokenMarketData(values: [TokenMarketDataInsertInput!]!): [TokenMarketDataItem!]!
+  insertIntoTokenMarketDataSingle(values: TokenMarketDataInsertInput!): TokenMarketDataItem
+  updateTokenMarketData(set: TokenMarketDataUpdateInput!, where: TokenMarketDataFilters): [TokenMarketDataItem!]!
+  deleteFromTokenMarketData(where: TokenMarketDataFilters): [TokenMarketDataItem!]!
+  insertIntoTokenMeta(values: [TokenMetaInsertInput!]!): [TokenMetaItem!]!
+  insertIntoTokenMetaSingle(values: TokenMetaInsertInput!): TokenMetaItem
+  updateTokenMeta(set: TokenMetaUpdateInput!, where: TokenMetaFilters): [TokenMetaItem!]!
+  deleteFromTokenMeta(where: TokenMetaFilters): [TokenMetaItem!]!
+  insertIntoTokenTransfers(values: [TokenTransfersInsertInput!]!): [TokenTransfersItem!]!
+  insertIntoTokenTransfersSingle(values: TokenTransfersInsertInput!): TokenTransfersItem
+  updateTokenTransfers(set: TokenTransfersUpdateInput!, where: TokenTransfersFilters): [TokenTransfersItem!]!
+  deleteFromTokenTransfers(where: TokenTransfersFilters): [TokenTransfersItem!]!
+  insertIntoUsers(values: [UsersInsertInput!]!): [UsersItem!]!
+  insertIntoUsersSingle(values: UsersInsertInput!): UsersItem
+  updateUsers(set: UsersUpdateInput!, where: UsersFilters): [UsersItem!]!
+  deleteFromUsers(where: UsersFilters): [UsersItem!]!
+  insertIntoWallets(values: [WalletsInsertInput!]!): [WalletsItem!]!
+  insertIntoWalletsSingle(values: WalletsInsertInput!): WalletsItem
+  updateWallets(set: WalletsUpdateInput!, where: WalletsFilters): [WalletsItem!]!
+  deleteFromWallets(where: WalletsFilters): [WalletsItem!]!
+}

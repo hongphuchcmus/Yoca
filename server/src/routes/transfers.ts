@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { validateQuery } from "../middlewares/validation.js";
 import type { Transfer } from "../data/schema.js";
 import { paginationSchema } from "../data/schema.js";
-import { StorageService } from "../services/storage.service.js";
+import { Storage } from "../services/storage.js";
 import { Message, messageText } from "../util/response-messages.js";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -103,13 +103,13 @@ const app = new Hono()
           ),
         );
 
-        if (StorageService.shouldSaveDebugFiles()) {
-          const timestamp = StorageService.generateTimestamp();
+        if (Storage.shouldSaveDebugFiles()) {
+          const timestamp = Storage.generateTimestamp();
           const outPath = join(
             currentDir,
             `../temp/transactions-${limit}-${timestamp}.json`,
           );
-          await StorageService.saveJson(outPath, transfers);
+          await Storage.saveJson(outPath, transfers);
         }
 
         return c.json(transfers, 200);

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import * as sim from "../util/util-sim.js";
 import { addressSchema, type TokenBalance } from "../data/schema.js";
-import { StorageService } from "../services/storage.service.js";
+import { Storage } from "../services/storage.js";
 import { validateParam } from "../middlewares/validation.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,9 +48,9 @@ const app = new Hono()
             decimals: rawApiBalance.decimals,
           }),
         );
-        if (StorageService.shouldSaveDebugFiles()) {
+        if (Storage.shouldSaveDebugFiles()) {
           const outPath = join(currentDir, `../temp/balance-${address}.json`);
-          await StorageService.saveJson(outPath, balances);
+          await Storage.saveJson(outPath, balances);
         }
         return c.json(balances, 200);
       } else {

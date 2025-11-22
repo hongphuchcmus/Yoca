@@ -8,7 +8,6 @@ import {
   TextInput,
   Form
 } from "@carbon/react";
-import { StatusCodes } from "http-status-codes";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,7 +36,7 @@ export default function LoginPage() {
       const res = await client.api.users.$post({
         json: { email, password },
       });
-
+      
       if (res.status === 400) {
         const data = await res.json();
         console.log("Error:", data.message);

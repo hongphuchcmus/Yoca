@@ -9,7 +9,7 @@ import {
   tokenIdSchema,
 } from "../data/schema.js";
 
-import { StorageService } from "../services/storage.service.js";
+import { Storage as Storage } from "../services/storage.js";
 import { validateQuery, validateParam } from "../middlewares/validation.js";
 import { Message, messageText } from "../util/response-messages.js";
 
@@ -46,9 +46,9 @@ const app = new Hono()
           .slice(0, pagination.limit);
 
         // Optional: Save to temp file in development
-        if (StorageService.shouldSaveDebugFiles()) {
+        if (Storage.shouldSaveDebugFiles()) {
           const outPath = join(currentDir, "../temp/solana-coin-list.json");
-          await StorageService.saveJson(outPath, solanaCoins);
+          await Storage.saveJson(outPath, solanaCoins);
         }
 
         return c.json(solanaCoins, 200);
@@ -95,12 +95,12 @@ const app = new Hono()
             };
           });
 
-        if (StorageService.shouldSaveDebugFiles()) {
+        if (Storage.shouldSaveDebugFiles()) {
           const outPath = join(
             currentDir,
             `../temp/token-prices-${addresses}.json`,
           );
-          await StorageService.saveJson(outPath, tokenPrices);
+          await Storage.saveJson(outPath, tokenPrices);
         }
 
         return c.json(tokenPrices, 200);
@@ -158,9 +158,9 @@ const app = new Hono()
           atlChangePercentage: res.atl_change_percentage,
         };
 
-        if (StorageService.shouldSaveDebugFiles()) {
+        if (Storage.shouldSaveDebugFiles()) {
           const outPath = join(currentDir, `../temp/token-market-${id}.json`);
-          await StorageService.saveJson(outPath, marketData);
+          await Storage.saveJson(outPath, marketData);
         }
 
         return c.json(marketData, 200);
