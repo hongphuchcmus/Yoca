@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import * as cg from "../util/util-cg.js";
+import * as cg from "../util/util-coingecko.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { TokenMarketData, TokenMeta, TokenPrice } from "../data/schema.js";
@@ -10,10 +10,7 @@ import {
 } from "../data/schema.js";
 
 import { StorageService } from "../services/storage.service.js";
-import {
-  validateQuery,
-  validateParam,
-} from "../middlewares/validation.middleware.js";
+import { validateQuery, validateParam } from "../middlewares/validation.js";
 import { Message, messageText } from "../util/response-messages.js";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));

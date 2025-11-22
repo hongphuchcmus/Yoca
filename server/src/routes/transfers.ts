@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import * as bit from "../util/util-bit.js";
+import * as bit from "../util/util-bitquery.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validateQuery } from "../middlewares/validation.middleware.js";
+import { validateQuery } from "../middlewares/validation.js";
 import type { Transfer } from "../data/schema.js";
 import { paginationSchema } from "../data/schema.js";
 import { StorageService } from "../services/storage.service.js";

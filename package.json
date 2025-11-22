@@ -18,7 +18,10 @@
     "server:dev": "npm run dev --workspace=server",
     "server:build": "npm run build --workspace=server",
     "server:start": "npm run start --workspace=server",
-    "clean": "npm run clean --workspaces"
+    "clean": "npm run clean --workspaces",
+    "db:generate": "npm run db:generate --workspace=server",
+    "db:migrate": "npm run db:migrate --workspace=server",
+    "db:push": "npm run db:push --workspace=server"
   },
   "devDependencies": {
     "prettier": "3.6.2"

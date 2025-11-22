@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import * as sim from "../util/util-sim.js";
 import { addressSchema, type TokenBalance } from "../data/schema.js";
 import { StorageService } from "../services/storage.service.js";
-import { validateParam } from "../middlewares/validation.middleware.js";
+import { validateParam } from "../middlewares/validation.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Message, messageText } from "../util/response-messages.js";

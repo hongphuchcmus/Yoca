@@ -1,9 +1,7 @@
 // Utility for CoinGecko API calls
 
-const COINGECKO_API_URL = "https://api.coingecko.com/api/v3";
-
 export function getEndpoint(path: string): URL {
-  return new URL(path, COINGECKO_API_URL);
+  return new URL(path, process.env.COINGECKO_API_BASE_URL);
 }
 
 export function getRequiredHeaders(): Record<string, string> {

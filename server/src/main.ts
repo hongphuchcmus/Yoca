@@ -2,14 +2,16 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import transfers from "./routes/transfers.route.js";
-import tokens from "./routes/tokens.route.js";
-import balances from "./routes/balances.route.js";
+import transfers from "./routes/transfers.js";
+import tokens from "./routes/tokens.js";
+import balances from "./routes/balances.js";
 import users from "./routes/users.route.js";
-import { loadEnvFile } from "node:process";
 
-loadEnvFile("../.env");
+// Load environment variables
+process.loadEnvFile("./.env");
+process.loadEnvFile("./.env.local");
 
+// Routes
 const app = new Hono()
   .use(cors())
   .use(logger())

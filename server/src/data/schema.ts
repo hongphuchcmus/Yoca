@@ -21,10 +21,10 @@ export const tokenIdSchema = z.object({
 export interface TokenBalance {
   name: string;
   symbol: string;
+  // in lamports
   // "native" for SOL
   address: string;
   price_usd?: number;
-  // in lamports
   amount: number;
   // in SOLs
   balance: number;

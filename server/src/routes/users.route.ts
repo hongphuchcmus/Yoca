@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Hono } from "hono";
-import { validateBody } from "../middlewares/validation.middleware.js";
+import { validateBody } from "../middlewares/validation.js";
 
 // User validation schema
 const userSchema = z.object({
