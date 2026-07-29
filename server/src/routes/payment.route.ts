@@ -502,8 +502,51 @@ const app = new Hono()
   )
 
   /**
+   * GET /api/payment/solana-quote?tier=Lite
+   *
+   * Authoritative SOL amount for a tier. The client MUST use this instead of
+   * computing the amount itself — under live pricing a client-side rate would
+   * drift from the server's and the payment would be rejected on verification.
+   */
+  .get(
+    "/solana-quote",
+    honoJwt,
+    validate("query", z.object({ tier: z.enum(["Lite", "Plus", "Pro"]) })),
+    async (c) => {
+      const { tier } = c.req.valid("query");
+
+      try {
+        const { getExpectedPayment } = await import(
+          "@sv/services/solana-payment.service.js"
+        );
+        const { amountSol, solPriceUsd, livePricing } = await getExpectedPayment(tier);
+
+        return c.json(
+          {
+            tier,
+            amountSol,
+            solPriceUsd,
+            amountUsd: solPriceUsd === null ? null : amountSol * solPriceUsd,
+            livePricing,
+          },
+          statusCode.Ok,
+        );
+      } catch (err: unknown) {
+        console.error("[payment/solana-quote] Could not resolve SOL price:", err);
+        return c.json(
+          {
+            errorCode: "SOL_PRICE_UNAVAILABLE",
+            message: "Live SOL price is temporarily unavailable. Please try again.",
+          },
+          statusCode.ServiceUnavailable,
+        );
+      }
+    },
+  )
+
+  /**
    * POST /api/payments/verify-solana
-   * 
+   *
    * Verify a Solana Devnet transaction and create subscription.
    * 
    * Flow:

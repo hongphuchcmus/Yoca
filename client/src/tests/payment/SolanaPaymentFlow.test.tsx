@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render as rtlRender, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render as rtlRender, screen, fireEvent, waitFor } from "@testing-library/react";
 import { SolanaPaymentFlow } from "@/components/payment/SolanaPaymentFlow";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { verifySolanaPayment } from "@/services/payment/solanaPaymentApi";
+import { fetchSolanaQuote, verifySolanaPayment } from "@/services/payment/solanaPaymentApi";
 import { PublicKey } from "@solana/web3.js";
 import { LocalizationProvider } from "@/contexts/LocalizationContext";
 
@@ -16,6 +16,7 @@ vi.mock("@solana/wallet-adapter-react", () => ({
 }));
 
 vi.mock("@/services/payment/solanaPaymentApi", () => ({
+  fetchSolanaQuote: vi.fn(),
   verifySolanaPayment: vi.fn(),
 }));
 
@@ -132,8 +133,12 @@ const mockWallets = [
   { adapter: { name: "Solflare", icon: "solflare-icon.png" }, readyState: "Installed" },
 ];
 
-function render(ui: Parameters<typeof rtlRender>[0]) {
-  return rtlRender(ui, { wrapper: LocalizationProvider });
+// The component fetches its SOL amount from the server, so rendering has to
+// flush that promise before the payment UI is on screen.
+async function render(ui: Parameters<typeof rtlRender>[0]) {
+  const result = rtlRender(ui, { wrapper: LocalizationProvider });
+  await act(async () => {});
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,6 +154,14 @@ describe("SolanaPaymentFlow Component", () => {
     vi.stubEnv("VITE_SOLANA_MERCHANT_ADDRESS", MERCHANT_ADDR);
 
     // ── Happy-path defaults ─────────────────────────────────────────────────
+    // Fixed-pricing quote — mirrors a server with SOLANA_LIVE_PRICING_ENABLED=false.
+    vi.mocked(fetchSolanaQuote).mockResolvedValue({
+      tier: "Lite",
+      amountSol: 0.001,
+      solPriceUsd: null,
+      amountUsd: null,
+      livePricing: false,
+    });
     mockGetGenesisHash.mockResolvedValue(DEVNET_GENESIS);
     mockGetLatestBlockhash.mockResolvedValue({
       blockhash: "7hW5wLymv7K4KGeXGq6c16oVvW165Gq",
@@ -196,9 +209,9 @@ describe("SolanaPaymentFlow Component", () => {
       } as never);
     });
 
-    it("should render the wallet selection header and available adapters", () => {
+    it("should render the wallet selection header and available adapters", async () => {
       // Arrange & Act
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Assert
       expect(screen.getByText("Connect Your Solana Wallet")).toBeInTheDocument();
@@ -206,14 +219,14 @@ describe("SolanaPaymentFlow Component", () => {
       expect(screen.getByText("Solflare")).toBeInTheDocument();
     });
 
-    it("should show 'Installed' status beneath detected wallets", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should show 'Installed' status beneath detected wallets", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       const installedLabels = screen.getAllByText("Installed");
       expect(installedLabels).toHaveLength(2);
     });
 
-    it("should call select() and set isConnecting when a wallet is clicked", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should call select() and set isConnecting when a wallet is clicked", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       const phantomBtn = screen.getByRole("button", { name: /phantom/i });
       fireEvent.click(phantomBtn);
@@ -221,8 +234,8 @@ describe("SolanaPaymentFlow Component", () => {
       expect(selectMock).toHaveBeenCalledWith("Phantom");
     });
 
-    it("should show a spinner and 'Connecting...' text on the clicked wallet button", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should show a spinner and 'Connecting...' text on the clicked wallet button", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       const phantomBtn = screen.getByRole("button", { name: /phantom/i });
       fireEvent.click(phantomBtn);
@@ -231,8 +244,8 @@ describe("SolanaPaymentFlow Component", () => {
       expect(screen.getByText("Connecting...")).toBeInTheDocument();
     });
 
-    it("should disable the clicked wallet button to prevent double-clicks", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should disable the clicked wallet button to prevent double-clicks", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       const phantomBtn = screen.getByRole("button", { name: /phantom/i });
       fireEvent.click(phantomBtn);
@@ -240,8 +253,8 @@ describe("SolanaPaymentFlow Component", () => {
       expect(phantomBtn).toBeDisabled();
     });
 
-    it("should NOT disable other wallet buttons when one is connecting", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should NOT disable other wallet buttons when one is connecting", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       const phantomBtn = screen.getByRole("button", { name: /phantom/i });
       fireEvent.click(phantomBtn);
@@ -250,7 +263,7 @@ describe("SolanaPaymentFlow Component", () => {
       expect(solflareBtn).not.toBeDisabled();
     });
 
-    it("should render 'No Solana wallets detected' when wallets array is empty", () => {
+    it("should render 'No Solana wallets detected' when wallets array is empty", async () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: false,
         publicKey: null,
@@ -262,11 +275,11 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: vi.fn(),
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       expect(screen.getByText("No Solana wallets detected.")).toBeInTheDocument();
     });
 
-    it("should show Phantom and Solflare install links when no wallets detected", () => {
+    it("should show Phantom and Solflare install links when no wallets detected", async () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: false,
         publicKey: null,
@@ -278,14 +291,14 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: vi.fn(),
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       expect(screen.getByRole("link", { name: /phantom/i })).toHaveAttribute("href", "https://phantom.app");
       expect(screen.getByRole("link", { name: /solflare/i })).toHaveAttribute("href", "https://solflare.com");
     });
 
-    it("should call onCancel when the Cancel button is clicked", () => {
+    it("should call onCancel when the Cancel button is clicked", async () => {
       const onCancelMock = vi.fn();
-      render(<SolanaPaymentFlow {...defaultProps} onCancel={onCancelMock} />);
+      await render(<SolanaPaymentFlow {...defaultProps} onCancel={onCancelMock} />);
 
       fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
       expect(onCancelMock).toHaveBeenCalledTimes(1);
@@ -313,20 +326,48 @@ describe("SolanaPaymentFlow Component", () => {
       } as never);
     });
 
-    it("should render the connected wallet card with truncated address", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should render the connected wallet card with truncated address", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       expect(screen.getByText("Phantom")).toBeInTheDocument();
       // Public key should be truncated: first 4 + '...' + last 4 chars
       expect(screen.getByText(/An9g\.\.\.PUrG/i)).toBeInTheDocument();
     });
 
-    it("should display the correct SOL amount for the Lite tier", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should display the correct SOL amount for the Lite tier", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
+      expect(fetchSolanaQuote).toHaveBeenCalledWith("Lite");
       expect(screen.getAllByText(/0\.001/)[0]).toBeInTheDocument();
     });
 
-    it("should display the network name in the transaction details", () => {
-      render(<SolanaPaymentFlow {...defaultProps} />);
+    it("should display the live-priced amount when the server has live pricing on", async () => {
+      vi.mocked(fetchSolanaQuote).mockResolvedValue({
+        tier: "Lite",
+        amountSol: 0.26,
+        solPriceUsd: 150,
+        amountUsd: 39,
+        livePricing: true,
+      });
+
+      await render(<SolanaPaymentFlow {...defaultProps} />);
+
+      expect(screen.getAllByText(/0\.26/)[0]).toBeInTheDocument();
+      expect(screen.queryByText(/0\.001/)).not.toBeInTheDocument();
+    });
+
+    it("should block payment and surface the error when the quote cannot be fetched", async () => {
+      vi.mocked(fetchSolanaQuote).mockRejectedValue(
+        new Error("Live SOL price is temporarily unavailable. Please try again.")
+      );
+
+      await render(<SolanaPaymentFlow {...defaultProps} />);
+
+      expect(screen.getByText(/Live SOL price is temporarily unavailable/i)).toBeInTheDocument();
+      // No amount means no payment button at all — nothing can be signed.
+      expect(screen.queryByRole("button", { name: /confirm payment with sol/i })).not.toBeInTheDocument();
+    });
+
+    it("should display the network name in the transaction details", async () => {
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       // 'Devnet' appears in both network row and info box
       expect(screen.getAllByText(/Devnet/i).length).toBeGreaterThan(0);
     });
@@ -340,7 +381,7 @@ describe("SolanaPaymentFlow Component", () => {
         txId: MOCK_TX_SIG,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Act
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
@@ -380,7 +421,7 @@ describe("SolanaPaymentFlow Component", () => {
         message: "Payment verification did not complete.",
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -401,7 +442,7 @@ describe("SolanaPaymentFlow Component", () => {
         txId: MOCK_TX_SIG,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -422,7 +463,7 @@ describe("SolanaPaymentFlow Component", () => {
         txId: MOCK_TX_SIG,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -444,7 +485,7 @@ describe("SolanaPaymentFlow Component", () => {
         txId: MOCK_TX_SIG,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -478,7 +519,7 @@ describe("SolanaPaymentFlow Component", () => {
         txId: MOCK_TX_SIG,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -513,7 +554,7 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: sendTransactionMock,
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -531,15 +572,15 @@ describe("SolanaPaymentFlow Component", () => {
       });
     });
 
-    it("should call onCancel when Cancel button is clicked before payment", () => {
+    it("should call onCancel when Cancel button is clicked before payment", async () => {
       const onCancelMock = vi.fn();
-      render(<SolanaPaymentFlow {...defaultProps} onCancel={onCancelMock} />);
+      await render(<SolanaPaymentFlow {...defaultProps} onCancel={onCancelMock} />);
 
       fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
       expect(onCancelMock).toHaveBeenCalledTimes(1);
     });
 
-    it("should call disconnect when Disconnect is clicked", () => {
+    it("should call disconnect when Disconnect is clicked", async () => {
       const disconnectMock = vi.fn();
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
@@ -552,7 +593,7 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: sendTransactionMock,
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /disconnect/i }));
 
       expect(disconnectMock).toHaveBeenCalledTimes(1);
@@ -584,7 +625,7 @@ describe("SolanaPaymentFlow Component", () => {
       // Arrange — return mainnet genesis hash while app is configured for devnet
       mockGetGenesisHash.mockResolvedValue("5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d");
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Act
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
@@ -602,7 +643,7 @@ describe("SolanaPaymentFlow Component", () => {
       // Arrange — only 100 lamports, needs ~1_100_000 (0.001 SOL + fee)
       mockGetAccountInfo.mockResolvedValue({ lamports: 100 });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Act
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
@@ -619,7 +660,7 @@ describe("SolanaPaymentFlow Component", () => {
     it("should stop before opening the wallet when the SOL account does not exist on the selected network", async () => {
       mockGetAccountInfo.mockResolvedValue(null);
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -647,7 +688,7 @@ describe("SolanaPaymentFlow Component", () => {
         key.toBase58() === MERCHANT_ADDR ? Promise.resolve(null) : Promise.resolve({ lamports: 10_000_000 })
       );
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
@@ -671,7 +712,7 @@ describe("SolanaPaymentFlow Component", () => {
         },
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Act
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
@@ -694,7 +735,7 @@ describe("SolanaPaymentFlow Component", () => {
         },
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -708,7 +749,7 @@ describe("SolanaPaymentFlow Component", () => {
       // Arrange
       vi.stubEnv("VITE_SOLANA_NETWORK", "");
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -723,7 +764,7 @@ describe("SolanaPaymentFlow Component", () => {
       // Arrange
       vi.stubEnv("VITE_SOLANA_NETWORK", "invalidnet");
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -747,7 +788,7 @@ describe("SolanaPaymentFlow Component", () => {
       // Arrange — blockhash RPC call fails before tx is even built
       mockGetLatestBlockhash.mockRejectedValue(new Error("RPC node unreachable"));
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -786,7 +827,7 @@ describe("SolanaPaymentFlow Component", () => {
       });
       setupConnectedWallet(vi.fn().mockRejectedValue(rejectionErr));
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       // Act
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
@@ -809,7 +850,7 @@ describe("SolanaPaymentFlow Component", () => {
       });
       setupConnectedWallet(vi.fn().mockRejectedValue(solflareErr));
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -828,7 +869,7 @@ describe("SolanaPaymentFlow Component", () => {
         value: { err: { InstructionError: [0, "AccountBorrowFailed"] } },
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -847,7 +888,7 @@ describe("SolanaPaymentFlow Component", () => {
         new Error("No transfer of at least 0.001 SOL to merchant address found")
       );
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -868,7 +909,7 @@ describe("SolanaPaymentFlow Component", () => {
       });
       setupConnectedWallet(vi.fn().mockRejectedValue(rpcErr));
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
       fireEvent.click(screen.getByRole("button", { name: /confirm payment with sol/i }));
 
       await waitFor(() => {
@@ -883,7 +924,7 @@ describe("SolanaPaymentFlow Component", () => {
   // Existing props / isProcessing guard
   // ─────────────────────────────────────────────────────────────────────────
   describe("isProcessing prop guard", () => {
-    it("should disable the Confirm Payment button when isProcessing is true", () => {
+    it("should disable the Confirm Payment button when isProcessing is true", async () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
         publicKey: new PublicKey(MERCHANT_ADDR),
@@ -895,11 +936,11 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: vi.fn(),
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} isProcessing={true} />);
+      await render(<SolanaPaymentFlow {...defaultProps} isProcessing={true} />);
       expect(screen.getByRole("button", { name: /sending/i })).toBeDisabled();
     });
 
-    it("should show 'Sending...' label when isProcessing is true", () => {
+    it("should show 'Sending...' label when isProcessing is true", async () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
         publicKey: new PublicKey(MERCHANT_ADDR),
@@ -911,11 +952,11 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: vi.fn(),
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} isProcessing={true} />);
+      await render(<SolanaPaymentFlow {...defaultProps} isProcessing={true} />);
       expect(screen.getByText("Sending...")).toBeInTheDocument();
     });
 
-    it("should show the passed errorMsg in an alert role element", () => {
+    it("should show the passed errorMsg in an alert role element", async () => {
       vi.mocked(useWallet).mockReturnValue({
         connected: true,
         publicKey: new PublicKey(MERCHANT_ADDR),
@@ -927,7 +968,7 @@ describe("SolanaPaymentFlow Component", () => {
         sendTransaction: vi.fn(),
       } as never);
 
-      render(<SolanaPaymentFlow {...defaultProps} errorMsg="Something went wrong" />);
+      await render(<SolanaPaymentFlow {...defaultProps} errorMsg="Something went wrong" />);
       expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
     });
   });
@@ -959,7 +1000,7 @@ describe("SolanaPaymentFlow Component", () => {
         .mockResolvedValueOnce(0.5 * 1_000_000_000) // Configured (0.5 SOL)
         .mockResolvedValueOnce(1.5 * 1_000_000_000); // Alternate (1.5 SOL)
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.getByText(/0.5000 SOL/)).toBeInTheDocument();
@@ -977,7 +1018,7 @@ describe("SolanaPaymentFlow Component", () => {
         configurable: true,
       });
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       const copyBtn = await screen.findByRole("button", { name: /copy/i });
       expect(copyBtn).toBeInTheDocument();
@@ -992,7 +1033,7 @@ describe("SolanaPaymentFlow Component", () => {
         .mockResolvedValueOnce(0.0001 * 1_000_000_000) // Configured (insufficient: needs 0.001)
         .mockResolvedValueOnce(0.05 * 1_000_000_000);  // Alternate (sufficient)
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.getByText(/mismatch/i)).toBeInTheDocument();
@@ -1005,7 +1046,7 @@ describe("SolanaPaymentFlow Component", () => {
         .mockResolvedValueOnce(0.0001 * 1_000_000_000) // Configured (insufficient)
         .mockResolvedValueOnce(0.0002 * 1_000_000_000); // Alternate (insufficient)
 
-      render(<SolanaPaymentFlow {...defaultProps} />);
+      await render(<SolanaPaymentFlow {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.getByText(/insufficient balance detected/i)).toBeInTheDocument();

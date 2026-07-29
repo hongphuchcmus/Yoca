@@ -4,7 +4,7 @@ import { Connection, SystemProgram, TransactionMessage, VersionedTransaction } f
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { verifySolanaPayment } from "@/services/payment/solanaPaymentApi";
+import { fetchSolanaQuote, verifySolanaPayment, type SolanaQuote } from "@/services/payment/solanaPaymentApi";
 import { PrivacyTransactionId } from "./PrivacyTransactionId";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { 
@@ -14,22 +14,13 @@ import {
 } from "@/util/solanaNetwork";
 
 /**
- * Tier pricing in SOL.
-
-/**
- * Tier pricing in SOL.
- * Note: Must be > 0.00089 SOL to avoid rent-exemption errors
- * if the merchant wallet is completely empty on Devnet/Testnet.
+ * Tier pricing in SOL is NOT defined here.
  *
- * MUST stay in sync with `TIER_SOL_AMOUNTS` in
- * `server/src/services/solana-payment.service.ts`.
- * If you change a value here, update the server constant too, and vice versa.
+ * The amount comes from GET /api/payment/solana-quote, because the server may be
+ * running with live USD -> SOL conversion (SOLANA_LIVE_PRICING_ENABLED). A
+ * locally computed amount would drift from the server's and get rejected during
+ * verification, after the user has already paid.
  */
-const TIER_SOL_AMOUNTS: Record<"Lite" | "Plus" | "Pro", number> = {
-  Lite: 0.001,
-  Plus: 0.005,
-  Pro: 0.01,
-};
 
 type SolanaPaymentFlowProps = {
   tierName: string;
@@ -123,6 +114,10 @@ export function SolanaPaymentFlow({
     error: string | null;
   }>({ configured: null, alternate: null, loading: false, error: null });
 
+  // Server-authoritative amount for this tier. Null until the quote arrives.
+  const [quote, setQuote] = useState<SolanaQuote | null>(null);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+
   let networkName = "Devnet";
   try {
     networkName = getNetworkDisplayName();
@@ -131,7 +126,6 @@ export function SolanaPaymentFlow({
   }
 
   const alternateNetwork = networkName === "Testnet" ? "Devnet" : "Testnet";
-  const solAmount = TIER_SOL_AMOUNTS[tierKey];
 
   const handleCopyAddress = () => {
     if (!publicKey) return;
@@ -139,6 +133,27 @@ export function SolanaPaymentFlow({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  useEffect(() => {
+    let active = true;
+
+    setQuote(null);
+    setQuoteError(null);
+
+    fetchSolanaQuote(tierKey)
+      .then((next) => {
+        if (active) setQuote(next);
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        console.error("[SolanaPaymentFlow] Could not fetch payment quote:", err);
+        setQuoteError(getErrorMessage(err, tr("payment.solana.transactionFailed")));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [tierKey, tr]);
 
   useEffect(() => {
     const pubKey = publicKey;
@@ -434,12 +449,17 @@ export function SolanaPaymentFlow({
       return;
     }
 
+    // -- The amount is server-authoritative; never fall back to a local constant --
+    if (!quote) {
+      onError(quoteError ?? tr("payment.solana.transactionFailed"));
+      return;
+    }
+
     onProcessingChange(true);
 
     try {
-      // TODO: Hardcoded small amounts for Devnet/Testnet testing. Replace with real SOL conversion for Mainnet.
       // Math.floor guarantees a strict integer - floating-point lamports cause simulation failures.
-      const lamports = Math.floor(solAmount * LAMPORTS_PER_SOL);
+      const lamports = Math.floor(quote.amountSol * LAMPORTS_PER_SOL);
 
       // -- Step 0: Network mismatch guard --
       // Compares the connected RPC's genesis hash against the known expected
@@ -642,6 +662,35 @@ export function SolanaPaymentFlow({
     setVerifyingSignature(null);
   }
 
+  // -------------------------------------------------------------------------
+  // Payment amount gate — the UI cannot show or send anything until the server
+  // has told us how much SOL this tier costs.
+  // -------------------------------------------------------------------------
+  if (!quote) {
+    return (
+      <div className="rounded-2xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 !p-5 flex flex-col gap-3">
+        {quoteError ? (
+          <>
+            <p className="text-sm text-red-400 font-semibold">{quoteError}</p>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="text-xs text-[#94a3b8] hover:text-[#7C3AED] transition-colors font-medium self-start"
+            >
+              {tr("common.cancel")}
+            </button>
+          </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-[#7C3AED]" />
+            <span className="text-xs text-[#64748b]">{tr("common.loading")}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const solAmount = quote.amountSol;
   const isAlternateBalanceSufficient = balances.alternate !== null && balances.alternate >= (solAmount + 0.0001);
   const isConfiguredBalanceInsufficient = balances.configured !== null && balances.configured < (solAmount + 0.0001);
   const showNetworkMismatchAlert = isConfiguredBalanceInsufficient && isAlternateBalanceSufficient;

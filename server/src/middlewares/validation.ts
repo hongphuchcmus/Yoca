@@ -411,6 +411,10 @@ export const envSchema = z.object({
   NGROK_AUTHTOKEN: z.string().trim().optional().default(""),
   NGROK_DOMAIN: z.string().trim().optional().default(""),
   WEBHOOK_SOL_PRICE_USD: z.coerce.number().positive().optional().default(150),
+  // "true"  -> tier prices are converted USD -> SOL using the live Birdeye SOL price.
+  // "false" -> the hardcoded TIER_SOL_AMOUNTS in solana-payment.service.ts are used.
+  // Independent of SOLANA_NETWORK: live pricing still settles on whatever network is configured.
+  SOLANA_LIVE_PRICING_ENABLED: z.enum(["true", "false"]).default("false"),
   MORALIS_API_BASE_URL: z.url().default("https://solana-gateway.moralis.io"),
   MORALIS_API_KEY: z.string(),
   MOBULA_API_BASE_URL: z.url().default("https://api.mobula.io/api"),

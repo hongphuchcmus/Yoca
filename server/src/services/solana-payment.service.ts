@@ -9,6 +9,8 @@
  */
 
 import { Connection, PublicKey } from "@solana/web3.js";
+import { getSolPriceUsd } from "@sv/services/sol-price.service.js";
+import env from "@sv/util/load-env.js";
 
 /**
  * Merchant public key that receives SOL payments.
@@ -27,17 +29,69 @@ const MERCHANT_ADDRESS = process.env.VITE_SOLANA_MERCHANT_ADDRESS || "YourMercha
 const CONFIGURED_NETWORK = (process.env.SOLANA_NETWORK as "devnet" | "testnet" | "mainnet-beta" | undefined) ?? "devnet";
 
 /**
- * Tier pricing in SOL.
+ * Fixed tier pricing in SOL, used when SOLANA_LIVE_PRICING_ENABLED=false.
  *
- * [WARNING] MUST stay in sync with `TIER_SOL_AMOUNTS` in
- *     `client/src/components/payment/SolanaPaymentFlow.tsx`.
- *     If you change a value here, update the client constant too, and vice versa.
+ * Deliberately tiny so Devnet/Testnet testing is cheap. Must stay > 0.00089 SOL
+ * to avoid rent-exemption errors when the merchant wallet is empty.
+ *
+ * The client no longer duplicates these — it reads the amount from
+ * GET /api/payment/solana-quote, which is backed by `getExpectedPayment` below.
  */
 const TIER_SOL_AMOUNTS: Record<"Lite" | "Plus" | "Pro", number> = {
   Lite: 0.001,  // 0.001 SOL
   Plus: 0.005,  // 0.005 SOL
   Pro:  0.01,   // 0.01 SOL
 };
+
+/**
+ * Tier pricing in USD, used when SOLANA_LIVE_PRICING_ENABLED=true.
+ *
+ * [WARNING] MUST stay in sync with the `monthlyPrice` values in
+ *     `client/src/pages/pricing/index.tsx`.
+ */
+const TIER_USD_PRICES: Record<"Lite" | "Plus" | "Pro", number> = {
+  Lite: 39,
+  Plus: 79,
+  Pro: 149,
+};
+
+/**
+ * Slippage allowance applied when verifying a live-priced payment.
+ *
+ * The quote the user signed and this verification can straddle a price-cache
+ * refresh, so requiring the exact lamport count would reject honest payments.
+ */
+const LIVE_PRICE_TOLERANCE = 0.02; // ponytail: fixed 2%, move to env only if real volatility rejects payments
+
+export type ExpectedPayment = {
+  /** SOL the user must transfer for this tier. */
+  amountSol: number;
+  /** Live SOL/USD rate used, or null when fixed pricing is active. */
+  solPriceUsd: number | null;
+  livePricing: boolean;
+};
+
+/**
+ * Authoritative amount for a tier — the single source of truth shared by the
+ * quote endpoint and the verification below, so the client never computes it.
+ *
+ * Throws if live pricing is on and the SOL price cannot be fetched. It must not
+ * fall back to TIER_SOL_AMOUNTS: charging 0.001 SOL for a $39 tier is a money bug.
+ */
+export async function getExpectedPayment(
+  tier: "Lite" | "Plus" | "Pro",
+): Promise<ExpectedPayment> {
+  const livePricing = env.SOLANA_LIVE_PRICING_ENABLED === "true";
+
+  if (!livePricing) {
+    return { amountSol: TIER_SOL_AMOUNTS[tier], solPriceUsd: null, livePricing };
+  }
+
+  const solPriceUsd = await getSolPriceUsd();
+  // Round to lamport resolution (9 decimals) so quote and transfer agree exactly.
+  const amountSol = Number((TIER_USD_PRICES[tier] / solPriceUsd).toFixed(9));
+  return { amountSol, solPriceUsd, livePricing };
+}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   return error && typeof error === "object" && "message" in error && typeof error.message === "string"
@@ -193,9 +247,15 @@ export async function verifySolanaTransaction(
       };
     }
 
-    // TODO: Replace hardcoded amounts with real USD->SOL conversion for Mainnet.
-    const expectedAmountSol = TIER_SOL_AMOUNTS[tier];
-    const expectedAmountLamports = Math.floor(expectedAmountSol * LAMPORTS_PER_SOL);
+    // Amount owed. Fixed when SOLANA_LIVE_PRICING_ENABLED=false, converted from
+    // the USD tier price at the live SOL rate when it is true.
+    const { amountSol: expectedAmountSol, solPriceUsd, livePricing } =
+      await getExpectedPayment(tier);
+    // Tolerance is 0 under fixed pricing, so that path behaves exactly as before.
+    const tolerance = livePricing ? LIVE_PRICE_TOLERANCE : 0;
+    const expectedAmountLamports = Math.floor(
+      expectedAmountSol * LAMPORTS_PER_SOL * (1 - tolerance),
+    );
 
     // Create connection to RPC
     const connection = createSolanaConnection(network);
@@ -354,7 +414,8 @@ export async function verifySolanaTransaction(
     return {
       valid: true,
       amountSol: actualAmountSol,
-      amountUsd: actualAmountSol * 100, // Placeholder: 1 SOL = $100 (adjust as needed)
+      // Live rate when available; otherwise the legacy 1 SOL = $100 placeholder.
+      amountUsd: actualAmountSol * (solPriceUsd ?? 100),
       merchantAddress: recipientAddress,
     };
   } catch (err: unknown) {
