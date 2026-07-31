@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@sv/util/rate-limit.js", () => ({
+  defineProvider: (spec: unknown) => spec,
+  pFetch: mocks.rlFetch,
   rlFetch: mocks.rlFetch,
 }));
 
@@ -14,6 +16,10 @@ vi.mock("@sv/util/util-mobula.js", () => ({
   getEndpoint: (path: string) => new URL(`https://api.mobula.io/api${path}`),
   getRequiredHeaders: () => ({ "Content-Type": "application/json" }),
   limiter: {},
+  spec: {
+    id: "mobula",
+    limiter: {},
+  },
 }));
 
 vi.mock("@sv/db/index.js", () => ({
