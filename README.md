@@ -3,7 +3,9 @@
 
   # YOCA
 
-  **From market signals to token, wallet, and on-chain behavior analysis.**
+  **Yet Another On-chain Analysis**
+
+  *From market signals to token, wallet, and on-chain behavior analysis.*
 
   A full-stack analytics platform for exploring Solana markets, investigating
   wallets, detecting suspicious trading patterns, and turning fragmented
@@ -25,6 +27,10 @@
 />
 
 ## Overview
+
+**YOCA** stands for **Y**et **A**nother **O**n-**C**hain **A**nalysis. It is a
+web platform built to make fragmented blockchain and market data easier to
+explore, connect, and interpret.
 
 Blockchain users often have to move between several explorers, market
 dashboards, and data providers to understand a token or wallet. Yoca brings
@@ -71,22 +77,11 @@ type-safe API contract.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    U[User] --> C[React + Vite client]
-    C -->|Hono RPC / HTTP| S[Hono API server]
-    S --> DB[(PostgreSQL)]
-    S --> P[Blockchain data providers]
-    S --> AI[AI and search services]
-    P --> CG[CoinGecko]
-    P --> BE[Birdeye]
-    P --> MO[Mobula]
-    P --> ZE[Zerion]
-    P --> MR[Moralis]
-    P --> HE[Helius]
-    AI --> GE[Gemini]
-    AI --> BR[Brave Search]
-```
+<img
+  src="docs/reports/final_report/images/arch.png"
+  alt="Yoca system architecture"
+  width="100%"
+/>
 
 Yoca is an npm-workspace monorepo. The React client consumes a Hono API, while
 server services validate provider responses with Zod, store structured data
