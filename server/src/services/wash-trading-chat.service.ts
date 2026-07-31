@@ -236,7 +236,7 @@ export async function answerWashTradingChatQuery(params: WashTradingChatRequest)
   ].join("\n");
 
   try {
-    const model = WALLET_AUDIT_MODEL || "gemini-2.5-flash";
+    const model = WALLET_AUDIT_MODEL || "gemini-3.1-flash-lite";
     const response = await trackGemini("gemini.svc.wash_trading_chat", model, () => ai.models.generateContent({
       model,
       contents: prompt,

@@ -18,10 +18,10 @@
       #grid(
         columns: (1fr, 1fr, 1fr, 1fr),
         gutter: 10pt,
-        tier-card([Standard], [\$0], [Người dùng mới], [Dữ liệu lõi và AI trải nghiệm], free: true),
-        tier-card([Lite], [\$39], [Theo dõi thường xuyên], [Quota AI và theo dõi cao hơn]),
-        tier-card([Plus], [\$79], [Active trader], [Wash Trading Analysis & Chat]),
-        tier-card([Pro], [\$149], [Power user], [Hạn mức cao cho toàn bộ phân tích]),
+        tier-card([Standard], [\$0], [Người dùng mới], [5 lượt/ngày cho từng module AI], free: true),
+        tier-card([Lite], [\$39], [Theo dõi thường xuyên], [8 lượt/ngày cho từng module AI]),
+        tier-card([Plus], [\$79], [Active trader], [12 lượt/module · mở Wash Trading]),
+        tier-card([Pro], [\$149], [Power user], [20 lượt/ngày cho từng module AI]),
       )
     ],
     [
@@ -109,25 +109,25 @@
       #grid(
         columns: (1fr, 1fr),
         gutter: 16pt,
-        cost-panel([3.000 MAU · GEMINI], [\$1.628], data.costMix3k),
-        cost-panel([30.000 MAU · QWEN], [\$9.656], data.costMix30k),
+        cost-panel([3.000 MAU · GEMINI], [\$1.182], data.costMix3k),
+        cost-panel([30.000 MAU · QWEN], [\$9.647], data.costMix30k),
       )
     ],
     [
       #grid(
         columns: (1fr, 1fr, 1fr, 1fr),
         gutter: 9pt,
-        kpi-card([\$0,54], [chi phí trực tiếp/MAU tại 3.000]),
+        kpi-card([\$0,39], [chi phí trực tiếp/MAU tại 3.000]),
         kpi-card([\$0,32], [chi phí trực tiếp/MAU tại 30.000]),
-        kpi-card([32,1% → 13,9%], [tỷ trọng data provider]),
-        kpi-card([55,5% → 68,6%], [tỷ trọng AI và tìm kiếm]),
+        kpi-card([44,2% → 13,9%], [tỷ trọng data provider]),
+        kpi-card([40,3% → 68,6%], [tỷ trọng AI và tìm kiếm]),
       )
     ],
-    takeaway([AI và tìm kiếm chiếm 55,5% chi phí trực tiếp ở 3.000 MAU và 68,6% ở 30.000 MAU.]),
+    takeaway([AI và tìm kiếm chiếm 40,3% chi phí trực tiếp ở 3.000 MAU và 68,6% ở 30.000 MAU.]),
   )
 
   #speaker-note[
-    Ở 3.000 MAU, Gemini và Brave Search chiếm hơn một nửa chi phí trực tiếp. Khi đạt 30.000 MAU, Qwen GPU trở thành chi phí hạ tầng AI có thể dự báo theo số worker, còn Brave Search tiếp tục thay đổi theo số lượt tìm kiếm. Đây là lý do tối ưu prompt, tool call và dữ liệu đầu vào trở thành ưu tiên kỹ thuật.
+    Ở 3.000 MAU, data provider là nhóm chi phí trực tiếp lớn nhất; Gemini và Brave Search chiếm khoảng 40,3%. Khi đạt 30.000 MAU, Qwen GPU trở thành chi phí hạ tầng AI có thể dự báo theo số worker, còn Brave Search tiếp tục thay đổi theo số lượt tìm kiếm. Đây là lý do tối ưu prompt, tool call và dữ liệu đầu vào trở thành ưu tiên kỹ thuật.
   ]
 ]
 
@@ -146,7 +146,7 @@
           (
             [Trả phí theo input, output và thinking token],
             [Phù hợp giai đoạn lưu lượng trung bình],
-            [Quota được phân theo từng chức năng AI],
+            [Standard 5 · Lite 8 · Plus 12 · Pro 20 lượt/module],
           ),
         ),
         text(size: 24pt, weight: "bold", fill: accent)[→],
@@ -227,7 +227,7 @@
           #v(5pt)
           #text(size: 14pt, weight: "bold")[Tự trang trải MVP]
           #v(5pt)
-          #text(size: 8pt, fill: muted)[4 thành viên bán thời gian · lợi nhuận \$24,60]
+          #text(size: 8pt, fill: muted)[4 thành viên bán thời gian · lợi nhuận \$15,25]
         ]),
         panel([
           #eyebrow([3.000 MAU])
@@ -245,11 +245,11 @@
         ]),
       )
     ],
-    takeaway([Ba mốc đều có lợi nhuận dương; biên 5,6–8,1% giữ mô hình ở trạng thái thận trọng.]),
+    takeaway([Ba mốc đều có lợi nhuận dương; biên 5,0–6,0% giữ mô hình ở trạng thái thận trọng.]),
   )
 
   #speaker-note[
-    Sau khi tính cả chi phí trực tiếp, nhân sự, marketing, vận hành và dự phòng, lợi nhuận lần lượt là 24,60 USD, 239 USD và 2.549 USD mỗi tháng. Biên lợi nhuận giảm khi quy mô tăng vì phần lớn nguồn lực được tái đầu tư cho nhân sự, tăng trưởng và bảo mật.
+    Sau khi tính cả chi phí trực tiếp, nhân sự, marketing, vận hành và dự phòng, lợi nhuận lần lượt là 15,25 USD, 227,52 USD và 2.557,75 USD mỗi tháng. Phần tiết kiệm từ AI được đưa trở lại ngân sách tăng trưởng, sản phẩm và bảo mật để giữ kịch bản thận trọng.
   ]
 ]
 
@@ -372,7 +372,7 @@
           #panel([
             #text(size: 8pt, weight: "semibold")[Benchmark kỹ thuật]
             #v(4pt)
-            #text(size: 7.3pt, fill: muted)[Cold/warm và provider usage được ghi từ hành trình Market Radar, Token Overview và Wallet Core ngày 19/7/2026.]
+            #text(size: 7.3pt, fill: muted)[Cold/warm được đo ngày 19/7; sáu hành trình AI được chạy lại trên năm mẫu ngày 31/7/2026.]
             #v(10pt)
             #text(size: 8pt, weight: "semibold")[Giá dịch vụ]
             #v(4pt)

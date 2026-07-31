@@ -7,10 +7,14 @@ type ProviderPlan = {
 
 type ScenarioInput = {
   mau: number;
+  conversionRate: number;
   marketRefreshWindows: number;
   tokenColdShare: number;
   renderUsd: number;
   supabaseUsd: number;
+  personnelUsd: number;
+  reinvestmentUsd: number;
+  aiMode: "gemini" | "qwen";
 };
 
 type DemandProfile = {
@@ -25,11 +29,36 @@ type DemandProfile = {
   aiUsageFactor: number;
 };
 
-const payerMix = {
-  lite: 0.0125,
-  plus: 0.005,
-  pro: 0.0025,
+const paidTierMix = {
+  lite: 0.8,
+  plus: 0.15,
+  pro: 0.05,
 };
+
+// Five-sample measurement snapshot from 2026-07-24, repriced using
+// Gemini 3.1 Flash-Lite at $0.25/M input and $1.50/M output tokens.
+const aiUnitCosts = {
+  tokenAi: 0.00532175,
+  walletChat: 0.0055905,
+  chartNews: 0.003223,
+  volatility: 0.00068625,
+  washAnalysis: 0.00090075,
+  washChat: 0.0009705,
+};
+
+const aiUsage = {
+  tokenAiCallsPerMau: 8 * 0.25 * 1.5,
+  walletChatCallsPerMau: 8 * 0.15 * 1.5,
+  chartNewsCallsPerMau: 8 * 0.3 * 2,
+  volatilityCallsPerMau: 8 * 0.35 * 2,
+  washAnalysisCallsPerEligibleUser: 8 * 0.08,
+  washChatCallsPerEligibleUser: 8 * 0.05 * 1.5,
+  tokenAiBraveRequestsPerCall: 0.8,
+  chartNewsBraveRequestsPerCall: 0.8,
+  volatilityBraveRequestsPerCall: 3,
+};
+
+const qwenMonthlyUsd = 5 * 0.84 * 730 + 100;
 
 const monthlyAlertDeliveryLimits = {
   lite: 100,
@@ -58,24 +87,36 @@ const baseProfile: DemandProfile = {
 const scenarios: ScenarioInput[] = [
   {
     mau: 300,
+    conversionRate: 0.02,
     marketRefreshWindows: 180,
     tokenColdShare: 0.3,
     renderUsd: 7,
     supabaseUsd: 0,
+    personnelUsd: 40,
+    reinvestmentUsd: 102,
+    aiMode: "gemini",
   },
   {
     mau: 3_000,
+    conversionRate: 0.025,
     marketRefreshWindows: 720,
     tokenColdShare: 0.3,
     renderUsd: 25,
     supabaseUsd: 25,
+    personnelUsd: 1_120,
+    reinvestmentUsd: 1_258,
+    aiMode: "gemini",
   },
   {
     mau: 30_000,
+    conversionRate: 0.03,
     marketRefreshWindows: 2_880,
     tokenColdShare: 0.2,
     renderUsd: 50,
     supabaseUsd: 30,
+    personnelUsd: 6_400,
+    reinvestmentUsd: 26_845.2,
+    aiMode: "qwen",
   },
 ];
 
@@ -122,10 +163,10 @@ function calculateScenario(
   scenario: ScenarioInput,
   profile: DemandProfile,
 ) {
-  const liteUsers = scenario.mau * payerMix.lite;
-  const plusUsers = scenario.mau * payerMix.plus;
-  const proUsers = scenario.mau * payerMix.pro;
-  const paidUsers = liteUsers + plusUsers + proUsers;
+  const paidUsers = scenario.mau * scenario.conversionRate;
+  const liteUsers = paidUsers * paidTierMix.lite;
+  const plusUsers = paidUsers * paidTierMix.plus;
+  const proUsers = paidUsers * paidTierMix.pro;
   const monthlyRevenue =
     liteUsers * monthlyPrices.lite +
     plusUsers * monthlyPrices.plus +
@@ -193,27 +234,28 @@ function calculateScenario(
     zerionPlan.monthlyUsd;
 
   const geminiUsdPerGeneralUser =
-    profile.sessionsPerMau *
-    (0.25 * 1.5 * 0.0121 +
-      0.15 * 1.5 * 0.0075 +
-      0.3 * 2 * 0.0152 +
-      0.35 * 2 * 0.0038);
+    aiUsage.tokenAiCallsPerMau * aiUnitCosts.tokenAi +
+    aiUsage.walletChatCallsPerMau * aiUnitCosts.walletChat +
+    aiUsage.chartNewsCallsPerMau * aiUnitCosts.chartNews +
+    aiUsage.volatilityCallsPerMau * aiUnitCosts.volatility;
   const washGeminiUsdPerEligibleUser =
-    profile.sessionsPerMau *
-    (0.08 * 0.0054 + 0.05 * 1.5 * 0.003);
-  const geminiUsd =
+    aiUsage.washAnalysisCallsPerEligibleUser * aiUnitCosts.washAnalysis +
+    aiUsage.washChatCallsPerEligibleUser * aiUnitCosts.washChat;
+  const meteredGeminiUsd =
     profile.aiUsageFactor *
     (scenario.mau * geminiUsdPerGeneralUser +
       (plusUsers + proUsers) * washGeminiUsdPerEligibleUser);
+  const geminiUsd = scenario.aiMode == "gemini" ? meteredGeminiUsd : 0;
+  const qwenUsd = scenario.aiMode == "qwen" ? qwenMonthlyUsd : 0;
 
-  // Pilot fan-out: Ask fallback 25%, Chart News 1 search, Volatility 3 searches.
   const braveRequests =
     scenario.mau *
-    profile.sessionsPerMau *
     profile.aiUsageFactor *
-    (0.25 * 1.5 * 0.25 + 0.3 * 2 + 0.35 * 2 * 3);
+    (aiUsage.tokenAiCallsPerMau * aiUsage.tokenAiBraveRequestsPerCall +
+      aiUsage.chartNewsCallsPerMau * aiUsage.chartNewsBraveRequestsPerCall +
+      aiUsage.volatilityCallsPerMau * aiUsage.volatilityBraveRequestsPerCall);
   const braveUsd = Math.max(0, braveRequests - 1_000) * 0.005;
-  const aiUsd = geminiUsd + braveUsd;
+  const aiUsd = geminiUsd + qwenUsd + braveUsd;
 
   // Alert entitlement is planned but not enforced yet. Budget 10% utilization
   // of the monthly delivery allowance and a 5% password-reset rate per MAU.
@@ -232,9 +274,12 @@ function calculateScenario(
   const totalCostUsd =
     providerUsd + aiUsd + resendUsd + paymentUsd + infrastructureUsd;
   const contributionUsd = monthlyRevenue - totalCostUsd;
+  const operatingProfitUsd =
+    contributionUsd - scenario.personnelUsd - scenario.reinvestmentUsd;
 
   return {
     mau: scenario.mau,
+    conversionRate: scenario.conversionRate,
     demandProfile: profile.name,
     users: { lite: liteUsers, plus: plusUsers, pro: proUsers, paid: paidUsers },
     monthlyRevenue,
@@ -265,6 +310,7 @@ function calculateScenario(
     costs: {
       providerUsd,
       geminiUsd,
+      qwenUsd,
       braveUsd,
       aiUsd,
       resendUsd,
@@ -275,6 +321,10 @@ function calculateScenario(
     },
     contributionUsd,
     contributionMargin: contributionUsd / monthlyRevenue,
+    personnelUsd: scenario.personnelUsd,
+    reinvestmentUsd: scenario.reinvestmentUsd,
+    operatingProfitUsd,
+    operatingMargin: operatingProfitUsd / monthlyRevenue,
   };
 }
 
@@ -304,10 +354,14 @@ for (let mau = 100; mau <= 50_000; mau += 25) {
   const scanned = calculateScenario(
     {
       mau,
+      conversionRate: mau < 3_000 ? 0.02 : mau < 30_000 ? 0.025 : 0.03,
       marketRefreshWindows,
       tokenColdShare,
       renderUsd: mau < 3_000 ? 7 : mau < 30_000 ? 25 : 50,
       supabaseUsd: mau < 3_000 ? 0 : mau < 30_000 ? 25 : 30,
+      personnelUsd: 0,
+      reinvestmentUsd: 0,
+      aiMode: mau < 30_000 ? "gemini" : "qwen",
     },
     baseProfile,
   );

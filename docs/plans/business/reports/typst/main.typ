@@ -82,14 +82,14 @@ Mô hình freemium tạo điểm tiếp cận cho người dùng mới và thu p
 
 = Khách hàng và nguồn doanh thu
 
-Yoca sử dụng bốn gói thuê bao. Standard duy trì trải nghiệm dữ liệu lõi và một hạn mức AI nhỏ. Lite dành cho người theo dõi token và ví thường xuyên. Plus bổ sung nhóm phân tích wash trading. Pro phục vụ người dùng cá nhân có tần suất nghiên cứu cao và cần hạn mức lớn hơn trên toàn bộ hệ thống.
+Yoca sử dụng bốn gói thuê bao. Standard duy trì trải nghiệm dữ liệu lõi và cho phép người dùng mới thử từng module AI nhiều lần trong ngày. Lite dành cho người theo dõi token và ví thường xuyên. Plus bổ sung nhóm phân tích wash trading. Pro phục vụ người dùng cá nhân có tần suất nghiên cứu cao và cần hạn mức lớn hơn trên toàn bộ hệ thống.
 
 #figure(
   report-table(
     5,
     ([Gói], [Giá tháng], [Giá năm], [Đối tượng], [Quyền lợi tạo khác biệt]),
     (
-      ([Standard], [\$0], [\$0], [Người dùng mới], [Dữ liệu lõi và AI ở mức trải nghiệm]),
+      ([Standard], [\$0], [\$0], [Người dùng mới], [Dữ liệu lõi; 5 lượt/ngày cho từng module AI chính]),
       ([Lite], [\$39], [\$390], [Người theo dõi thường xuyên], [Hạn mức AI và theo dõi cao hơn]),
       ([Plus], [\$79], [\$790], [Active trader/researcher], [Wash Trading Analysis và Chat]),
       ([Pro], [\$149], [\$1.490], [Power user cá nhân], [Hạn mức cao cho toàn bộ nhóm phân tích]),
@@ -100,6 +100,23 @@ Yoca sử dụng bốn gói thuê bao. Standard duy trì trải nghiệm dữ li
 ) <pricing-tiers>
 
 Giá năm tương đương mười tháng và cung cấp quyền truy cập trong mười hai tháng. Vùng giá được đối chiếu với CryptoQuant, Dune và Nansen tại thời điểm khảo sát tháng 7/2026 @cryptoquant-pricing @dune-billing @nansen-pricing.
+
+#figure(
+  report-table(
+    5,
+    ([Gói], [Ask Yoca], [Wallet Chat], [Chart News], [Volatility]),
+    (
+      ([Standard], [5], [5], [5], [5]),
+      ([Lite], [8], [8], [8], [8]),
+      ([Plus], [12], [12], [12], [12]),
+      ([Pro], [20], [20], [20], [20]),
+    ),
+    widths: (1.1fr, 1fr, 1fr, 1fr, 1fr),
+  ),
+  caption: [Hạn mức lượt sử dụng mỗi ngày của từng module AI chính],
+) <ai-daily-quota>
+
+Mỗi con số trong @ai-daily-quota là hạn mức riêng của một module và được làm mới lúc 00:00 UTC. Plus và Pro còn có lần lượt 3/5 lượt Wash Trading Analysis cùng 5/10 lượt Wash Trading Chat mỗi ngày. Cách phân bổ này cho phép Standard trải nghiệm đủ chiều sâu của sản phẩm, trong khi các gói trả phí tăng dung lượng sử dụng thường xuyên.
 
 == Giả định chuyển đổi
 
@@ -147,6 +164,8 @@ Kết quả ở @benchmark-cold-warm cho thấy lượt warm giảm thời gian 
 
 Mỗi MAU được giả định có tám phiên hoạt động trong một tháng. Một phiên được phân bổ cho Market Radar, Token Overview, Wallet Core, Wallet Activity, AI và Alert theo đặc điểm sử dụng. Tỷ lệ cold của token giảm khi quy mô tăng nhờ dữ liệu phổ biến được chia sẻ rộng hơn; dữ liệu ví giữ tỷ lệ cold cao hơn.
 
+Ngày 31/7/2026, nhóm chạy năm mẫu trên từng hành trình AI chính. Ask Yoca, Wallet Chat, Chart News, Volatility và Wash Trading Chat đều trả kết quả thành công trên bộ mẫu. Một lượt Chart News tạo 4–5 yêu cầu mô hình để diễn giải nhiều sự kiện, còn Volatility tạo một yêu cầu; số Brave Search request quan sát được dao động từ 0 đến 3 tùy mức độ dữ liệu RSS sẵn có. Calculator sử dụng median token của các mẫu thực chạy và dùng p95 như ngưỡng kiểm tra tải xấu.
+
 = Kế hoạch công nghệ theo quy mô
 
 #figure(
@@ -187,16 +206,16 @@ Chi phí trực tiếp bao gồm dữ liệu blockchain, AI và tìm kiếm, h�
     7,
     ([MAU], [Conversion], [Người trả phí], [Doanh thu], [Chi phí trực tiếp], [Tổng chi phí], [Lợi nhuận]),
     (
-      ([300], [2%], [6], [\$303,00], [\$190,40], [\$278,40], [\$24,60 · 8,1%]),
-      ([3.000], [2,5%], [75], [\$3.787,50], [\$1.628,44], [\$3.548,43], [\$239,07 · 6,3%]),
-      ([30.000], [3%], [900], [\$45.450,00], [\$9.656,05], [\$42.901,25], [\$2.548,75 · 5,6%]),
+      ([300], [2%], [6], [\$303,00], [\$145,75], [\$287,75], [\$15,25 · 5,0%]),
+      ([3.000], [2,5%], [75], [\$3.787,50], [\$1.181,98], [\$3.559,98], [\$227,52 · 6,0%]),
+      ([30.000], [3%], [900], [\$45.450,00], [\$9.647,05], [\$42.892,25], [\$2.557,75 · 5,6%]),
     ),
     widths: (0.58fr, 0.72fr, 0.85fr, 1fr, 1fr, 1fr, 1.25fr),
   ),
   caption: [Kết quả tài chính theo tháng, đơn vị USD],
 ) <financial-results>
 
-Ba mốc đều duy trì lợi nhuận dương. Biên lợi nhuận giảm từ 8,1% xuống 5,6% do Yoca chủ động tăng chi cho nhân sự, thu hút người dùng, bảo mật và dự phòng khi sản phẩm mở rộng.
+Ba mốc đều duy trì lợi nhuận dương với biên khoảng 5–6%. Phần tiết kiệm từ model AI mới được dành cho phát triển sản phẩm, thu hút người dùng, bảo mật và dự phòng thay vì chuyển toàn bộ thành lợi nhuận ngắn hạn.
 
 == Cơ cấu chi phí trực tiếp
 
@@ -244,7 +263,7 @@ Ba mốc đều duy trì lợi nhuận dương. Biên lợi nhuận giảm từ 
   ],
 )
 
-Tại 3.000 MAU, Gemini và Brave Search chiếm 55,5% chi phí trực tiếp, còn data provider chiếm 32,1%. Khi đạt 30.000 MAU, Qwen GPU trở thành một khoản hạ tầng AI có thể dự báo theo số worker; Brave Search tiếp tục biến đổi theo số lượt tìm kiếm. Hai thành phần này chiếm 68,6% chi phí trực tiếp và là trọng tâm của kế hoạch tối ưu prompt, tool call và dữ liệu đầu vào.
+Tại 3.000 MAU, Gemini và Brave Search chiếm 40,3% chi phí trực tiếp, còn data provider chiếm 44,2%. Khi đạt 30.000 MAU, Qwen GPU trở thành một khoản hạ tầng AI có thể dự báo theo số worker; Brave Search tiếp tục biến đổi theo số lượt tìm kiếm. Hai thành phần này chiếm 68,6% chi phí trực tiếp và là trọng tâm của kế hoạch tối ưu prompt, tool call và dữ liệu đầu vào.
 
 == Nhân sự và phân bổ nguồn lực
 
@@ -253,9 +272,9 @@ Tại 3.000 MAU, Gemini và Brave Search chiếm 55,5% chi phí trực tiếp, c
     4,
     ([Quy mô], [Nhân sự], [Ngân sách chính], [Lợi nhuận giữ lại]),
     (
-      ([300 MAU], [4 thành viên bán thời gian; hỗ trợ tổng \$40 (1 triệu VND)], [Tăng trưởng \$20; sản phẩm và dự phòng \$20; hành chính \$8], [\$24,60]),
-      ([3.000 MAU], [4 người toàn thời gian; \$280/người (7 triệu VND)], [Marketing \$320; sản phẩm \$200; hành chính \$120; dự phòng \$160], [\$239,07]),
-      ([30.000 MAU], [Khoảng 20 người; \$320/người (8 triệu VND)], [Marketing \$14.317,60; sản phẩm và bảo mật \$5.369,20; hành chính \$3.579,20; dự phòng \$3.579,20], [\$2.548,75]),
+      ([300 MAU], [4 thành viên bán thời gian; hỗ trợ tổng \$40 (1 triệu VND)], [Tăng trưởng \$40; sản phẩm và bảo mật \$42; hành chính, dự phòng \$20], [\$15,25]),
+      ([3.000 MAU], [4 người toàn thời gian; \$280/người (7 triệu VND)], [Marketing \$480; sản phẩm và bảo mật \$338; hành chính \$180; dự phòng \$260], [\$227,52]),
+      ([30.000 MAU], [Khoảng 20 người; \$320/người (8 triệu VND)], [Marketing \$14.317,60; sản phẩm và bảo mật \$5.369,20; hành chính \$3.579,20; dự phòng \$3.579,20], [\$2.557,75]),
     ),
     widths: (0.72fr, 1.35fr, 2.35fr, 0.9fr),
   ),
@@ -302,7 +321,7 @@ Giai đoạn đầu được duy trì bằng nguồn lực của nhóm và doanh
 
 Yoca tạo doanh thu bằng mô hình freemium kết hợp bốn gói thuê bao, trong đó mức chi trả gắn với tần suất sử dụng và chiều sâu phân tích. Cơ chế database-first giúp giảm chi phí dữ liệu ở những lượt xem lặp lại, còn quota theo chức năng giữ mức sử dụng AI và Alert phù hợp với từng gói.
 
-Kịch bản cơ sở duy trì lợi nhuận dương ở cả ba mốc. Lợi nhuận theo tháng lần lượt đạt khoảng 24,60 USD, 239,07 USD và 2.548,75 USD tại 300, 3.000 và 30.000 MAU. Phần lớn nguồn lực ở giai đoạn mở rộng tiếp tục được dành cho nhân sự, tăng trưởng, bảo mật và dự phòng.
+Kịch bản cơ sở duy trì lợi nhuận dương ở cả ba mốc. Lợi nhuận theo tháng lần lượt đạt khoảng 15,25 USD, 227,52 USD và 2.557,75 USD tại 300, 3.000 và 30.000 MAU. Phần lớn nguồn lực ở giai đoạn mở rộng tiếp tục được dành cho nhân sự, tăng trưởng, bảo mật và dự phòng.
 
 Việc chuyển sang Qwen self-host tại 30.000 MAU tạo khả năng kiểm soát chi phí AI dài hạn. Cùng với cơ chế theo dõi quota và các ngưỡng nâng gói, mô hình cho phép Yoca mở rộng theo số liệu sử dụng mà vẫn duy trì một biên lợi nhuận thận trọng.
 

@@ -28,65 +28,65 @@
       "conversion": "2%",
       "paidUsers": "6",
       "revenueUsd": "$303,00",
-      "directCostUsd": "$190,40",
-      "profitUsd": "$24,60",
-      "directRatio": 62.84,
+      "directCostUsd": "$145,75",
+      "profitUsd": "$15,25",
+      "directRatio": 48.1,
       "personnelRatio": 13.2,
-      "reinvestmentRatio": 15.84,
-      "profitMargin": 8.12
+      "reinvestmentRatio": 33.66,
+      "profitMargin": 5.03
     },
     {
       "mau": "3.000",
       "conversion": "2,5%",
       "paidUsers": "75",
       "revenueUsd": "$3.787,50",
-      "directCostUsd": "$1.628,44",
-      "profitUsd": "$239,07",
-      "directRatio": 43.0,
+      "directCostUsd": "$1.181,98",
+      "profitUsd": "$227,52",
+      "directRatio": 31.21,
       "personnelRatio": 29.57,
-      "reinvestmentRatio": 21.12,
-      "profitMargin": 6.31
+      "reinvestmentRatio": 33.21,
+      "profitMargin": 6.01
     },
     {
       "mau": "30.000",
       "conversion": "3%",
       "paidUsers": "900",
       "revenueUsd": "$45.450,00",
-      "directCostUsd": "$9.656,05",
-      "profitUsd": "$2.548,75",
-      "directRatio": 21.25,
+      "directCostUsd": "$9.647,05",
+      "profitUsd": "$2.557,75",
+      "directRatio": 21.23,
       "personnelRatio": 14.08,
-      "reinvestmentRatio": 59.06,
-      "profitMargin": 5.61
+      "reinvestmentRatio": 59.07,
+      "profitMargin": 5.63
     }
   ],
   "costMix3k": [
     {
       "name": "Gemini + Brave Search",
-      "value": "$903,10",
-      "amount": 903.1,
-      "share": "55,5%",
+      "value": "$476,64",
+      "amount": 476.64,
+      "share": "40,3%",
       "color": "#0f62fe"
     },
     {
       "name": "Data provider",
       "value": "$523,00",
       "amount": 523,
-      "share": "32,1%",
+      "share": "44,2%",
       "color": "#4589ff"
     },
     {
       "name": "Thanh toán",
       "value": "$132,34",
       "amount": 132.34,
-      "share": "8,1%",
+      "share": "11,2%",
       "color": "#78a9ff"
     },
     {
       "name": "Hạ tầng + email",
-      "value": "$70,00",
-      "amount": 70,
-      "share": "4,3%",
+      "value": "$50,00",
+      "amount": 50,
+      "share": "4,2%",
       "color": "#d0e2ff"
     }
   ],
@@ -100,8 +100,8 @@
     },
     {
       "name": "Brave Search",
-      "value": "$3.460,00",
-      "amount": 3460,
+      "value": "$3.451,00",
+      "amount": 3451,
       "share": "35,8%",
       "color": "#0043ce"
     },
@@ -116,7 +116,7 @@
       "name": "Thanh toán",
       "value": "$1.588,05",
       "amount": 1588.05,
-      "share": "16,4%",
+      "share": "16,5%",
       "color": "#78a9ff"
     },
     {

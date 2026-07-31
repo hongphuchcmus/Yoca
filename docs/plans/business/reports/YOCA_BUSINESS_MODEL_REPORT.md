@@ -1,3 +1,7 @@
+# BẢN LƯU CŨ — KHÔNG DÙNG ĐỂ NỘP HOẶC TRÌNH BÀY
+
+Nguồn báo cáo hiện hành là `typst/main.typ`; bản PDF được build tại `typst/build/yoca-business-model-report.pdf`. File này được giữ lại để đối chiếu lịch sử và không còn được cập nhật theo calculator.
+
 # Mô hình kinh doanh và kế hoạch vận hành Yoca
 
 ## Định hướng sản phẩm

@@ -13,7 +13,7 @@ Nguồn chuẩn hiện tại:
 - `AI_TIER_COST_MODEL_2026-07-19.md`: AI sample cost và quota.
 - Thư mục `benchmark-results/runs/`: raw artifacts.
 
-Hai báo cáo và slide là output. Khi một TTL, route, provider hoặc giá bán thay đổi, cập nhật nguồn chuẩn và chạy calculator trước khi sửa output.
+Bản báo cáo Typst và slide là output dùng để trình bày. File `YOCA_BUSINESS_MODEL_REPORT.md` chỉ được giữ làm bản lưu cũ và không còn là nguồn nội dung. Khi một TTL, route, provider hoặc giá bán thay đổi, cập nhật nguồn chuẩn và chạy calculator trước khi sửa output.
 
 ## Quyết định pricing đã chốt
 
@@ -37,14 +37,14 @@ Nguồn khảo sát chính thức ngày 2026-07-19:
 
 | Feature | Free | Lite | Plus | Pro |
 | --- | ---: | ---: | ---: | ---: |
-| Ask Yoca AI | 1 | 3 | 6 | 12 |
-| Wallet Chat | 1 | 4 | 8 | 12 |
-| Token Chart News | 1 | 2 | 4 | 8 |
-| Volatility Summary | 1 | 3 | 4 | 8 |
+| Ask Yoca AI | 5 | 8 | 12 | 20 |
+| Wallet Chat | 5 | 8 | 12 | 20 |
+| Token Chart News | 5 | 8 | 12 | 20 |
+| Volatility Summary | 5 | 8 | 12 | 20 |
 | Wash Trading Analysis | 0 | 0 | 3 | 5 |
 | Wash Trading Chat | 0 | 0 | 5 | 10 |
 
-Quota reset lúc 00:00 UTC. Wash Trading Analysis và Chat yêu cầu Plus. Wallet AI modal cũ không còn được quảng bá trong pricing. Source cũ từng đặt 5–100 lượt/ngày; stress ceiling tối thiểu của mức đó vượt giá Lite/Plus/Pro nên đã được thay bằng bảng trên.
+Quota reset lúc 00:00 UTC. Mỗi con số là hạn mức riêng của từng module, không phải quota dùng chung. Wash Trading Analysis và Chat yêu cầu Plus. Wallet AI modal cũ không còn được quảng bá trong pricing và được giới hạn 12/20 lượt ở Plus/Pro.
 
 ### Trạng thái kỹ thuật sau khi chốt
 
@@ -128,17 +128,17 @@ Không cộng các đơn vị khác nhau thành một quota chung. Retry chỉ �
 | Wallet token chart | 1 Zerion request/token; mapping lookup nếu thiếu ID | 0 |
 | Wash Trading | 100 Helius Enhanced; upper fallback 176 credits | Reuse transfer input 5 phút khi còn hiệu lực |
 
-AI hiện dùng sample cost/proxy, chưa phải median/p95. Wallet Chat đặc biệt nhạy với tool selection và có thể fan-out sang nhiều provider.
+Benchmark ngày 31/7/2026 đã có median và p95 trên năm mẫu cho Ask Yoca, Wallet Chat, Chart News, Volatility và Wash Trading Chat. Wash Trading Analysis có hai model samples cùng ba cache hit. Chi tiết nằm tại `benchmark-results/AI_BENCHMARK_2026-07-31.md`.
 
 ## Assumptions và kết quả
 
-Mô hình duy nhất dùng 8 session/MAU/tháng và payer conversion 2%, gồm Lite/Plus/Pro bằng 1,25%/0,5%/0,25%. Token, wallet, activity, Alert và AI adoption được ghi chi tiết trong calculator.
+Mô hình dùng 8 session/MAU/tháng; conversion tăng từ 2% tại 300 MAU lên 2,5% tại 3.000 MAU và 3% tại 30.000 MAU. Trong nhóm trả phí, cơ cấu Lite/Plus/Pro là 80%/15%/5%. Token, wallet, activity, Alert và AI adoption được ghi chi tiết trong calculator.
 
 | MAU | Revenue | Direct cost | Contribution | Margin |
 | ---: | ---: | ---: | ---: | ---: |
-| 300 | 376,50 | 176,47 | 200,03 | 53,13% |
-| 3.000 | 3.765,00 | 1.482,67 | 2.282,33 | 60,62% |
-| 30.000 | 37.650,00 | 10.383,73 | 27.266,27 | 72,42% |
+| 300 | 303,00 | 145,75 | 157,25 | 51,90% |
+| 3.000 | 3.787,50 | 1.181,98 | 2.605,52 | 68,79% |
+| 30.000 | 45.450,00 | 9.647,05 | 35.802,95 | 78,77% |
 
 Direct cost gồm blockchain data provider, Gemini/Brave, Resend, Render/Supabase và payment processing proxy. Contribution chưa trừ lương, marketing, thuế, pháp lý và support.
 
@@ -150,48 +150,51 @@ Phần này trả lời câu hỏi “Yoca lời bao nhiêu?” theo cách nhóm
 
 ### Mốc 300 MAU — MVP tự trang trải
 
-Trong 300 MAU có khoảng 6 người trả phí. Doanh thu là 376,50 USD/tháng; sau 176,47 USD chi phí trực tiếp còn 200,03 USD, tương đương khoảng 5 triệu đồng.
+Trong 300 MAU có khoảng 6 người trả phí. Doanh thu là 303 USD/tháng; sau 145,75 USD chi phí trực tiếp còn 157,25 USD.
 
 | Phân bổ | Tỷ lệ | USD/tháng | Xấp xỉ VND/tháng |
 | --- | ---: | ---: | ---: |
-| Dự phòng provider và phát triển sản phẩm | 40% | 80,01 | 2,00 triệu |
-| Thu hút và hỗ trợ người dùng | 30% | 60,01 | 1,50 triệu |
-| Hỗ trợ 4 thành viên bán thời gian | 20% | 40,01 | 1,00 triệu |
-| Hành chính và chi phí phát sinh | 10% | 20,00 | 0,50 triệu |
+| Hỗ trợ 4 thành viên bán thời gian | 25,4% | 40,00 | 1,00 triệu |
+| Thu hút và hỗ trợ người dùng | 25,4% | 40,00 | 1,00 triệu |
+| Sản phẩm và bảo mật | 26,7% | 42,00 | 1,05 triệu |
+| Hành chính và dự phòng | 12,7% | 20,00 | 0,50 triệu |
+| Lợi nhuận giữ lại | 9,7% | 15,25 | 0,38 triệu |
 
 Khoản hỗ trợ bình quân chỉ khoảng 250 nghìn đồng mỗi người. Mốc này chứng minh sản phẩm có thể tự thanh toán chi phí và tiếp tục phát triển; chưa tạo ra thu nhập ổn định.
 
 ### Mốc 3.000 MAU — duy trì đội ngũ thường xuyên
 
-Trong 3.000 MAU có khoảng 60 người trả phí. Doanh thu là 3.765 USD/tháng; sau 1.482,67 USD chi phí trực tiếp còn 2.282,33 USD, tương đương khoảng 57,06 triệu đồng. Lượng người dùng ổn định ở mốc này là tín hiệu sản phẩm có tiềm năng, vì vậy nhóm chuyển sang cơ cấu bốn vị trí thường xuyên thay vì tiếp tục xem đây là công việc phụ.
+Trong 3.000 MAU có khoảng 75 người trả phí. Doanh thu là 3.787,50 USD/tháng; sau 1.181,98 USD chi phí trực tiếp còn 2.605,52 USD. Lượng người dùng ổn định ở mốc này là tín hiệu sản phẩm có tiềm năng, vì vậy nhóm chuyển sang cơ cấu bốn vị trí thường xuyên thay vì tiếp tục xem đây là công việc phụ.
 
 | Phân bổ | Tỷ lệ | USD/tháng | Xấp xỉ VND/tháng |
 | --- | ---: | ---: | ---: |
-| Thu nhập đội ngũ | 60% | 1.369,40 | 34,24 triệu |
-| Marketing và phát triển người dùng | 20% | 456,47 | 11,41 triệu |
-| Dự phòng và phát triển sản phẩm | 10% | 228,23 | 5,71 triệu |
-| Hành chính, thuế và pháp lý | 10% | 228,23 | 5,71 triệu |
+| Thu nhập đội ngũ | 43,0% | 1.120,00 | 28,00 triệu |
+| Marketing và phát triển người dùng | 18,4% | 480,00 | 12,00 triệu |
+| Sản phẩm và bảo mật | 13,0% | 338,00 | 8,45 triệu |
+| Hành chính, thuế và pháp lý | 6,9% | 180,00 | 4,50 triệu |
+| Dự phòng | 10,0% | 260,00 | 6,50 triệu |
+| Lợi nhuận giữ lại | 8,7% | 227,52 | 5,69 triệu |
 
-Nếu bốn thành viên cùng làm thường xuyên, ngân sách đội ngũ bình quân khoảng 342 USD, tương đương 8,56 triệu đồng mỗi người. Đây là mức vận hành thận trọng của một nhóm nhỏ, chưa tạo nhiều dư địa tuyển thêm người.
+Nếu bốn thành viên cùng làm thường xuyên, ngân sách đội ngũ bình quân 280 USD, tương đương 7 triệu đồng mỗi người. Đây là mức vận hành thận trọng của một nhóm nhỏ, chưa tạo nhiều dư địa tuyển thêm người.
 
 ### Mốc 30.000 MAU — mở rộng thành đơn vị vận hành
 
-Trong 30.000 MAU có khoảng 600 người trả phí. Doanh thu là 37.650 USD/tháng; sau 10.383,73 USD chi phí trực tiếp còn 27.266,27 USD, tương đương khoảng 681,66 triệu đồng. Đây là quy mô một doanh nghiệp nhỏ, nhưng Yoca phải tiếp tục chi mạnh để duy trì 30.000 người dùng và phục vụ 600 khách hàng trả phí.
+Trong 30.000 MAU có khoảng 900 người trả phí. Doanh thu là 45.450 USD/tháng; sau 9.647,05 USD chi phí trực tiếp còn 35.802,95 USD. Đây là quy mô một doanh nghiệp nhỏ, nhưng Yoca phải tiếp tục chi mạnh để duy trì 30.000 người dùng và phục vụ 900 khách hàng trả phí.
 
 | Phân bổ | Tỷ lệ | USD/tháng | Xấp xỉ VND/tháng |
 | --- | ---: | ---: | ---: |
-| Nhân sự khoảng 20 người | 25% | 6.816,57 | 170,41 triệu |
-| Marketing, thu hút và giữ người dùng | 40% | 10.906,51 | 272,66 triệu |
-| Phát triển sản phẩm và bảo mật | 15% | 4.089,94 | 102,25 triệu |
-| Hành chính, thuế và pháp lý | 10% | 2.726,63 | 68,17 triệu |
-| Dự phòng | 5% | 1.363,31 | 34,08 triệu |
-| Thặng dư vận hành | 5% | 1.363,31 | 34,08 triệu |
+| Nhân sự khoảng 20 người | 17,9% | 6.400,00 | 160,00 triệu |
+| Marketing, thu hút và giữ người dùng | 40,0% | 14.317,60 | 357,94 triệu |
+| Phát triển sản phẩm và bảo mật | 15,0% | 5.369,20 | 134,23 triệu |
+| Hành chính, thuế và pháp lý | 10,0% | 3.579,20 | 89,48 triệu |
+| Dự phòng | 10,0% | 3.579,20 | 89,48 triệu |
+| Lợi nhuận giữ lại | 7,1% | 2.557,75 | 63,94 triệu |
 
-Ngân sách nhân sự bình quân khoảng 8,52 triệu đồng/người cho đội ngũ 20 người. Đây là ngân sách bình quân, còn phải điều chỉnh theo vai trò và nghĩa vụ lao động. Thặng dư chỉ chiếm 5%; biến động về chi phí thu hút người dùng, provider hoặc conversion có thể làm phần này giảm đáng kể.
+Ngân sách nhân sự bình quân 8 triệu đồng/người cho đội ngũ 20 người. Đây là ngân sách bình quân, còn phải điều chỉnh theo vai trò và nghĩa vụ lao động. Lợi nhuận chỉ chiếm khoảng 5,6% doanh thu; biến động về chi phí thu hút người dùng, provider hoặc conversion có thể làm phần này giảm đáng kể.
 
 ### Lập luận nhóm cần thống nhất
 
-300 MAU giúp Yoca tự nuôi sản phẩm; 3.000 MAU tạo điều kiện duy trì bốn người làm việc thường xuyên với mức thu nhập thận trọng; 30.000 MAU đòi hỏi mở rộng thành doanh nghiệp nhỏ khoảng 20 người nhưng vẫn chỉ giữ 5% thặng dư. Các tỷ lệ phân bổ là nguyên tắc lập ngân sách, không phải cam kết lương hay kết quả đã đạt được.
+300 MAU giúp Yoca tự nuôi sản phẩm; 3.000 MAU tạo điều kiện duy trì bốn người làm việc thường xuyên với mức thu nhập thận trọng; 30.000 MAU đòi hỏi mở rộng thành doanh nghiệp nhỏ khoảng 20 người. Ba mốc giữ biên lợi nhuận khoảng 5–6% doanh thu. Các tỷ lệ phân bổ là nguyên tắc lập ngân sách, không phải cam kết lương hay kết quả đã đạt được.
 
 ## Provider breakpoint và policy nâng gói
 
@@ -203,11 +206,11 @@ Base scan từ 100 đến 50.000 MAU cho các tín hiệu ngân sách:
 | 300 | CoinGecko Demo → Basic |
 | 450 | Birdeye Standard → Lite |
 | 1.600 | Mobula Start-up → Growth |
-| 2.775 | Helius Free → Developer |
+| 2.800 | Helius Free → Developer |
 | 3.525 | CoinGecko Basic → Analyst |
 | 15.925 | Mobula Growth → Enterprise, giá từ 750 USD |
 | 26.325 | CoinGecko Analyst → Lite |
-| 27.750 | Helius Developer → Developer + credit bổ sung |
+| 27.775 | Helius Developer → Developer + credit bổ sung |
 
 Breakpoint phụ thuộc demand assumptions. Policy vận hành:
 
@@ -248,13 +251,13 @@ MAU giúp tạo kịch bản kinh doanh. Calculator chuyển MAU thành session,
 
 Ba mốc là lát cắt dễ đọc trên slide. Calculator quét liên tục để phát hiện breakpoint nên quyết định nâng cấp không bị khóa vào ba mốc.
 
-### 53–71% có phải lợi nhuận không?
+### 52–79% có phải lợi nhuận không?
 
 Đó là contribution margin sau direct cost. Lương, marketing, thuế, pháp lý và support chưa được trừ.
 
 ### Thầy hỏi: “Rốt cuộc tụi em lời bao nhiêu?”
 
-> Trong kịch bản cơ sở 300 MAU, nhóm em dự kiến thu khoảng 377 USD và còn khoảng 200 USD sau chi phí trực tiếp. Khoản này chủ yếu được giữ cho sản phẩm nên chưa tạo thu nhập đáng kể. Khoảng 3.000 MAU, với 60 người trả phí, mới là mốc đủ duy trì bốn thành viên làm việc thường xuyên ở mức khoảng 8–9 triệu đồng mỗi người. Khi đạt 30.000 MAU, Yoca phải mở rộng đội ngũ và tiếp tục dành phần lớn nguồn tiền cho tăng trưởng; thặng dư vận hành dự kiến chỉ khoảng 5% số dư sau chi phí trực tiếp.
+> Trong kịch bản cơ sở, 300 MAU tạo khoảng 303 USD doanh thu và 15 USD lợi nhuận giữ lại mỗi tháng sau khi dành ngân sách cho chi phí trực tiếp, duy trì sản phẩm và hỗ trợ nhóm. Ở 3.000 MAU, doanh thu dự kiến khoảng 3.788 USD, đủ duy trì bốn thành viên thường xuyên với ngân sách bình quân khoảng 7 triệu đồng/người và còn khoảng 228 USD lợi nhuận. Tại 30.000 MAU, Yoca vận hành như một doanh nghiệp nhỏ khoảng 20 người; sau toàn bộ ngân sách trực tiếp, nhân sự, tăng trưởng và dự phòng, lợi nhuận giữ lại khoảng 2.558 USD, tương đương 5,6% doanh thu.
 
 ### Vì sao biên đóng góp tăng khi MAU tăng?
 
@@ -264,13 +267,13 @@ Revenue tăng gần tuyến tính theo payer mix, còn provider bán theo gói q
 
 Mô hình giả định wallet cold rate cao và 8 session/MAU. Breakpoint là tín hiệu ngân sách từ bộ giả định cơ sở, chưa phải quan sát production.
 
-### Vì sao quota AI thấp hơn UI cũ?
+### Vì sao quota AI được giới hạn theo từng module?
 
-UI cũ tăng đồng loạt đến 100 lượt/ngày. Stress ceiling của quyền lợi này vượt giá gói trước khi cộng data/hosting. Quota mới dùng cost profile từng feature và giữ headroom.
+Mỗi module có fan-out, lượng token và nhu cầu tìm kiếm khác nhau. Quota riêng 5/8/12/20 lượt cho bốn module chính giúp người dùng mới trải nghiệm đủ sâu, đồng thời giữ được khoảng an toàn trước khi cộng data provider và hạ tầng. Wash Trading có hạn mức riêng vì chỉ mở từ Plus và có quy trình phân tích khác.
 
-### Tại sao Standard vẫn có AI?
+### Tại sao Standard vẫn có 5 lượt AI cho mỗi module?
 
-Một lượt/ngày giúp người dùng hiểu giá trị sản phẩm. Free AI cost là acquisition cost có kiểm soát; abuse được chặn bởi authentication và daily usage counter.
+Năm lượt/ngày giúp người dùng hoàn thành một phiên khảo sát có ý nghĩa thay vì chỉ thử một prompt rồi dừng. Chi phí này được xem là chi phí thu hút người dùng có kiểm soát; authentication và bộ đếm theo ngày giới hạn lạm dụng.
 
 ### Tại sao không tự tính toàn bộ PnL?
 
@@ -317,65 +320,30 @@ Giai đoạn đầu tái đầu tư revenue. Sau khi PoC/MVP có traction và re
 | Single-flight | Cho các request cùng khóa dùng chung một lần refresh đang chạy |
 | Cache stampede | Nhiều request cùng thấy stale và đồng thời gọi provider |
 
-## Nội dung slide đề xuất — tối đa 3 slide
+## Cấu trúc slide hiện hành
 
-### Slide 1 — Yoca tạo giá trị và doanh thu như thế nào?
+Slide được chia thành tám trang để tránh dồn số liệu vào ba trang:
 
-**Nội dung hiển thị**
+1. Giá trị sản phẩm và mô hình freemium.
+2. Bốn gói giá cùng quota AI theo từng module.
+3. Cách hành trình người dùng phát sinh request, credit và token.
+4. Kết quả benchmark các module AI.
+5. Các ngưỡng nâng gói provider và hạ tầng.
+6. Doanh thu, tổng ngân sách và lợi nhuận tại ba mốc MAU.
+7. Cơ cấu chi phí tại 3.000 và 30.000 MAU, bao gồm chuyển đổi Gemini sang Qwen tự vận hành.
+8. Lộ trình từ MVP tự trang trải đến đơn vị vận hành quy mô nhỏ.
 
-> Market → Token/Pool → Wallet → Wash Trading & AI  
-> Freemium subscription: Standard / Lite 39 USD / Plus 79 USD / Pro 149 USD
-
-| Standard | Lite | Plus | Pro |
-| --- | --- | --- | --- |
-| Trải nghiệm dữ liệu + AI giới hạn | Theo dõi thường xuyên | Mở phân tích wash trading | Power user quota cao |
-
-> PoC → MVP → doanh thu ban đầu → xác nhận thị trường → mở rộng
-
-**Speaker note:** Yoca bán khả năng nối dữ liệu và phân tích thành một hành trình. AI quota được đặt theo cost profile; Plus là tier mở tính năng chuyên sâu.
-
-### Slide 2 — Chi phí được suy ra từ hành trình thật
-
-**Nội dung hiển thị**
-
-> User journey → PostgreSQL/TTL → provider refresh → credit/CU/token
-
-| Journey cold | Cost proxy |
-| --- | --- |
-| Market Radar | 17 CoinGecko + 135 Birdeye CU |
-| Token Overview | 15 CoinGecko + 1 Mobula |
-| Wallet Core | 21 Mobula + 100 Helius |
-| Wallet Activity | 1–10 Mobula pages |
-
-> Review ở 70% quota · chuẩn bị nâng ở 85% · giữ ≥20% headroom
-
-**Speaker note:** Shared token data có thể reuse; wallet data gần một-đổi-một hơn. Nâng provider dựa trên quota/RPS/429, không dựa duy nhất vào MAU.
-
-### Slide 3 — Ba lát cắt tài chính và kế hoạch mở rộng
-
-**Nội dung hiển thị**
-
-| MAU | Revenue | Direct cost | Contribution margin |
-| ---: | ---: | ---: | ---: |
-| 300 | 377 USD | 176 USD | 53,13% |
-| 3.000 | 3.765 USD | 1.483 USD | 60,62% |
-| 30.000 | 37.650 USD | từ 10.384 USD | 72,42% |
-
-> Một giả định xuyên suốt: 2% payer conversion, gồm 1,25% Lite · 0,5% Plus · 0,25% Pro
-
-> 4 thành viên bán thời gian → 4 vị trí thường xuyên → doanh nghiệp nhỏ khoảng 20 người
-
-**Speaker note:** Đây là contribution, chưa phải net profit. Ba mốc là lát cắt; calculator quét liên tục và cost được cập nhật khi provider/pricing thay đổi.
+Ba con số cần nói rõ khi thuyết trình là conversion 2%/2,5%/3%, lợi nhuận 15/228/2.558 USD và biên lợi nhuận khoảng 5–6%. Chi tiết benchmark và provider cost chỉ dùng để chứng minh các con số có nguồn gốc; không đọc toàn bộ bảng trên slide.
 
 ## Checklist trước khi công bố
 
 - [ ] Stripe Price IDs tháng/năm khớp giá đã chốt.
-- [ ] Pricing UI không còn Wallet AI legacy và hiển thị đúng quota.
+- [x] Pricing UI không còn Wallet AI legacy và hiển thị đúng quota.
 - [ ] Wash Trading Chat 401/403/429 được UI diễn giải rõ.
 - [ ] Chạy smoke test reservation/release cho sáu AI feature.
-- [ ] Chạy calculator và lưu output dùng cho slide.
+- [x] Chạy calculator và lưu output dùng cho slide.
 - [x] Dùng giá Mobula Enterprise công khai từ 750 USD; xin báo giá chỉ khi chuẩn bị mua.
 - [x] Tính Helius Developer kèm credit bổ sung 5 USD/1 triệu trước khi cân nhắc Business.
-- [ ] Ghi ngày khảo sát trên slide hoặc speaker note.
+- [x] Ghi ngày khảo sát trên slide hoặc speaker note.
 - [ ] Mỗi thành viên giải thích được MAU, conversion và contribution margin.
 - [ ] Không gọi contribution là net profit.

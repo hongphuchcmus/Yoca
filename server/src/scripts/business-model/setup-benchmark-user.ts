@@ -42,7 +42,7 @@ async function main(): Promise<void> {
         ${BENCHMARK_USER_ID},
         'benchmark_subscription',
         'benchmark_customer',
-        'Plus',
+        'Pro',
         'active',
         false,
         current_timestamp,
@@ -78,12 +78,13 @@ async function main(): Promise<void> {
 
   console.info("[business-model] benchmark user is ready", {
     userId: BENCHMARK_USER_ID,
-    tier: "Plus",
+    tier: "Pro",
     databaseConfigured: env.POSTGRES_DB_URL.length > 0,
   });
+  process.exit(0);
 }
 
 main().catch((error: unknown) => {
   console.error("[business-model] failed to prepare benchmark user", error);
-  process.exitCode = 1;
+  process.exit(1);
 });

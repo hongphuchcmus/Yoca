@@ -9,10 +9,7 @@ import { sign } from "hono/jwt";
 import dayjs from "dayjs";
 import "@sv/util/date.js";
 import {
-  BENCHMARK_TOKEN_ADDRESS,
-  BENCHMARK_TOKEN_SYMBOL,
   BENCHMARK_USER_ID,
-  BENCHMARK_WALLET_ADDRESS,
   BENCHMARK_WASH_TOKEN_ADDRESS,
   BENCHMARK_WASH_TOKEN_SYMBOL,
 } from "./benchmark-constants.js";
@@ -25,8 +22,8 @@ type JourneyName =
   | "wallet_token_chart"
   | "token_ai"
   | "general_ai_chat"
-  | "wallet_ai"
   | "wash_trading_ai"
+  | "wash_trading_chat"
   | "token_chart_news_ai"
   | "volatility_ai";
 type PassName = "cold" | "observed_first" | "warm_repeat";
@@ -278,7 +275,7 @@ async function runAiRequest(
   baseUrl: string,
   runId: string,
   pass: PassName,
-  journey: "token_ai" | "general_ai_chat" | "wallet_ai" | "wash_trading_ai" | "token_chart_news_ai" | "volatility_ai",
+  journey: "token_ai" | "general_ai_chat" | "wash_trading_ai" | "wash_trading_chat" | "token_chart_news_ai" | "volatility_ai",
   route: string,
   body: Record<string, unknown> | null,
   authToken: string,
@@ -758,117 +755,141 @@ async function main(): Promise<void> {
       }
     }
     if (requestedJourney == "ai") {
-      results.push(
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-token_ai-${pass}`,
-          pass,
-          "token_ai",
-          "/api/token-ai-chat",
-          {
-            address: BENCHMARK_TOKEN_ADDRESS,
-            symbol: BENCHMARK_TOKEN_SYMBOL,
-            name: "Pyth Network",
-            question: "Summarize the strongest opportunities and risks supported by the current Yoca evidence.",
-            timeframe: "24h",
-            language: "en",
-            includeNews: true,
-            includeVolatility: true,
-            modelMode: "balanced",
-          },
-          authToken,
-        ),
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-general_ai_chat-${pass}`,
-          pass,
-          "general_ai_chat",
-          "/api/chat",
-          {
-            addresses: [BENCHMARK_WALLET_ADDRESS],
-            query: "Summarize this wallet's portfolio, recent activity, and main risks using Yoca data.",
-            language: "en",
-            contextType: "wallet",
-            skipCache: true,
-            skipSessionSave: true,
-          },
-          authToken,
-        ),
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-wallet_ai-${pass}`,
-          pass,
-          "wallet_ai",
-          "/api/wallet-analysis/analyze",
-          {
-            walletAddress: BENCHMARK_WALLET_ADDRESS,
-            transactionLimit: 100,
-            language: "en",
-            userLevel: "INTERMEDIATE",
-            maxSummaryLength: "MEDIUM",
-          },
-          authToken,
-        ),
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-wash_trading_ai-${pass}`,
-          pass,
-          "wash_trading_ai",
-          "/api/v1/wash-trading/ai-analyze",
-          {
-            mint: BENCHMARK_WASH_TOKEN_ADDRESS,
-            symbol: BENCHMARK_WASH_TOKEN_SYMBOL,
-            timeframe: "24h",
-            algorithm: "GCN",
-            language: "en",
-            limit: 20,
-          },
-          authToken,
-        ),
-      );
+      const washQuestions = [
+        "Explain the current risk score using the strongest observed signals.",
+        "Which wallet pattern contributes most to the wash-trading assessment?",
+        "Summarize the circular-trade evidence and its limitations.",
+        "What should a reviewer inspect first in this analysis?",
+        "Explain how the selected graph algorithm affects this result.",
+      ];
+      for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
+        const token = tokens[sampleIndex];
+        const wallet = wallets[sampleIndex];
+        if (!token || !wallet) {
+          throw new Error(`Missing AI benchmark input for sample ${sampleIndex + 1}`);
+        }
+        const symbol = token.symbol ?? `TOKEN_${sampleIndex + 1}`;
+        results.push(
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-token_ai-${sampleIndex + 1}-${pass}`,
+            pass,
+            "token_ai",
+            "/api/token-ai-chat",
+            {
+              address: token.address,
+              symbol,
+              name: symbol,
+              question: `Summarize the strongest opportunities and risks for ${symbol} using current Yoca evidence.`,
+              timeframe: "24h",
+              language: "en",
+              includeNews: true,
+              includeVolatility: true,
+              modelMode: "balanced",
+            },
+            authToken,
+          ),
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-general_ai_chat-${sampleIndex + 1}-${pass}`,
+            pass,
+            "general_ai_chat",
+            "/api/chat",
+            {
+              addresses: [wallet.address],
+              query: "Summarize this wallet's portfolio, recent activity, and main risks using Yoca data.",
+              language: "en",
+              contextType: "wallet",
+              skipCache: true,
+              skipSessionSave: true,
+            },
+            authToken,
+          ),
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-wash_trading_ai-${sampleIndex + 1}-${pass}`,
+            pass,
+            "wash_trading_ai",
+            "/api/v1/wash-trading/ai-analyze",
+            {
+              mint: BENCHMARK_WASH_TOKEN_ADDRESS,
+              symbol: BENCHMARK_WASH_TOKEN_SYMBOL,
+              timeframe: sampleIndex % 2 == 0 ? "24h" : "7d",
+              algorithm: sampleIndex % 2 == 0 ? "GCN" : "GraphSAGE",
+              language: "en",
+              limit: 20,
+            },
+            authToken,
+          ),
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-wash_trading_chat-${sampleIndex + 1}-${pass}`,
+            pass,
+            "wash_trading_chat",
+            "/api/v1/wash-trading/chat",
+            {
+              mint: BENCHMARK_WASH_TOKEN_ADDRESS,
+              symbol: BENCHMARK_WASH_TOKEN_SYMBOL,
+              timeframe: "24h",
+              algorithm: "GCN",
+              language: "en",
+              query: washQuestions[sampleIndex] ?? washQuestions[0],
+              history: [],
+            },
+            authToken,
+          ),
+        );
+      }
     }
     if (requestedJourney == "ai-summaries") {
-      const chartNewsQuery = new URLSearchParams({
-        address: BENCHMARK_TOKEN_ADDRESS,
-        symbol: BENCHMARK_TOKEN_SYMBOL,
-        name: "Pyth Network",
-        timeframe: "1m",
-        includeSummary: "true",
-        forceRefresh: "true",
-      });
-      const volatilityQuery = new URLSearchParams({
-        address: BENCHMARK_TOKEN_ADDRESS,
-        symbol: BENCHMARK_TOKEN_SYMBOL,
-        name: "Pyth Network",
-        threshold: "20",
-        timeframe: "daily",
-        window: "auto",
-        maxEventsWithNews: "3",
-        includeSummary: "true",
-        forceRefresh: "true",
-      });
-      results.push(
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-token_chart_news_ai-${pass}`,
-          pass,
-          "token_chart_news_ai",
-          "/api/token-chart-news-events",
-          null,
-          authToken,
-          `/api/token-chart-news-events?${chartNewsQuery.toString()}`,
-        ),
-        await runAiRequest(
-          env.YOCA_BENCHMARK_BASE_URL,
-          `${runId}-volatility_ai-${pass}`,
-          pass,
-          "volatility_ai",
-          "/api/token-volatility-news",
-          null,
-          authToken,
-          `/api/token-volatility-news?${volatilityQuery.toString()}`,
-        ),
-      );
+      for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
+        const token = tokens[sampleIndex];
+        if (!token) {
+          throw new Error(`Missing AI summary benchmark input for sample ${sampleIndex + 1}`);
+        }
+        const symbol = token.symbol ?? `TOKEN_${sampleIndex + 1}`;
+        const chartNewsQuery = new URLSearchParams({
+          address: token.address,
+          symbol,
+          name: symbol,
+          timeframe: "1m",
+          includeSummary: "true",
+          forceRefresh: "true",
+        });
+        const volatilityQuery = new URLSearchParams({
+          address: token.address,
+          symbol,
+          name: symbol,
+          threshold: "20",
+          timeframe: "daily",
+          window: "auto",
+          maxEventsWithNews: "3",
+          includeSummary: "true",
+          forceRefresh: "true",
+        });
+        results.push(
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-token_chart_news_ai-${sampleIndex + 1}-${pass}`,
+            pass,
+            "token_chart_news_ai",
+            "/api/token-chart-news-events",
+            null,
+            authToken,
+            `/api/token-chart-news-events?${chartNewsQuery.toString()}`,
+          ),
+          await runAiRequest(
+            env.YOCA_BENCHMARK_BASE_URL,
+            `${runId}-volatility_ai-${sampleIndex + 1}-${pass}`,
+            pass,
+            "volatility_ai",
+            "/api/token-volatility-news",
+            null,
+            authToken,
+            `/api/token-volatility-news?${volatilityQuery.toString()}`,
+          ),
+        );
+      }
     }
   }
 

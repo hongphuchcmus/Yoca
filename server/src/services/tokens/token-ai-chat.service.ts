@@ -111,10 +111,10 @@ const TOKEN_AI_CHAT_MODEL =
 const TOKEN_AI_CHAT_BALANCED_MODEL =
   process.env.TOKEN_AI_CHAT_BALANCED_MODEL?.trim() ||
   process.env.TOKEN_AI_CHAT_FALLBACK_MODEL?.trim() ||
-  "gemini-2.5-flash";
+  "gemini-3.1-flash-lite";
 const TOKEN_AI_CHAT_FAST_MODEL =
   process.env.TOKEN_AI_CHAT_FAST_MODEL?.trim() ||
-  "gemini-2.5-flash-lite";
+  "gemini-3.1-flash-lite";
 const TOKEN_AI_CHAT_PROMPT_VERSION =
   process.env.TOKEN_AI_CHAT_PROMPT_VERSION?.trim() || "v4";
 const ANALYST_FALLBACK_CACHE_TTL_MS = 3 * 60 * 1000;

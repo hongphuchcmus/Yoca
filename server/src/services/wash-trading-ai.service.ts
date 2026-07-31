@@ -188,7 +188,7 @@ export function getWashTradingRuntimeStatus() {
     hasHeliusApiKey: Boolean(getHeliusApiKey()),
     hasGoogleAiKey: Boolean(GOOGLE_AI_KEY?.trim()),
     heliusMode: "RPC token accounts + Enhanced Transactions fallback",
-    geminiModel: WALLET_AUDIT_MODEL || "gemini-2.5-flash",
+    geminiModel: WALLET_AUDIT_MODEL || "gemini-3.1-flash-lite",
   };
 }
 
@@ -999,7 +999,7 @@ async function writeCachedVerdict(
   aiAnalysis: WashTradingAIResult["aiAnalysis"],
 ): Promise<void> {
   const fetchedAt = new Date();
-  const model = WALLET_AUDIT_MODEL || "gemini-2.5-flash";
+  const model = WALLET_AUDIT_MODEL || "gemini-3.1-flash-lite";
   await db
     .insert(washTradingVerdictCache)
     .values({
@@ -1061,7 +1061,7 @@ async function tryGeminiAnalysis(base: WashTradingAIResult["aiAnalysis"], params
           "- detailedFindings must be short dashboard-ready sentences. Do not use Markdown, backticks, Markdown bullets, or camelCase variable names such as circularPattern; use user-facing phrases instead.",
         ].join("\n");
 
-    const model = WALLET_AUDIT_MODEL || "gemini-2.5-flash";
+    const model = WALLET_AUDIT_MODEL || "gemini-3.1-flash-lite";
     const response = await trackGemini("gemini.svc.wash_trading_analysis", model, () => ai.models.generateContent({
       model,
       contents: `${intro} theo cấu trúc: {"verdict":"HIGH_RISK|MEDIUM_RISK|LOW_RISK|CLEAN","summary":"...","detailedFindings":["..."],"suspiciousPatterns":[{"patternName":"...","description":"...","affectedWallets":["..."],"severity":"HIGH|MEDIUM|LOW"}],"recommendation":"...","confidenceNote":"..."}.\n\n${requirements}\n\nData: ${JSON.stringify({
