@@ -1,10 +1,7 @@
 import client from "@/api/main";
 import {
-    getDefaultAggregationForDayRange,
-    mapTradesWithFallbackPrice,
     TimeSeriesTradesScatterChart,
     type TimeSeriesDataPoint,
-    type TradePoint,
 } from "@/components/charts/TimeSeriesTradesScatterChart";
 import { CpyBtn } from "@/components/CpyBtn";
 import { PillTabs } from "@/components/common/PillTabs/PillTabs";
@@ -35,8 +32,6 @@ type TokenAverageTradePriceProps = {
 };
 
 type TokenPriceDayRange = "7" | "30" | "90";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Visible ticker in the last-traded table; full symbol/name in tooltip. */
 const TOKEN_TICKER_VISIBLE_CHARS = 4;
@@ -76,56 +71,6 @@ function tokenRowTooltip(
     lines.push(n);
   }
   return lines.join("\n");
-}
-
-function toOptionalFiniteNumber(value: unknown): number | null {
-  if (typeof value !== "number") return null;
-  if (!Number.isFinite(value)) return null;
-  return value;
-}
-
-function getTradeRowPrice(trade: Record<string, unknown>): number | null {
-  const directCandidates = [
-    trade.basePrice,
-    trade.priceUsd,
-    trade.tradePriceUsd,
-    trade.baseQuotePrice,
-  ];
-
-  for (const candidate of directCandidates) {
-    const parsed = toOptionalFiniteNumber(candidate);
-    if (parsed !== null) {
-      return parsed;
-    }
-  }
-
-  return null;
-}
-
-export function isTradeWithinSelectedRange(
-  tradeUnixTimeMs: unknown,
-  selectedTimeRange: TokenPriceDayRange,
-  nowMs = Date.now(),
-): boolean {
-  if (
-    typeof tradeUnixTimeMs !== "number" ||
-    !Number.isFinite(tradeUnixTimeMs)
-  ) {
-    return false;
-  }
-
-  const rangeStartMs = nowMs - Number(selectedTimeRange) * DAY_MS;
-  return tradeUnixTimeMs >= rangeStartMs && tradeUnixTimeMs <= nowMs;
-}
-
-export function filterTradesWithinSelectedRange(
-  trades: TradePoint[],
-  selectedTimeRange: TokenPriceDayRange,
-  nowMs = Date.now(),
-): TradePoint[] {
-  return trades.filter((trade) =>
-    isTradeWithinSelectedRange(trade.unixTimeMs, selectedTimeRange, nowMs),
-  );
 }
 
 export function TokenAverageTradePrice({
@@ -173,44 +118,6 @@ export function TokenAverageTradePrice({
         tokenAddress,
       },
     },
-  );
-
-  const mappedTradePoints: TradePoint[] = useMemo(() => {
-    if (!recentTrades.data) {
-      return [];
-    }
-
-    const normalizedTrades = recentTrades.data
-      .map((trade): TradePoint => {
-        const side = trade.tradeAction == "buy" ? "buy" : "sell";
-        const price = getTradeRowPrice(trade);
-
-        return {
-          unixTimeMs: trade.blockUnixTimeMs,
-          side,
-          volumeUsd: trade.volumeUsd,
-          price,
-          priceSource: price == null ? "missing" : "trade",
-          transactionHash: trade.transactionHash,
-        };
-      })
-      .filter((trade) => Number.isFinite(trade.unixTimeMs));
-
-    const selectedRangeTrades = filterTradesWithinSelectedRange(
-      normalizedTrades,
-      selectedTimeRange,
-    );
-
-    return mapTradesWithFallbackPrice(
-      selectedRangeTrades,
-      priceData.data,
-      true,
-    );
-  }, [recentTrades.data, priceData.data, selectedTimeRange]);
-
-  const tradeAggregation = useMemo(
-    () => getDefaultAggregationForDayRange(selectedTimeRange),
-    [selectedTimeRange],
   );
 
   const recentTradesRows = useMemo(() => {
@@ -327,9 +234,8 @@ export function TokenAverageTradePrice({
         ]}
         valueFormatter={fmt.num.compact.currency}
         data={priceData.data as TimeSeriesDataPoint[] | undefined}
-        trades={mappedTradePoints}
-        aggregation={tradeAggregation}
-        loading={priceData.isLoading || recentTrades.isLoading}
+        trades={[]}
+        loading={priceData.isLoading}
       />
       <Tble
         title={tr("walletPage.recentTrades")}
@@ -399,7 +305,7 @@ export function TokenDetailsDemo({
   const { tr, lang, fmt } = useLocalization();
 
   const walletTokenDetails = useGet(
-    client.api.wallets[":address"].tokens,
+    client.api.wallets[":address"]["recent-traded-desc-breakdown"],
     200,
     {
       param: { address: address || "" },
@@ -484,19 +390,22 @@ export function TokenDetailsDemo({
             </Stack>
           </Stack>
         ),
-        balance: (
-          <Stack>
-            <p>
-              {fmt.num.compact.currency(
-                tokenMarket.data?.[details.tokenAddress]?.priceUsd
-                  ? tokenMarket.data?.[details.tokenAddress]?.priceUsd *
-                  details.balanceAmount
-                  : null,
-              )}
-            </p>
-            <p>{fmt.num.compact.decimal(details.balanceAmount)}</p>
-          </Stack>
-        ),
+        balance:
+          details.balanceAmount == null || details.balanceAmount == 0 ? (
+            <p>{tr("walletPage.soldAll")}</p>
+          ) : (
+            <Stack>
+              <p>
+                {fmt.num.compact.currency(
+                  tokenMarket.data?.[details.tokenAddress]?.priceUsd
+                    ? tokenMarket.data?.[details.tokenAddress]?.priceUsd *
+                      details.balanceAmount
+                    : null,
+                )}
+              </p>
+              <p>{fmt.num.compact.decimal(details.balanceAmount)}</p>
+            </Stack>
+          ),
         pnl: (
           <Stack style={{ justifyContent: "inherit" }}>
             <TrendNum

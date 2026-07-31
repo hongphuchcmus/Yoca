@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 type DataTransformer = (fullData: unknown) => unknown;
 
 const balanceHistoryTransformer: DataTransformer = (data) => {
@@ -115,6 +117,36 @@ const portfolioTransformer: DataTransformer = (data) => {
   return normalizeArray(data, portfolioFieldMap);
 };
 
+const realizedPnlBreakdownTransformer: DataTransformer = (data) => {
+  const parsed = z.array(z.object({
+    tokenAddress: z.string(),
+    symbol: z.string().nullable(),
+    realizedProfitUsd: z.number(),
+    unrealizedProfitUsd: z.number(),
+    totalTradeCount: z.number(),
+    totalBoughtUsd: z.number(),
+    totalSoldUsd: z.number(),
+  })).safeParse(data);
+
+  if (!parsed.success) return [];
+
+  return parsed.data.map((row) => ({
+    tokenAddress: row.tokenAddress,
+    token: row.symbol ?? row.tokenAddress,
+    symbol: row.symbol,
+    realizedPnlUsd: row.realizedProfitUsd,
+    realizedProfitUsd: row.realizedProfitUsd,
+    pnlUsd: row.realizedProfitUsd,
+    unrealizedPnlUsd: row.unrealizedProfitUsd,
+    totalPnlUsd: row.realizedProfitUsd + row.unrealizedProfitUsd,
+    trades: row.totalTradeCount,
+    tradeCount: row.totalTradeCount,
+    totalTradeCount: row.totalTradeCount,
+    totalBoughtUsd: row.totalBoughtUsd,
+    totalSoldUsd: row.totalSoldUsd,
+  }));
+};
+
 const tokenPriceTransformer: DataTransformer = (data) => {
   if (!data || typeof data !== "object") return [];
   const record = data as Record<string, Record<string, unknown>>;
@@ -194,7 +226,7 @@ const intelligenceTransformer: DataTransformer = (data) => {
 export const DATA_TRANSFORMERS: Record<string, DataTransformer> = {
   get_balance_history: balanceHistoryTransformer,
   get_drawdown_chart: drawdownChartTransformer,
-  get_pnl_chart: pnlChartTransformer,
+  get_wallet_pnl_history: pnlChartTransformer,
   get_token_price: tokenPriceTransformer,
   get_token_price_24h: tokenPrice24hTransformer,
   get_token_price_hourly: tokenPrice24hTransformer,
@@ -205,6 +237,7 @@ export const DATA_TRANSFORMERS: Record<string, DataTransformer> = {
   get_wallet_swaps_compact: compactTokensTransformer,
   get_wallet_transfers_compact: compactTokensTransformer,
   get_wallet_portfolio: portfolioTransformer,
+  get_wallet_realized_pnl_desc_breakdown: realizedPnlBreakdownTransformer,
   get_token_wash_trade_risk: washTradeRiskTransformer,
   get_wallet_intelligence: intelligenceTransformer,
 };

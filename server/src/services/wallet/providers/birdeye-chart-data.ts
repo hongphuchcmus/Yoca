@@ -1,7 +1,7 @@
 import {
     getEndpoint as getBirdeyeEndpoint,
     getRequiredHeaders as getBirdeyeHeaders,
-    limiter as birdeyeLimiter,
+    spec as birdeyeSpec,
 } from "@sv/util/util-birdeye.js";
 import { db } from "@sv/db/index.js";
 import {
@@ -13,7 +13,7 @@ import {
 } from "@sv/db/schema.js";
 import { bds_HistoryPriceSchema } from "@sv/services/_types/token-raw-responses.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import { excluded } from "@sv/util/orm-sql.js";
 import { and, eq, gte, lte } from "drizzle-orm";
 import {
@@ -50,10 +50,9 @@ async function fetchAndStoreBirdeyeRange(
   url.searchParams.set("time_to", String(toSec));
   url.searchParams.set("ui_amount_mode", "raw");
 
-  const resp = await rlFetch(url, {
+  const resp = await pFetch(birdeyeSpec, "birdeye.svc.token_price_chart", url, {
     method: "GET",
     headers: getBirdeyeHeaders(),
-    rlLimiter: birdeyeLimiter,
   });
 
   const res = await validateApiResult(bds_HistoryPriceSchema, resp);

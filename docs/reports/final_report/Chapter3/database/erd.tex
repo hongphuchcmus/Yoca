@@ -1,76 +1,37 @@
 \subsection{Sơ đồ thực thể mối quan hệ}
 \label{subsec:db_erd}
 
-Schema có nhiều bảng cache nên một ERD duy nhất sẽ khó đọc trên khổ A4. Phần này chia ERD theo miền nghiệp vụ và chỉ giữ primary key, foreign key cùng các cột chính. Đường liền biểu diễn foreign key được khai báo trong PostgreSQL. Đường nét đứt biểu diễn liên hệ logic thông qua address, mint hoặc signature; các liên hệ này được kiểm soát tại service thay vì bằng foreign key.
+Một ERD chứa toàn bộ bảng cache sẽ trải dài theo chiều ngang và che khuất các quan hệ quan trọng. Báo cáo vì vậy dùng ba lát cắt bên cạnh sơ đồ tổng quan. Mỗi hình giữ khóa chính, khóa ngoại và một số cột đại diện. Đường liền biểu diễn quan hệ khóa ngoại; đường nét đứt biểu diễn liên hệ logic bằng address hoặc signature. Một số hộp như \texttt{USER\_WALLET\_DATA}, \texttt{TOKEN\_MARKET\_CHART} và \texttt{WALLET\_ENHANCED\_DETAILS} đại diện cho một nhóm bảng vật lý có cùng vai trò.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/identity-payment.pdf}
-    \caption{ERD nhóm tài khoản và thanh toán}
-    \label{fig:db_identity_payment}
+    \includegraphics[width=0.98\textwidth,height=0.72\textheight,keepaspectratio]{Chapter3/diagrams/identity-alert.pdf}
+    \caption{ERD nhóm tài khoản, thanh toán và cảnh báo}
+    \label{fig:db_identity_alert}
 \end{figure}
 
-Hình~\ref{fig:db_identity_payment} thể hiện dữ liệu có tính sở hữu. Bảng \texttt{users} là gốc của dữ liệu xác thực, cấu hình cá nhân và thanh toán. Các bản ghi phụ thuộc người dùng được xóa theo quan hệ cascade; lịch sử thanh toán giữ được bản ghi khi subscription không còn tồn tại.
+Hình~\ref{fig:db_identity_alert} đặt \texttt{users} ở gốc của dữ liệu có tính sở hữu. Tài khoản có thể liên kết nhiều phương thức xác thực và ví, đồng thời sở hữu subscription, lịch sử thanh toán và cấu hình cảnh báo. Cấu hình cảnh báo được tách khỏi lịch sử phát sinh để người dùng có thể thay đổi rule mà vẫn giữ các thông báo đã nhận và trạng thái đọc.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/alert-history.pdf}
-    \caption{ERD nhóm cảnh báo và lịch sử cảnh báo}
-    \label{fig:db_alert_history}
+    \includegraphics[width=0.96\textwidth]{Chapter3/diagrams/token-market-panel.pdf}
+
+    \vspace{0.5em}
+    \includegraphics[width=0.62\textwidth,height=0.34\textheight,keepaspectratio]{Chapter3/diagrams/token-content-panel.pdf}
+    \caption{ERD nhóm token, thị trường, pool và nội dung phân tích}
+    \label{fig:db_token_data}
 \end{figure}
 
-Hình~\ref{fig:db_alert_history} tách định nghĩa cảnh báo khỏi trạng thái, delivery target và điều kiện kích hoạt. \texttt{alert\_history} lưu sự kiện đã phát sinh để hỗ trợ hiển thị lịch sử và trạng thái đã đọc.
+Hình~\ref{fig:db_token_data} sử dụng token address làm điểm nối logic. Metadata, market snapshot, chuỗi giá, pool và holder được tách vì có nguồn và chu kỳ cập nhật khác nhau. News được tổ chức thành batch và article bằng khóa ngoại; cache AI liên kết với token bằng address và context hash để tái sử dụng câu trả lời trong cùng ngữ cảnh.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/token-market.pdf}
-    \caption{ERD nhóm token và dữ liệu thị trường}
-    \label{fig:db_token_market}
+    \includegraphics[width=0.96\textwidth]{Chapter3/diagrams/wallet-analysis-panel.pdf}
+
+    \vspace{0.5em}
+    \includegraphics[width=0.58\textwidth,height=0.36\textheight,keepaspectratio]{Chapter3/diagrams/wallet-activity-panel.pdf}
+    \caption{ERD nhóm ví, lịch sử giao dịch và kết quả phân tích}
+    \label{fig:db_wallet_data}
 \end{figure}
 
-Hình~\ref{fig:db_token_market} sử dụng \texttt{token\_meta} như điểm tham chiếu logic. Market snapshot và chart được cập nhật theo address và mốc thời gian. Pool và holder là các read model riêng, chỉ liên kết logic với token.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/token-content.pdf}
-    \caption{ERD nhóm nội dung và AI cache theo token}
-    \label{fig:db_token_content}
-\end{figure}
-
-Hình~\ref{fig:db_token_content} mô tả các cache phục vụ AI, news event và phần giải thích biến động. News batch có quan hệ khóa ngoại trực tiếp với article; các cache còn lại được ghép với token theo address.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/wallet-analytics.pdf}
-    \caption{ERD nhóm tổng quan và phân tích ví}
-    \label{fig:db_wallet_analytics}
-\end{figure}
-
-Hình~\ref{fig:db_wallet_analytics} dùng \texttt{WALLET\_ADDRESS} như một thực thể logic, không phải bảng vật lý. \texttt{wallet\_overview\_cache} cung cấp bản tổng hợp cho trang overview. \texttt{wallet\_analyses} lưu kết quả Mobula theo ví và kỳ phân tích.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/wallet-portfolio-balance.pdf}
-    \caption{ERD nhóm portfolio và lịch sử số dư}
-    \label{fig:db_wallet_portfolio_balance}
-\end{figure}
-
-Hình~\ref{fig:db_wallet_portfolio_balance} phân biệt portfolio hiện tại, snapshot theo ngày, tổng giá trị ví theo thời gian và lịch sử số dư ở cấp token. Các bảng được ghép theo wallet address nhưng không phụ thuộc một bảng wallet vật lý.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/wallet-history.pdf}
-    \caption{ERD nhóm lịch sử transfer và swap}
-    \label{fig:db_wallet_history}
-\end{figure}
-
-Hình~\ref{fig:db_wallet_history} tách dữ liệu lịch sử đã chuẩn hóa khỏi metadata coverage. Các bảng này phục vụ truy vấn phân trang và chỉ tải bổ sung những khoảng thời gian còn thiếu.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{Chapter3/diagrams/enhanced-transaction-detail.pdf}
-    \caption{ERD nhóm chi tiết giao dịch Helius}
-    \label{fig:db_enhanced_transaction_detail}
-\end{figure}
-
-Hình~\ref{fig:db_enhanced_transaction_detail} mô tả read model chi tiết giao dịch. Bảng transaction cha được ghép với token transfer, native transfer và instruction bằng address cùng signature. Nhóm này phục vụ day activity, transaction detail và wallet analysis; nó không bị thay thế bởi transfer/swap history.
+Hình~\ref{fig:db_wallet_data} dùng \texttt{WALLET\_ADDRESS} như một thực thể logic. Overview cache cung cấp dữ liệu tổng hợp cho lần mở trang đầu tiên; bảng phân tích lưu PnL, win rate và phân rã theo token cho từng kỳ; các bảng lịch sử giữ số dư và hoạt động swap/transfer theo thời gian. Enhanced transaction liên kết với các dòng chi tiết bằng address và signature, phục vụ khi người dùng mở một giao dịch để xem transfer, instruction và chương trình liên quan.

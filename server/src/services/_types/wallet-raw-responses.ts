@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const hls_WebhookSchema = z
+  .object({
+    webhookID: z.string().min(1),
+    webhookURL: z.string().optional(),
+    transactionTypes: z.array(z.string()).optional(),
+    accountAddresses: z.array(z.string()).optional(),
+    webhookType: z.string().optional(),
+    authHeader: z.string().optional(),
+    active: z.boolean().optional(),
+  })
+  .catchall(z.unknown());
+
+export type HLS_Webhook = z.infer<typeof hls_WebhookSchema>;
+
 const heliusNumberishSchema = z.union([z.number(), z.string()]);
 
 export const hls_WalletBalancesSchema = z.object({
@@ -106,17 +120,6 @@ export const mbl_WalletAnalysisSchema = z.object({
       tradingTimeFrames: z.number(),
       winRealizedPnl: z.number(),
       winRealizedPnlRate: z.number(),
-      fundingInfo: z
-        .object({
-          from: z.string(),
-          date: z.string(),
-          chainId: z.string(),
-          txHash: z.string(),
-          amount: z.string(),
-          fromWalletLogo: z.string().nullish(),
-          fromWalletTag: z.string().nullish(),
-        })
-        .nullish(),
       nativeBalance: z
         .object({
           rawBalance: z.string(),

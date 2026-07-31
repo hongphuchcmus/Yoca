@@ -43,6 +43,12 @@ class WashTradingAiDailyLimitError extends Error {
   }
 }
 
+class WashTradingChatDailyLimitError extends Error {
+  constructor(readonly usage: AiUsageMetadata) {
+    super("Wash Trading AI Chat daily limit exceeded");
+  }
+}
+
 function washTradingAiLimitResponse(usage: AiUsageMetadata) {
   return {
     success: false,
@@ -58,6 +64,28 @@ function washTradingAiLockedResponse(usage: AiUsageMetadata) {
     success: false,
     errorCode: "AI_FEATURE_LOCKED",
     message: "Wash Trading AI Analysis requires the Plus plan or higher.",
+    feature: usage.feature,
+    tier: usage.tier,
+    requiredTier: usage.requiredTier ?? "Plus",
+    upgradePath: "/pricing",
+  };
+}
+
+function washTradingChatLimitResponse(usage: AiUsageMetadata) {
+  return {
+    success: false,
+    errorCode: "AI_DAILY_LIMIT_EXCEEDED",
+    message: "You have reached today's Wash Trading AI Chat limit.",
+    ...usage,
+    upgradePath: "/pricing",
+  };
+}
+
+function washTradingChatLockedResponse(usage: AiUsageMetadata) {
+  return {
+    success: false,
+    errorCode: "AI_FEATURE_LOCKED",
+    message: "Wash Trading AI Chat requires the Plus plan or higher.",
     feature: usage.feature,
     tier: usage.tier,
     requiredTier: usage.requiredTier ?? "Plus",
@@ -114,8 +142,11 @@ const app = new Hono()
       timestamp: new Date().toISOString(),
     });
   })
-  .post("/chat", async (c) => {
+  .post("/chat", honoJwt, userExtract, async (c) => {
+    let reservation: AiUsageReservation | undefined;
+
     try {
+      const { id: userId } = c.get("userPayload");
       const body = await c.req.json().catch(() => null);
       const parsed = washTradingChatSchema.safeParse(body);
 
@@ -130,9 +161,39 @@ const app = new Hono()
         );
       }
 
+      const usage = await getAiUsage(userId, AI_FEATURES.WashTradingAiChat);
+      if (isAiFeatureLocked(AI_FEATURES.WashTradingAiChat, usage.tier)) {
+        return c.json(
+          washTradingChatLockedResponse(usage),
+          statusCode.Forbidden,
+        );
+      }
+
+      reservation = await reserveAiUsage(
+        userId,
+        AI_FEATURES.WashTradingAiChat,
+      );
+      if (!reservation.allowed) {
+        throw new WashTradingChatDailyLimitError(reservation.usage);
+      }
+
       const data = await answerWashTradingChatQuery(parsed.data);
-      return c.json({ success: true, data, timestamp: new Date().toISOString() });
+      return c.json({
+        success: true,
+        data,
+        usage: reservation.usage,
+        counted: !reservation.usage.disabled,
+        timestamp: new Date().toISOString(),
+      });
     } catch (error) {
+      if (error instanceof WashTradingChatDailyLimitError) {
+        return c.json(
+          washTradingChatLimitResponse(error.usage),
+          statusCode.TooManyRequests,
+        );
+      }
+
+      await releaseWashTradingAiUsage(reservation);
       console.error("[WashTrading] POST /chat failed:", error);
       return c.json(
         {

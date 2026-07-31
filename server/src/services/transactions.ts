@@ -8,13 +8,13 @@ import { validateApiResult } from "@sv/middlewares/validation.js";
 import {
     getEndpoint as getBirdeyeEndpoint,
     getRequiredHeaders as getBirdeyeHeaders,
-    limiter as birdeyeLimiter,
+    spec as birdeyeSpec,
 } from "@sv/util/util-birdeye.js";
 import {
     getRequiredHeaders,
-    limiter as heliusLimiter,
+    spec as heliusSpec,
 } from "@sv/util/util-helius.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 
 export type HeliusEnhancedTokenTransfer = {
   mint?: string;
@@ -272,10 +272,9 @@ async function fetchBirdeyePriceAtTimestampUsd(
     endpoint.searchParams.set("address_type", "token");
     endpoint.searchParams.set("time", String(timestampSec));
 
-    const response = await rlFetch(endpoint, {
+    const response = await pFetch(birdeyeSpec, "birdeye.svc.token_price_at_time", endpoint, {
       method: "GET",
       headers: getBirdeyeHeaders(),
-      rlLimiter: birdeyeLimiter,
     });
 
     if (!response.ok) {
@@ -416,11 +415,10 @@ async function fetchEnhancedTransactionRaw(signature: string): Promise<HeliusEnh
   );
 
   const makeRequest = (body: unknown) =>
-    rlFetch(endpoint, {
+    pFetch(heliusSpec, "helius.svc.enhanced_transactions", endpoint, {
       method: "POST",
       headers: getRequiredHeaders(),
       body: JSON.stringify(body),
-      rlLimiter: heliusLimiter,
     });
 
   let response = await makeRequest({ transactions: [signature] });

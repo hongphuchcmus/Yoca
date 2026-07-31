@@ -10,10 +10,9 @@ import {
   formatTimestampWithTimezone,
 } from "@/util/chart-helpers";
 import { createTooltipHeader, createTooltipRow } from "@/util/tooltip-helpers";
-import { attachChartDayClick } from "@/util/chart-click";
 import type { EChartsOption, SeriesOption, YAXisComponentOption } from "echarts";
 import ReactECharts from "echarts-for-react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import client from "@/api/main";
 import { useGet, type UseGetResp } from "@/hooks/useGet";
 import type { ChartLoadingState } from "@/types/chart.types";
@@ -29,11 +28,20 @@ type PnLPoint = {
   value: number;
 };
 
+type DailyPnlPoint = PnLPoint & {
+  buyCount: number | null;
+  sellCount: number | null;
+  swapCount: number | null;
+  buyVolumeUsd: number | null;
+  sellVolumeUsd: number | null;
+  totalVolumeUsd: number | null;
+};
+
 type PnLAnalysisResponse = {
   wallets: {
     walletAddress: string;
     walletName?: string;
-    dailyPnL: PnLPoint[];
+    dailyPnL: DailyPnlPoint[];
     cumulativePnL: PnLPoint[];
     realizedPnL?: number;
     totalPnL?: number;
@@ -54,6 +62,7 @@ export interface PnLChartProps {
     wallets?: string[];
   };
   fetchEnabled?: boolean;
+  /** Temporarily ignored while day-level swap data is inconsistent. */
   onDayClick?: (walletAddress: string, timestamp: number) => void;
   actions?: React.ReactNode;
 }
@@ -66,14 +75,12 @@ export const PnLChart: React.FC<PnLChartProps> = ({
   initialViewMode = "both",
   initialFilters,
   fetchEnabled = true,
-  onDayClick,
   actions: externalActions,
 }) => {
   const { tr, fmt } = useLocalization();
   const chartTitle = title || tr("charts.pnlChart.title");
   const chartMinHeight = Math.max(minHeight, 360);
 
-  const chartRefMap = useRef(new Map<number, ReactECharts>());
   const baseOption = useCarbonChartBaseOption();
   const { selectedTimezone: timezone } = useChartContext();
   const [displayMode, setDisplayMode] = useState<PnLDisplayMode>(
@@ -91,7 +98,7 @@ export const PnLChart: React.FC<PnLChartProps> = ({
   const hasWallets = (walletsString ?? "").trim().length > 0;
 
   const pnlData: UseGetResp<PnLAnalysisResponse> = useGet(
-    client.api.wallets.analysis.pnl,
+    client.api.wallets.analysis["pnl-history"],
     200,
     {
       query: {
@@ -156,7 +163,7 @@ export const PnLChart: React.FC<PnLChartProps> = ({
 
   const createChartOption = useCallback(
     (
-      dailyPnLData: Array<{ timestamp: number; value: number }>,
+      dailyPnLData: DailyPnlPoint[],
       cumulativePnLData: Array<{ timestamp: number; value: number }>,
       walletLabel?: string,
     ): EChartsOption => {
@@ -312,6 +319,7 @@ export const PnLChart: React.FC<PnLChartProps> = ({
             );
             const dailyValue = dailyValues[tooltipParams[0].dataIndex];
             const cumulativeValue = cumulativeValues[tooltipParams[0].dataIndex];
+            const dailyPoint = dailyPnLData[tooltipParams[0].dataIndex];
 
             let tooltipContent = createTooltipHeader(date);
 
@@ -327,6 +335,43 @@ export const PnLChart: React.FC<PnLChartProps> = ({
               tooltipContent += createTooltipRow(
                 tr("charts.pnlChart.cumulativePnL"),
                 fmt.num.compact.currency(cumulativeValue),
+              );
+            }
+
+            if (dailyPoint?.buyCount != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.buySwaps"),
+                fmt.num.compact.decimal(dailyPoint.buyCount),
+              );
+            }
+            if (dailyPoint?.sellCount != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.sellSwaps"),
+                fmt.num.compact.decimal(dailyPoint.sellCount),
+              );
+            }
+            if (dailyPoint?.swapCount != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.totalSwaps"),
+                fmt.num.compact.decimal(dailyPoint.swapCount),
+              );
+            }
+            if (dailyPoint?.buyVolumeUsd != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.buyVolume"),
+                fmt.num.compact.currency(dailyPoint.buyVolumeUsd),
+              );
+            }
+            if (dailyPoint?.sellVolumeUsd != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.sellVolume"),
+                fmt.num.compact.currency(dailyPoint.sellVolumeUsd),
+              );
+            }
+            if (dailyPoint?.totalVolumeUsd != null) {
+              tooltipContent += createTooltipRow(
+                tr("charts.pnlChart.totalVolume"),
+                fmt.num.compact.currency(dailyPoint.totalVolumeUsd),
               );
             }
 
@@ -359,35 +404,6 @@ export const PnLChart: React.FC<PnLChartProps> = ({
       ),
     }));
   }, [displayData, createChartOption]);
-
-  useEffect(() => {
-    if (!onDayClick) return;
-
-    const cleanups: (() => void)[] = [];
-
-    chartOptions.forEach((entry, index) => {
-      const reactECharts = chartRefMap.current.get(index);
-      if (!reactECharts) return;
-
-      const chartInstance = reactECharts.getEchartsInstance();
-
-      const timestamps = displayData
-        ? displayData.wallets[index]?.dailyPnL.map((p) => p.timestamp) ?? []
-        : [];
-
-      if (timestamps.length == 0) return;
-
-      cleanups.push(
-        attachChartDayClick(chartInstance, timestamps, (ts) => {
-          onDayClick(entry.walletAddress, ts);
-        }),
-      );
-    });
-
-    return () => {
-      cleanups.forEach((fn) => fn());
-    };
-  }, [onDayClick, chartOptions, displayData]);
 
   const isEmpty =
     !displayData ||
@@ -443,17 +459,13 @@ export const PnLChart: React.FC<PnLChartProps> = ({
           style={{ display: "flex", flexDirection: "column", width: "100%", minWidth: 0 }}
         >
           <ChartGrid itemCount={chartOptions.length} multiItemColumns={2}>
-            {chartOptions.map((chartData, index) => (
+            {chartOptions.map((chartData) => (
               <ChartGridItem
                 key={chartData.walletAddress}
                 itemKey={chartData.walletAddress}
                 minHeight={chartMinHeight}
               >
                 <ReactECharts
-                  ref={(el) => {
-                    if (el) chartRefMap.current.set(index, el);
-                    else chartRefMap.current.delete(index);
-                  }}
                   option={chartData.option}
                   style={{
                     height: "100%",

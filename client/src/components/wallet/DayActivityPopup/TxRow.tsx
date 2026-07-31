@@ -6,15 +6,14 @@ import { Flex } from "@/components/Flex";
 import { Txt } from "@/components/Txt";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import styles from "./TxRow.module.scss";
-
-const WSOL_MINT = "So11111111111111111111111111111111111111112";
+import { WRAPPED_SOL_MINT_ADDRESS } from "@/config/constants";
 
 function resolveLogoUri(
   address: string | null | undefined,
   logoMap: Record<string, string | null> | undefined,
 ): string | undefined {
   if (!address || !logoMap) return undefined;
-  return logoMap[address] ?? logoMap[WSOL_MINT] ?? undefined;
+  return logoMap[address] ?? logoMap[WRAPPED_SOL_MINT_ADDRESS] ?? undefined;
 }
 
 interface TxRowProps {

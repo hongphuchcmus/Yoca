@@ -11,10 +11,13 @@ import {
     mbl_TokenTopHoldersSchema,
     type MBL_TokenTopHolderSchema,
 } from "@sv/services/_types/token-raw-responses.js";
+import { singleFlight } from "@sv/services/util/single-flight.js";
 import { excludedAutoFromInsert } from "@sv/util/orm-sql.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as mobula from "@sv/util/util-mobula.js";
+import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 
 export async function fetchTokenHolderPositions(
   tokenAddress: string,
@@ -26,10 +29,9 @@ export async function fetchTokenHolderPositions(
     limit: "1000",
   }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(mobula.spec, "mobula.svc.token_holders", endpoint, {
     method: "GET",
     headers: mobula.getRequiredHeaders(),
-    rlLimiter: mobula.limiter,
   });
 
   if (!resp.ok) {
@@ -44,7 +46,7 @@ export async function fetchTokenHolderPositions(
   return res;
 }
 
-export async function refreshTokenHolderSnapshot(tokenAddress: string) {
+async function fetchAndStoreTokenHolderSnapshot(tokenAddress: string) {
   const positions = await fetchTokenHolderPositions(tokenAddress);
 
   if (!positions) {
@@ -89,7 +91,21 @@ export async function refreshTokenHolderSnapshot(tokenAddress: string) {
 
     const holders =
       topHolders.length > 0
-        ? await tx.insert(topTokenHolders).values(topHolders).returning()
+        ? await tx
+            .insert(topTokenHolders)
+            .values(topHolders)
+            .onConflictDoUpdate({
+              target: [topTokenHolders.tokenAddress, topTokenHolders.rank],
+              set: {
+                ...excludedAutoFromInsert(
+                  topTokenHolders,
+                  [topTokenHolders.tokenAddress, topTokenHolders.rank],
+                  topHolders,
+                ),
+                updatedAt: dayjs.utc().toDate(),
+              },
+            })
+            .returning()
         : [];
 
     const persistedStats = await tx
@@ -116,6 +132,10 @@ export async function refreshTokenHolderSnapshot(tokenAddress: string) {
   });
 }
 
+export const refreshTokenHolderSnapshot = singleFlight(
+  fetchAndStoreTokenHolderSnapshot,
+).by((tokenAddress) => `token_holders:${tokenAddress}`);
+
 export async function getTopTokenHolders(tokenAddress: string) {
   const res = await db
     .select()
@@ -137,8 +157,10 @@ export async function getTopTokenHolders(tokenAddress: string) {
   }
 
   if (stale) {
+    dataUsage.record("provider_result");
     const refreshed = await refreshTokenHolderSnapshot(tokenAddress);
     return refreshed?.holders ?? null;
   }
+  dataUsage.record("db_result");
   return res;
 }

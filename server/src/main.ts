@@ -30,10 +30,7 @@ import { csrf } from "hono/csrf";
 import { logger } from "hono/logger";
 import payment from "./routes/payment.route.js";
 import washTradingRoutes from "./routes/wash-trading.route.js";
-import { warnIfLegacyHeliusWebhookConfigured } from "@sv/services/heliusWebhooks.service.js";
-
-warnIfLegacyHeliusWebhookConfigured();
-
+import metrics from "./routes/metrics.js";
 const app = new Hono()
   .use("*", logger())
   .use("*", requestContextMiddleware)
@@ -66,7 +63,8 @@ const app = new Hono()
   .route("/api/payment", payment)
   .route("/api/chat", chat)
   .route("/webhook", webhook)
-  .route("/api/v1/wash-trading", washTradingRoutes);
+  .route("/api/v1/wash-trading", washTradingRoutes)
+  .route("/metrics", metrics);
 
 // startTokenPolling();
 

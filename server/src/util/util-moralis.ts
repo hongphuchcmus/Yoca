@@ -1,4 +1,5 @@
 import type { ApiKeyMetadata } from "@sv/services/tracking/apiCallTracker.types.js";
+import { defineProvider } from "@sv/util/rate-limit.js";
 import { apiKeyManager, buildApiKeyMetadata } from "./api-key-manager.js";
 import Bottleneck from "bottleneck";
 import env from "./load-env.js";
@@ -9,6 +10,11 @@ let moralisKeysInitialized = false;
 export const limiter = new Bottleneck({
   maxConcurrent: 5,
   minTime: 100,
+});
+
+export const spec = defineProvider({
+  id: "moralis",
+  limiter,
 });
 
 function buildEndpoint(base: string, path: string): URL {

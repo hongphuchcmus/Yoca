@@ -1,0 +1,12 @@
+{
+  "runId": "2026-07-31T08-39-20-686Z_journey-observed",
+  "commit": "93efbec4",
+  "environment": "local_benchmark",
+  "database": "configured_server_database",
+  "startedAt": "2026-07-31T08:39:20.696Z",
+  "phase": "observed_first",
+  "datasetVersion": "2026-07-19",
+  "sampleCount": 5,
+  "providerMode": "real",
+  "notes": "Observed-first is not claimed as cold because database state was not controlled by this runner."
+}

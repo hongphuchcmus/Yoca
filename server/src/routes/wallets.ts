@@ -11,7 +11,8 @@ import type {
     WalletPortfolioItem,
 } from "@sv/services/wallet/dtos/walletDataObjects.js";
 import {
-    getTokenDetails,
+    getWalletRealizedPnlDescBreakdown,
+    getWalletRecentTradedDescBreakdown,
     getWalletFirstFund,
 } from "@sv/services/wallet/index.js";
 import {
@@ -652,18 +653,34 @@ const app = new Hono()
       return serverErr(c, e);
     }
   })
-  .get("/:address/tokens", validate("param", addressSchema), async (c) => {
+  .get("/:address/recent-traded-desc-breakdown", validate("param", addressSchema), async (c) => {
     try {
       const { address } = c.req.valid("param");
-      const tokenDetails = await getTokenDetails(address);
-      if (tokenDetails == null) {
+      const breakdown = await getWalletRecentTradedDescBreakdown(address);
+      if (breakdown == null) {
         return c.json(
           setErr("FAILED_TO_FETCH_REQUESTED_DATA"),
           statusCode.BadGateway,
         );
       }
 
-      return c.json(tokenDetails, statusCode.Ok);
+      return c.json(breakdown, statusCode.Ok);
+    } catch (e) {
+      return serverErr(c, e);
+    }
+  })
+  .get("/:address/realized-pnl-desc-breakdown", validate("param", addressSchema), async (c) => {
+    try {
+      const { address } = c.req.valid("param");
+      const breakdown = await getWalletRealizedPnlDescBreakdown(address);
+      if (breakdown == null) {
+        return c.json(
+          setErr("FAILED_TO_FETCH_REQUESTED_DATA"),
+          statusCode.BadGateway,
+        );
+      }
+
+      return c.json(breakdown, statusCode.Ok);
     } catch (e) {
       return serverErr(c, e);
     }

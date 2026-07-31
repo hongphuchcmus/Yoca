@@ -63,6 +63,62 @@
   background: rgba(124, 58, 237, 0.08) !important;
 }
 
+.portfolioSkeleton {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--yoca-border, rgba(148, 163, 184, 0.16));
+  border-radius: var(--yoca-radius-lg, 18px);
+  background: var(--yoca-surface, rgba(18, 24, 38, 0.82));
+}
+
+.portfolioSkeletonHeader,
+.portfolioSkeletonColumns,
+.portfolioSkeletonRow {
+  display: grid;
+  grid-template-columns: 3rem minmax(11rem, 1fr) minmax(7rem, 0.7fr) minmax(9rem, 0.9fr);
+  align-items: center;
+  min-width: 30rem;
+}
+
+.portfolioSkeletonHeader {
+  grid-template-columns: minmax(0, 1fr) 9rem;
+  gap: 1rem;
+  min-height: 4rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--yoca-border, rgba(148, 163, 184, 0.16));
+}
+
+.portfolioSkeletonSearch {
+  width: 9rem;
+  height: 2rem;
+}
+
+.portfolioSkeletonColumns {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  background: var(--yoca-surface-raised, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--yoca-border, rgba(148, 163, 184, 0.16));
+}
+
+.portfolioSkeletonRows {
+  min-width: 30rem;
+}
+
+.portfolioSkeletonRow {
+  min-height: 3.5rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--yoca-border, rgba(148, 163, 184, 0.1));
+}
+
+.portfolioSkeletonRow:last-child {
+  border-bottom: 0;
+}
+
+.portfolioSkeletonIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+}
 .watchButton {
   display: inline-flex;
   align-items: center;
@@ -116,4 +172,3 @@
   font-size: 0.72rem;
   line-height: 1.2;
 }
-

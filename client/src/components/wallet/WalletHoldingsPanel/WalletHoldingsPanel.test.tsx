@@ -81,21 +81,34 @@ vi.mock("@/components/tables/TableCellRenderer.tsx", () => ({
 }));
 
 vi.mock("@/util/wallet-portfolio-mapper.ts", () => ({
-  mapPortfolioItems: () => ({
-    rows: [
-      ["SOL", 100, 1.5, 150],
-      ["USDC", 1, 25, 25],
-    ],
-    meta: [
-      { tokenAddress: "So11111111111111111111111111111111111111112", logoUri: null, fullName: "Solana" },
-      { tokenAddress: "usdc-token-address", logoUri: null, fullName: "USD Coin" },
-    ],
-  }),
+  mapPortfolioItems: (portfolio: WalletPortfolioItem[]) =>
+    portfolio.length == 0
+      ? { rows: [], meta: [] }
+      : {
+          rows: [
+            ["SOL", 100, 1.5, 150],
+            ["USDC", 1, 25, 25],
+          ],
+          meta: [
+            {
+              tokenAddress:
+                portfolio[0]?.tokenAddress == "native"
+                  ? "native"
+                  : "So11111111111111111111111111111111111111112",
+              logoUri: null,
+              fullName: "Solana",
+            },
+            { tokenAddress: "usdc-token-address", logoUri: null, fullName: "USD Coin" },
+          ],
+        },
   buildPortfolioMetaMap: () => new Map([
     ["SOL", { logoUri: null, fullName: "Solana" }],
     ["USDC", { logoUri: null, fullName: "USD Coin" }],
   ]),
-  isNativeSolToken: () => false,
+  resolveNativeSolTokenAddress: (tokenAddress: string) =>
+    tokenAddress == "native"
+      ? "So11111111111111111111111111111111111111112"
+      : tokenAddress,
 }));
 
 describe("WalletHoldingsPanel", () => {
@@ -121,6 +134,20 @@ describe("WalletHoldingsPanel", () => {
     expect(screen.getByText("Holding / Value")).toBeInTheDocument();
     expect(screen.getByText("1.5")).toBeInTheDocument();
     expect(screen.getByText("$150.00")).toBeInTheDocument();
+  });
+
+  it("keeps the chart mounted and shows a table-shaped skeleton while the portfolio loads", () => {
+    render(
+      <WalletHoldingsPanel
+        walletAddress="wallet-1"
+        portfolio={[]}
+        portfolioMeta={new Map()}
+        loading
+      />,
+    );
+
+    expect(screen.getByTestId("asset-distribution")).toBeInTheDocument();
+    expect(screen.getByTestId("portfolio-skeleton")).toBeInTheDocument();
   });
 
   it("searches holdings by token name", () => {
@@ -161,5 +188,29 @@ describe("WalletHoldingsPanel", () => {
     fireEvent.click(screen.getByText("SOL"));
 
     expect(mocks.navigate).toHaveBeenCalledWith("/tokens/So11111111111111111111111111111111111111112");
+  });
+
+  it("opens native SOL holdings through the Wrapped SOL token page", () => {
+    render(
+      <WalletHoldingsPanel
+        walletAddress="wallet-1"
+        portfolio={[
+          {
+            tokenAddress: "native",
+            symbol: "SOL",
+            amount: 1.5,
+            valueUsd: 150,
+          },
+        ]}
+        portfolioMeta={new Map()}
+        loading={false}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("SOL"));
+
+    expect(mocks.navigate).toHaveBeenCalledWith(
+      "/tokens/So11111111111111111111111111111111111111112",
+    );
   });
 });

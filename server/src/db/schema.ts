@@ -86,6 +86,90 @@ export const tokenDetails = pgTable("token_details", {
     .$onUpdate(() => new Date()),
 });
 
+export const tokenFundamentals = pgTable("token_fundamentals", {
+  tokenAddress: varchar("token_address", { length: 44 }).primaryKey(),
+  allocationsObservedAt: timestamp("allocations_observed_at"),
+  unlockScheduleObservedAt: timestamp("unlock_schedule_observed_at"),
+  investorsObservedAt: timestamp("investors_observed_at"),
+});
+
+export const tokenAllocations = pgTable(
+  "token_allocations",
+  {
+    tokenAddress: varchar("token_address", { length: 44 }).notNull(),
+    category: varchar("category", { length: 128 }).notNull(),
+    percentage: decimal("percentage").notNull(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .$onUpdate(() => dayjs.utc().toDate()),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tokenAddress, table.category] }),
+  ],
+);
+
+export const tokenUnlockEvents = pgTable(
+  "token_unlock_events",
+  {
+    id: serial("id").primaryKey(),
+    tokenAddress: varchar("token_address", { length: 44 }).notNull(),
+    unlockAt: timestamp("unlock_at").notNull(),
+    tokensToUnlock: decimal("tokens_to_unlock").notNull(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .$onUpdate(() => dayjs.utc().toDate()),
+  },
+  (table) => [
+    uniqueIndex("token_unlock_events_token_date_uq").on(
+      table.tokenAddress,
+      table.unlockAt,
+    ),
+  ],
+);
+
+export const tokenUnlockAllocations = pgTable(
+  "token_unlock_allocations",
+  {
+    unlockEventId: integer("unlock_event_id")
+      .notNull()
+      .references(() => tokenUnlockEvents.id, { onDelete: "cascade" }),
+    category: varchar("category", { length: 128 }).notNull(),
+    tokenAmount: decimal("token_amount").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.unlockEventId, table.category] }),
+  ],
+);
+
+export const investors = pgTable("investors", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 256 }).notNull().unique(),
+  type: varchar("type", { length: 128 }),
+  imageUrl: varchar("image_url"),
+  countryName: varchar("country_name", { length: 128 }),
+  description: text("description"),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdate(() => dayjs.utc().toDate()),
+});
+
+export const tokenInvestors = pgTable(
+  "token_investors",
+  {
+    tokenAddress: varchar("token_address", { length: 44 }).notNull(),
+    investorId: integer("investor_id")
+      .notNull()
+      .references(() => investors.id, { onDelete: "cascade" }),
+    lead: boolean("lead").notNull().default(false),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .$onUpdate(() => dayjs.utc().toDate()),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tokenAddress, table.investorId] }),
+  ],
+);
+
 export const tokenMarketData = pgTable("token_market_data", {
   address: varchar("address", { length: 44 }).primaryKey(),
 
@@ -126,7 +210,7 @@ export const tokenMarketData = pgTable("token_market_data", {
   updatedAt: timestamp("updated_at")
     .notNull()
     .defaultNow()
-    .$onUpdate(() => new Date()),
+    .$onUpdate(() => dayjs.utc().toDate()),
 });
 
 export const tokenPoolData = pgTable("token_pool_data", {
@@ -945,7 +1029,7 @@ export const alertRules = pgTable("alert_rules", {
     .$onUpdate(() => new Date()),
 });
 
-/** Managed Helius webhook shards for wallet alert address fan-out. */
+/** Managed Helius webhook for wallet alert address fan-out. */
 export const heliusWebhooks = pgTable("helius_webhooks", {
   id: serial("id").primaryKey(),
   heliusWebhookId: text("helius_webhook_id").notNull().unique(),
@@ -964,7 +1048,7 @@ export const heliusWebhooks = pgTable("helius_webhooks", {
   updatedAt: timestamp("updated_at")
     .notNull()
     .defaultNow()
-    .$onUpdate(() => new Date()),
+    .$onUpdate(() => dayjs.utc().toDate()),
 });
 
 export const heliusWebhookAddresses = pgTable(
@@ -982,8 +1066,8 @@ export const heliusWebhookAddresses = pgTable(
   (t) => [unique().on(t.heliusWebhookId, t.walletAddress)],
 );
 
-export const walletTokenDetails = pgTable(
-  "wallet_token_details",
+export const walletRecentTradedDescBreakdown = pgTable(
+  "wallet_recent_traded_desc_breakdown",
   {
     address: varchar("address", { length: 44 }).notNull(),
     tokenAddress: varchar("token_address", { length: 44 }).notNull(),
@@ -1020,6 +1104,34 @@ export const walletTokenDetails = pgTable(
     updatedAtMs: bigint("updated_at_ms", { mode: "number" })
       .notNull()
       .$onUpdate(() => dayjs.utc().valueOf()),
+  },
+  (t) => [primaryKey({ columns: [t.address, t.tokenAddress] })],
+);
+
+export const walletRealizedPnlDescBreakdown = pgTable(
+  "wallet_realized_pnl_desc_breakdown",
+  {
+    address: varchar("address", { length: 44 }).notNull(),
+    tokenAddress: varchar("token_address", { length: 44 }).notNull(),
+    symbol: varchar("symbol"),
+    lastTradeUnixTime: integer("last_trade_unix_time").notNull(),
+    totalBuyCount: integer("total_buy_count").notNull(),
+    totalSellCount: integer("total_sell_count").notNull(),
+    totalTradeCount: integer("total_trade_count").notNull(),
+    totalBoughtAmount: decimal("total_bought_amount").notNull(),
+    totalSoldAmount: decimal("total_sold_amount").notNull(),
+    balanceAmount: decimal("balance_amount").notNull(),
+    costOfQuantitySold: decimal("cost_of_quantity_sold").notNull(),
+    totalBoughtUsd: decimal("total_bought_usd").notNull(),
+    totalSoldUsd: decimal("total_sold_usd").notNull(),
+    currentValue: decimal("current_value").notNull(),
+    realizedProfitUsd: decimal("realized_profit_usd").notNull(),
+    realizedProfitPercent: decimal("realized_profit_percent").notNull(),
+    unrealizedProfitUsd: decimal("unrealized_profit_usd").notNull(),
+    unrealizedProfitPercent: decimal("unrealized_profit_percent").notNull(),
+    avgBuyCost: decimal("avg_buy_cost").notNull(),
+    avgSellCost: decimal("avg_sell_cost").notNull(),
+    updatedAtMs: bigint("updated_at_ms", { mode: "number" }).notNull(),
   },
   (t) => [primaryKey({ columns: [t.address, t.tokenAddress] })],
 );
@@ -1246,8 +1358,10 @@ export type WalletEnhancedTxMetaInsert =
   typeof walletEnhancedTxMeta.$inferInsert;
 export type walletSwapMetaInsert = typeof walletSwapMeta.$inferInsert;
 export type WalletUserTagsInsert = typeof walletUserTags.$inferInsert;
-export type WalletTokenDetailsInsert = typeof walletTokenDetails.$inferInsert;
-export type WalletTokenDetailsSelect = typeof walletTokenDetails.$inferSelect;
+export type WalletRecentTradedDescBreakdownInsert = typeof walletRecentTradedDescBreakdown.$inferInsert;
+export type WalletRecentTradedDescBreakdownSelect = typeof walletRecentTradedDescBreakdown.$inferSelect;
+export type WalletRealizedPnlDescBreakdownInsert = typeof walletRealizedPnlDescBreakdown.$inferInsert;
+export type WalletRealizedPnlDescBreakdownSelect = typeof walletRealizedPnlDescBreakdown.$inferSelect;
 export type WalletFirstFundInsert = typeof walletFirstFund.$inferInsert;
 export type FollowedWalletInsert = typeof followedWallets.$inferInsert;
 export type FollowedWalletRow = typeof followedWallets.$inferSelect;

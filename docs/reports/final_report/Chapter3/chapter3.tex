@@ -6,16 +6,15 @@ Chương này trình bày quá trình phân tích và thiết kế hệ thống 
 Yoca được xây dựng theo hướng ứng dụng web full-stack, trong đó frontend đảm nhiệm trình bày giao diện và trực quan hóa dữ liệu, còn backend đảm nhiệm xác thực, xử lý nghiệp vụ, tích hợp và chuẩn hóa dữ liệu từ bên thứ ba. Vì phải làm việc với dữ liệu blockchain có khối lượng lớn, biến động liên tục và phụ thuộc vào nhiều nhà cung cấp API, hệ thống cần có chiến lược truy xuất, lưu trữ đệm và đồng bộ dữ liệu hợp lý để đảm bảo khả năng phản hồi, ổn định và mở rộng.
 
 
-\section{Ý tưởng ứng dụng và tình huống sử dụng}
-\label{sec:y_tuong_ung_dung}
+Nhóm chúng em tổ chức các chức năng thành một hành trình phân tích liền mạch. Người dùng có thể bắt đầu ở Market Overview để nhận biết token hoặc pool đáng chú ý, mở Pool Detail để xem thanh khoản và giao dịch, rồi chuyển đến Token Overview để đọc dữ liệu thị trường, holder và lịch sử biến động. Khi một địa chỉ ví xuất hiện trong quá trình tìm hiểu, Wallet Overview tiếp tục cung cấp danh mục, lịch sử hoạt động, PnL và các biểu đồ liên quan. Nếu muốn theo dõi lâu dài, người dùng đăng nhập để lưu ví hoặc token, đặt nhãn, cấu hình cảnh báo và sử dụng AI để diễn giải tập dữ liệu đã chọn.
 
 Yoca được phát triển với định hướng trở thành một nền tảng phân tích dữ liệu crypto và wallet intelligence, giúp người dùng theo dõi thị trường, phân tích token, quan sát hoạt động ví và khai thác các tín hiệu on-chain trong cùng một giao diện thống nhất. Trong bối cảnh thị trường blockchain phát triển nhanh, dữ liệu liên quan đến token, ví, giao dịch, dòng tiền và tin tức thường bị phân tán trên nhiều công cụ khác nhau. Người dùng muốn có một bức tranh đầy đủ thường phải tra cứu nhiều nguồn, đối chiếu dữ liệu thủ công và tự diễn giải các biểu đồ hoặc lịch sử giao dịch. Quá trình này tốn thời gian, dễ sai sót và gây khó khăn đối với người dùng chưa có nhiều kinh nghiệm phân tích dữ liệu on-chain.
 
-Ý tưởng chính của Yoca là gom các lớp dữ liệu quan trọng vào một trải nghiệm phân tích thống nhất. Hệ thống không chỉ cung cấp thông tin thị trường như giá token, dữ liệu lịch sử và biểu đồ biến động, mà còn tập trung vào dữ liệu ở cấp độ ví như danh mục tài sản, lịch sử giao dịch, lịch sử chuyển token, lịch sử hoán đổi, biến động số dư và hiệu suất theo thời gian. Trên cơ sở đó, người dùng có thể quan sát một ví blockchain không chỉ như một địa chỉ lưu trữ tài sản, mà như một chuỗi hành vi tài chính có thể phân tích được.
+Ngoài luồng chính, Yoca còn hỗ trợ so sánh nhiều ví, xem chi tiết giao dịch và phân tích dấu hiệu wash trading. Đây là các nhánh dành cho người dùng cần đi sâu hơn sau bước quan sát tổng quan. Mô-đun wash trading trình bày quan hệ ví--giao dịch dưới dạng đồ thị và các chỉ số bất thường; kết quả đóng vai trò tín hiệu để người dùng tiếp tục kiểm tra giao dịch cùng bối cảnh thị trường.
 
 Tình huống sử dụng đầu tiên là phân tích một ví blockchain. Người dùng nhập địa chỉ ví vào hệ thống để xem tổng quan danh mục, các token đang nắm giữ, giá trị ước tính, lịch sử giao dịch và các biểu đồ biến động theo thời gian. Thay vì đọc từng giao dịch riêng lẻ trên trình khám phá khối, người dùng có thể quan sát ví thông qua các góc nhìn tổng hợp như phân bổ tài sản, biến động số dư, số lượng giao dịch và các hoạt động swap đáng chú ý. Tình huống này đặc biệt hữu ích khi người dùng muốn hiểu một ví đang có xu hướng nắm giữ dài hạn, giao dịch thường xuyên hay thay đổi danh mục theo biến động thị trường.
 
-Tình huống sử dụng thứ hai là theo dõi thị trường và token. Người dùng có thể tìm kiếm token, xem dữ liệu giá, dữ liệu lịch sử, các chỉ số thị trường và biểu đồ biến động. Chức năng này giúp người dùng theo dõi tài sản trong bối cảnh thị trường crypto có mức độ biến động cao. Khi dữ liệu token được kết hợp với dữ liệu ví, hệ thống có thể hỗ trợ người dùng hiểu rõ hơn sự thay đổi giá của một token ảnh hưởng như thế nào đến danh mục tài sản hoặc hiệu suất của ví.
+Từ hành trình trên, yêu cầu của Yoca được gom thành sáu nhóm theo năng lực mà người dùng nhận được.
 
 Tình huống sử dụng thứ ba là so sánh và đánh giá nhiều ví. Đối với người dùng có nhu cầu theo dõi nhiều địa chỉ ví, hệ thống hỗ trợ quan sát và đối chiếu các chỉ số ở cấp độ ví. Người dùng có thể so sánh danh mục, mức độ hoạt động, hiệu suất và các dấu hiệu hành vi giữa các ví khác nhau. Đây là tình huống có giá trị đối với nhà nghiên cứu token, nhà phân tích ví hoặc người dùng muốn theo dõi các ví có ảnh hưởng trong hệ sinh thái.
 
@@ -24,13 +23,11 @@ Tình huống sử dụng thứ tư là thiết lập cảnh báo. Người dùn
 Tình huống sử dụng thứ năm là sử dụng AI để hỗ trợ diễn giải dữ liệu. Dữ liệu on-chain thường có nhiều trường kỹ thuật và không dễ đọc đối với người dùng phổ thông. Vì vậy, Yoca định hướng tích hợp trợ lý AI nhằm tóm tắt dữ liệu ví, giải thích các biến động nổi bật và hỗ trợ người dùng đặt câu hỏi trên dữ liệu đã được hệ thống chuẩn hóa. Trong thiết kế này, AI không thay thế các phép tính định lượng của hệ thống, mà đóng vai trò như một lớp hỗ trợ diễn giải kết quả bằng ngôn ngữ tự nhiên.
 
 
-\section{Phân tích và đặc tả yêu cầu}
-\label{sec:dac_ta_yeu_cau}
+Chức năng so sánh nhiều ví sử dụng cùng các khái niệm ở cấp độ tổng hợp. Người dùng có thể chọn nhiều địa chỉ và đặt các chỉ số chính cạnh nhau để đối chiếu giá trị danh mục, PnL, win rate và hoạt động giao dịch. Với dữ liệu không đủ độ phủ, giao diện thể hiện rõ phạm vi của kết quả để người dùng không nhầm phần dữ liệu hiện có với toàn bộ lịch sử.
 
 Dựa trên mục tiêu đề tài và các tình huống sử dụng đã nêu, hệ thống Yoca được phân tích theo hai nhóm yêu cầu chính: yêu cầu chức năng và yêu cầu phi chức năng. Yêu cầu chức năng mô tả những nghiệp vụ mà hệ thống cần hỗ trợ cho người dùng, trong khi yêu cầu phi chức năng mô tả các thuộc tính chất lượng như hiệu năng, bảo mật, tính ổn định, khả năng mở rộng và khả năng sử dụng.
 
-\subsection{Các yêu cầu chức năng và phi chức năng}
-% Liệt kê các chức năng chính: Token Analytics, Wallet Portfolio, Charting, AI Assistant. Yêu cầu phi chức năng: độ trễ < 0.5s.
+Yoca cần cho phép người dùng chọn token hoặc dữ liệu giao dịch phù hợp để quan sát các mẫu đáng chú ý như chu trình chuyển tài sản, cấu trúc tập trung quanh một số ví và khối lượng tương đối của từng ví trong tập giao dịch. Hệ thống trình bày kết quả bằng đồ thị, bảng và phần giải thích để người dùng có thể lần ngược về các ví hoặc giao dịch liên quan. Các tín hiệu phải được diễn đạt theo mức độ nghi vấn; hệ thống không được tự động đồng nhất một mẫu bất thường với kết luận gian lận.
 
 Về yêu cầu chức năng, nhóm yêu cầu đầu tiên là quản lý tài khoản và xác thực người dùng. Hệ thống cần hỗ trợ đăng ký, đăng nhập, duy trì phiên làm việc và xác thực các thao tác yêu cầu quyền truy cập cá nhân hóa. Các chức năng như quản lý hồ sơ, watchlist, tag ví, cảnh báo và gói đăng ký chỉ nên được sử dụng bởi người dùng đã xác thực. Bên cạnh đăng nhập bằng tài khoản thông thường, hệ thống cũng hỗ trợ các hướng xác thực phù hợp với sản phẩm blockchain như đăng nhập thông qua ví.
 
@@ -42,25 +39,30 @@ Nhóm yêu cầu thứ tư là trực quan hóa dữ liệu. Hệ thống cần 
 
 Nhóm yêu cầu thứ năm là AI-assisted analysis và wallet chat. Hệ thống cần hỗ trợ chuyển dữ liệu ví hoặc dữ liệu token đã được xử lý thành ngữ cảnh có cấu trúc, sau đó sử dụng mô hình AI để tạo phần tóm tắt hoặc trả lời câu hỏi của người dùng. Kết quả AI cần được trình bày như một dạng hỗ trợ phân tích, không phải là kết luận tài chính tuyệt đối. Khi phù hợp, hệ thống có thể lưu lại kết quả phân tích để tránh lặp lại các tác vụ tốn chi phí và cải thiện tốc độ phản hồi trong các lần truy vấn sau.
 
-Yêu cầu này bao gồm cả việc lưu lại lịch sử thông báo theo tài khoản, đánh dấu trạng thái đã đọc/chưa đọc và cơ chế chống gửi trùng khi webhook gửi lại cùng một sự kiện; đây không phải các mục tùy chọn mà là điều kiện để tính năng cảnh báo đáng tin cậy trong sử dụng thực tế. Mức độ hoàn thiện thật của các yêu cầu này được trình bày ở chương Triển khai, kiểm thử và đánh giá.
+Hệ thống lưu lịch sử thông báo theo tài khoản, hỗ trợ trạng thái đã đọc/chưa đọc và dùng khóa sự kiện để tránh tạo bản ghi trùng khi webhook gửi lại cùng một hoạt động. Các cơ chế này giúp người dùng theo dõi kết quả gửi cảnh báo và duy trì lịch sử nhất quán.
 
 Nhóm yêu cầu thứ bảy là quản lý hồ sơ, watchlist, nhãn ví và gói dịch vụ. Người dùng cần có khả năng lưu lại token hoặc ví quan tâm, gắn nhãn cho ví, quản lý thông tin cá nhân và theo dõi trạng thái gói đăng ký. Các chức năng này giúp hệ thống không chỉ là một công cụ tra cứu một lần, mà trở thành một không gian làm việc cá nhân hóa cho hoạt động phân tích dữ liệu blockchain.
 
 Về yêu cầu phi chức năng, yêu cầu đầu tiên là hiệu năng. Do hệ thống phải làm việc với dữ liệu có khối lượng lớn và phụ thuộc vào nhiều API bên ngoài, backend cần ưu tiên đọc dữ liệu đã cache trước khi gọi lại nhà cung cấp. Đối với các dữ liệu có tần suất truy cập cao như dữ liệu token, dữ liệu biểu đồ hoặc dữ liệu lịch sử ví, cơ chế cache đóng vai trò quan trọng trong việc giảm độ trễ và giảm nguy cơ bị giới hạn tần suất truy vấn.
 
-Yêu cầu phi chức năng thứ hai là tính ổn định. Hệ thống cần xử lý được các tình huống nhà cung cấp bên ngoài trả về lỗi, dữ liệu thiếu, bị giới hạn truy vấn hoặc có độ trễ cao. Khi gặp lỗi từ API bên ngoài, hệ thống cần có cách phản hồi rõ ràng cho frontend, đồng thời ưu tiên sử dụng dữ liệu đã lưu nếu dữ liệu đó vẫn còn phù hợp. Cách tiếp cận này giúp người dùng vẫn có thể tiếp tục sử dụng hệ thống trong nhiều trường hợp thay vì gặp lỗi hoàn toàn.
+Do mỗi lần gọi mô hình phát sinh chi phí, hệ thống theo dõi lượt dùng theo tài khoản và gói dịch vụ. Khi vượt quyền lợi, người dùng nhận được thông báo rõ ràng cùng đường dẫn đến thông tin gói phù hợp.
 
 Yêu cầu phi chức năng thứ ba là bảo mật. Các chức năng liên quan đến tài khoản, watchlist, tag ví, cảnh báo, thanh toán và hồ sơ người dùng cần được bảo vệ bởi cơ chế xác thực và phân quyền. Token xác thực cần được quản lý an toàn, các API nhận dữ liệu từ người dùng cần được kiểm tra đầu vào, và các cấu hình nhạy cảm như API key, secret thanh toán hoặc secret xác thực không được đưa trực tiếp vào mã nguồn phía client.
 
 Yêu cầu phi chức năng thứ tư là khả năng mở rộng. Mặc dù hệ thống hiện tập trung nhiều vào Solana, thiết kế cần đủ linh hoạt để có thể mở rộng sang các nguồn dữ liệu hoặc blockchain khác. Điều này đòi hỏi backend phải tách biệt logic nghiệp vụ với logic tích hợp từng provider. Khi cần bổ sung provider mới, hệ thống nên chỉ cần thêm adapter hoặc service tương ứng thay vì phải sửa trực tiếp nhiều phần giao diện và nghiệp vụ.
 
-Yêu cầu phi chức năng thứ năm là khả năng sử dụng. Giao diện cần rõ ràng, nhất quán và phù hợp với người dùng có nhiều mức độ kinh nghiệm khác nhau. Người dùng mới cần có thể thực hiện các thao tác cơ bản như tìm token, nhập địa chỉ ví, đọc biểu đồ và xem danh mục mà không cần hiểu sâu về cấu trúc dữ liệu blockchain. Người dùng có kinh nghiệm hơn cần có đủ thông tin để phân tích sâu, so sánh dữ liệu và theo dõi các ví quan trọng.
+Yêu cầu thứ hai là khả năng phản hồi trong điều kiện phụ thuộc API bên ngoài. Hệ thống tái sử dụng dữ liệu còn hiệu lực, chỉ đồng bộ khoảng lịch sử còn thiếu và thể hiện trạng thái tải ở từng khu vực. Những yêu cầu trùng nhau phát sinh đồng thời được dùng chung kết quả đang xử lý, qua đó giảm số lần gọi provider và giữ giao diện phản hồi theo từng thành phần.
 
 \subsection{Sơ đồ Use Case tổng quát}
 
 % Sơ đồ use case tổng quát mô tả các tác nhân chính và nhóm chức năng lớn của hệ thống Yoca. Trong phạm vi thiết kế, hệ thống có bốn nhóm tác nhân chính: người dùng chưa đăng nhập, người dùng đã đăng nhập, quản trị viên và các dịch vụ bên thứ ba. Người dùng chưa đăng nhập có thể tra cứu một số thông tin công khai như thị trường, token hoặc ví. Người dùng đã đăng nhập có thể sử dụng các chức năng cá nhân hóa như quản lý watchlist, gắn nhãn ví, tạo cảnh báo, xem hồ sơ và sử dụng các chức năng yêu cầu xác thực. Quản trị viên có thể theo dõi, cấu hình hoặc quản lý một số dữ liệu hệ thống tùy theo phạm vi triển khai. Các dịch vụ bên thứ ba cung cấp dữ liệu blockchain, dữ liệu thị trường, AI, thanh toán và webhook.
 
-Sơ đồ use-case tổng quát mô tả hai tác nhân chính của hệ thống Yoca là Khách và Người dùng đã đăng ký, trong đó Người dùng đã đăng ký kế thừa toàn bộ quyền của Khách. Trọng tâm của hệ thống nằm ở ba nhóm chức năng được đặt trong khung riêng: phân tích thị trường và token, phân tích ví trên chuỗi, và các tính năng AI hỗ trợ ra quyết định như hỏi đáp Yoca AI, phân tích ví bằng AI và phát hiện wash-trading bằng AI. Ba nhóm còn lại gồm xác thực tài khoản, cảnh báo theo dõi và thanh toán chỉ đóng vai trò vận hành nền, phục vụ cho các chức năng phân tích ở trên hoạt động ổn định chứ không phải là điểm khác biệt chính của sản phẩm.
+Yêu cầu cuối cùng là khả năng sử dụng và bảo trì. Một người dùng mới cần tìm được token hoặc ví, hiểu trạng thái loading/error/empty và đọc được các chỉ số chính mà không phải biết cấu trúc API. Các màn hình cốt lõi cần dùng thuật ngữ, màu sắc và hành vi component nhất quán. Khi chuyển giữa tiếng Việt và tiếng Anh, hệ thống phải thay đổi đồng bộ chuỗi giao diện, định dạng số, ngày giờ và đơn vị tiền tệ; giá trị gốc bằng USD chỉ được quy đổi sang VND tại lớp trình bày để không làm thay đổi dữ liệu nghiệp vụ. Ở phía phát triển, contract dữ liệu giữa client và server phải đủ rõ để thay đổi provider không buộc giao diện phụ thuộc vào response thô của từng dịch vụ.
+
+\section{Sơ đồ Use Case}
+\label{sec:use_case}
+
+Sơ đồ tổng quát trong Hình~\ref{fig:usecase} mô tả hai tác nhân Khách và Người dùng đã đăng ký. Người dùng đã đăng ký kế thừa các chức năng công khai của Khách, đồng thời có thêm những chức năng cần dữ liệu cá nhân hoặc phát sinh chi phí như quản lý tài khoản, cảnh báo, subscription và AI. Provider, webhook và cổng thanh toán là các hệ thống hỗ trợ phía sau nên được trình bày trong sơ đồ kiến trúc, tách khỏi các tác nhân sử dụng Yoca.
 
 \begin{figure}[H]
     \centering
@@ -69,8 +71,7 @@ Sơ đồ use-case tổng quát mô tả hai tác nhân chính của hệ thốn
     \label{fig:usecase}
 \end{figure}
 
-\section{Kiến trúc hệ thống tổng thể}
-\label{sec:kien_truc_he_thong}
+Hình~\ref{fig:usecase_guest} triển khai chi tiết những điểm vào công khai: trang chủ, Market Radar, tìm kiếm, chi tiết token và chi tiết ví. Pool, giao dịch và các nhánh phân tích sâu được truy cập từ những điểm vào này, giúp sơ đồ tập trung vào mục tiêu chính của khách.
 
 Yoca được tổ chức theo kiến trúc ứng dụng web full-stack, gồm hai ứng dụng chính là frontend và backend. Frontend được xây dựng bằng React và Vite, có nhiệm vụ hiển thị giao diện, nhận thao tác người dùng, gọi API và trực quan hóa dữ liệu. Backend được xây dựng bằng Hono, có nhiệm vụ định nghĩa API, xác thực yêu cầu, xử lý nghiệp vụ, truy cập cơ sở dữ liệu và tích hợp với các nhà cung cấp dữ liệu bên ngoài. Cơ sở dữ liệu PostgreSQL được sử dụng để lưu trữ dữ liệu người dùng, dữ liệu cache, metadata, lịch sử cảnh báo, dữ liệu thanh toán và các kết quả phân tích cần tái sử dụng.
 
@@ -217,17 +218,44 @@ Mô hình AI sử dụng ngữ cảnh đã chuẩn bị để tạo câu trả l
 
 \input{Chapter3/database/database}
 
-\section{Kế hoạch kiểm thử và tiêu chí chấp nhận}
-\subsection{Phạm vi và các mức kiểm thử}
-\subsection{Dữ liệu và kịch bản kiểm thử}
-\subsection{Tiêu chí chấp nhận hệ thống}
+\section{Tiêu chí chấp nhận và phạm vi kiểm thử}
+\label{sec:acceptance_plan}
+
+Nhóm chúng em xác định tiêu chí chấp nhận theo các hành trình chính của người dùng. Các tiêu chí trong Bảng~\ref{tab:acceptance_criteria} liên kết yêu cầu chức năng với hành vi cần được duy trì khi hệ thống thay đổi; kết quả chạy các suite kiểm thử được trình bày tại Chương 5.
+
+\small
+\begin{longtable}{|p{3.1cm}|p{5.4cm}|p{6.0cm}|}
+\caption{Kịch bản và tiêu chí chấp nhận các luồng chính}\label{tab:acceptance_criteria} \\
+\hline
+\textbf{Luồng} & \textbf{Kịch bản} & \textbf{Tiêu chí chấp nhận} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Luồng} & \textbf{Kịch bản} & \textbf{Tiêu chí chấp nhận} \\
+\hline
+\endhead
+
+Khám phá thị trường & Mở Market Overview, tìm token/pool/ví và chuyển giữa các trang liên quan & Kết quả dẫn đến đúng đối tượng; loading, empty và upstream error được hiển thị rõ; dữ liệu chính có đơn vị và thời điểm phù hợp \\
+\hline
+Token và pool & Mở token, xem chart/holder/pool rồi mở một pool và giao dịch gần đây & Address được giữ nhất quán qua các trang; biểu đồ và bảng không dùng dữ liệu sai schema; trường tùy chọn bị thiếu không làm hỏng toàn trang \\
+\hline
+Phân tích ví & Mở ví, thay khoảng thời gian, xem portfolio, PnL, balance, transfer và swap & Dữ liệu thuộc đúng ví và khoảng thời gian; danh sách lớn được phân trang/lọc; kết quả có giới hạn độ phủ phải được ghi rõ \\
+\hline
+So sánh và wash trading & So sánh nhiều ví; mở phân tích wash trading của một token và lần theo giao dịch liên quan & Các chỉ số dùng cùng định nghĩa; đồ thị liên kết được với dữ liệu nguồn; tín hiệu bất thường không được trình bày như kết luận chắc chắn \\
+\hline
+Tài khoản cá nhân & Đăng nhập, cập nhật profile, quản lý watchlist/label và thử truy cập dữ liệu của tài khoản khác & Thao tác hợp lệ được lưu; route bảo vệ từ chối request thiếu hoặc sai quyền; dữ liệu cá nhân không bị trả cho tài khoản khác \\
+\hline
+Cảnh báo & Tạo, sửa trạng thái và xóa cảnh báo token hoặc ví; tiếp nhận một sự kiện phù hợp & Rule được lưu đúng chủ sở hữu và điều kiện; sự kiện phù hợp được xử lý theo kênh hỗ trợ; lỗi provider không làm mất cấu hình cảnh báo \\
+\hline
+AI và subscription & Gửi câu hỏi có ngữ cảnh, quản lý session/prompt và sử dụng hết quota thử nghiệm & Phản hồi bám dữ liệu được cung cấp; lượt dùng được ghi nhận; chức năng bị khóa trả thông báo và hướng nâng gói rõ ràng \\
+\hline
+\end{longtable}
+\normalsize
+
+Phạm vi kiểm thử gồm các phép tính và normalizer, contract bằng fixture cho phản hồi provider, route/service với upstream được mock và component test cho trạng thái giao diện. Các ca kiểm thử tập trung vào validation, ownership, phân trang, dữ liệu nullable, chống ghi trùng, quota và cách hệ thống phản hồi khi dịch vụ bên ngoài trả lỗi. Cách tổ chức này bao phủ các ranh giới có ảnh hưởng trực tiếp đến dữ liệu hiển thị và những luồng nghiệp vụ chính trong Bảng~\ref{tab:acceptance_criteria}.
 
 \section{Tổng kết chương}
 
-Chương này đã trình bày quá trình phân tích và thiết kế hệ thống Yoca từ góc nhìn nghiệp vụ và kiến trúc. Hệ thống được định hướng như một nền tảng web hỗ trợ phân tích dữ liệu on-chain, dữ liệu thị trường và hành vi ví blockchain trong một giao diện thống nhất. Các tình huống sử dụng chính bao gồm phân tích ví, theo dõi token, so sánh ví, thiết lập cảnh báo và sử dụng AI để hỗ trợ diễn giải dữ liệu.
+Chương này đã chuyển mục tiêu chung của Yoca thành một hành trình sử dụng và các yêu cầu có thể đối chiếu. Khách có thể khám phá thị trường, token, pool, giao dịch và ví; người dùng đã đăng ký có thêm không gian cá nhân, cảnh báo, subscription và AI. So sánh ví và wash trading mở rộng luồng phân tích khi người dùng cần đối chiếu nhiều đối tượng hoặc quan sát quan hệ giao dịch.
 
-Về mặt yêu cầu, Yoca cần đáp ứng các nhóm chức năng liên quan đến xác thực, phân tích thị trường, phân tích ví, trực quan hóa dữ liệu, AI Assistant, cảnh báo, hồ sơ người dùng và thanh toán. Đồng thời, hệ thống cần đảm bảo các yêu cầu phi chức năng về hiệu năng, ổn định, bảo mật, khả năng mở rộng và khả năng sử dụng.
-
-Về mặt kiến trúc, hệ thống được tổ chức theo mô hình ứng dụng web full-stack với React frontend, Hono backend và PostgreSQL làm cơ sở dữ liệu chính. Backend được thiết kế theo hướng monolith phân lớp, chia thành các miền nghiệp vụ rõ ràng như wallet, token, chart, auth, alert, AI, payment và profile. Cơ chế caching đóng vai trò quan trọng trong việc giảm phụ thuộc vào provider bên ngoài, cải thiện hiệu năng và tăng độ ổn định của hệ thống.
-
-Các luồng nghiệp vụ cốt lõi như truy xuất lịch sử ví, truy vấn dữ liệu biểu đồ và vấn đáp thông qua AI Assistant đã được phân tích ở mức thiết kế. Đây là cơ sở để Chương 4 tiếp tục trình bày kết quả cài đặt, môi trường triển khai, các chức năng đã hoàn thiện và quá trình đánh giá hệ thống.
+Bên cạnh chức năng, nhóm chúng em đặt ra yêu cầu về khả năng kiểm chứng dữ liệu, xử lý lỗi, bảo vệ dữ liệu cá nhân và tính nhất quán của giao diện. Chương tiếp theo trình bày cách kiến trúc Yoca đáp ứng các yêu cầu trên trong điều kiện dữ liệu phụ thuộc nhiều provider.

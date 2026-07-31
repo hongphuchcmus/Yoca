@@ -210,8 +210,8 @@ export const translation = {
       language: "Language",
       languageMenu: "Language menu",
       currentLanguage: "Current language",
-      english: "English",
-      vietnamese: "Tiếng Việt",
+      english: "English — English",
+      vietnamese: "Vietnamese — Tiếng Việt",
       toggleMenu: "Toggle menu",
       switchToLightMode: "Switch to Light Mode",
       switchToDarkMode: "Switch to Dark Mode",
@@ -388,6 +388,7 @@ export const translation = {
       volatilitySummary: "Volatility Signal Summary: {{$count}}/day",
       walletAiAnalysis: "Wallet AI Analysis: {{$count}}/day",
       washTradingAiAnalysis: "Wash Trading AI Analysis: {{$count}}/day",
+      washTradingAiChat: "Wash Trading AI Chat: {{$count}} messages/day",
       dailyReset: "Daily limits reset at 00:00 UTC",
     },
     cta: {
@@ -979,6 +980,7 @@ export const translation = {
     tokensLastTraded: "Last traded tokens",
     tokensLastTradedDescription: "Tokens with recent trading activity",
     balance: "Balance",
+    soldAll: "Sold All",
     profit: "Profit",
     realizedProfit: "Realized Profit",
     unrealizedProfit: "Unrealized Profit",
@@ -1046,7 +1048,7 @@ export const translation = {
       title: "Token Win Rate",
       win: "profitable token",
       traded: "traded token",
-      summaryShort: "{{win}} profitable / {{tradedCount}} traded",
+      summaryShort: "{{profitableCount}} profitable / {{totalCount}} traded tokens",
       summaryBreakdown:
         "{{profit}} profit · {{loss}} loss · {{neutral}} neutral",
       avgWin: "Avg Win",
@@ -1509,9 +1511,9 @@ export const translation = {
           realizedPnl: "Realized PnL",
           unrealizedPnl: "Unrealized PnL",
           tradingVolume: "Trading Volume ({{period}})",
-          winCount: "Win Count",
-          lossCount: "Loss Count",
-          totalTrades: "Total Trades",
+          winCount: "Profitable Tokens",
+          lossCount: "Unprofitable Tokens",
+          totalTrades: "Traded Tokens",
           avgWin: "Avg Win",
           avgLoss: "Avg Loss",
           winLossRatio: "Win/Loss Ratio",
@@ -1564,6 +1566,8 @@ export const translation = {
     theme: "Theme",
     account: "Account",
     language: "Language",
+    currentLanguage: "Current",
+    switchLanguage: "Switch",
     search: "Search",
     searchPlaceholder: "Search",
     searchHint: "Type to search for tokens, pools, or wallets",
@@ -1693,8 +1697,8 @@ export const translation = {
     ruleCreateSuccess: "Alert rule saved and address list sent to Helius.",
   },
   lang: {
-    vi: "Vietnam - Tiếng Việt (Vietnamese)",
-    en: "United States - English (English)",
+    vi: "Vietnamese — Tiếng Việt",
+    en: "English — English",
   },
   // Validation errors
   validation: {
@@ -1968,6 +1972,12 @@ export const translation = {
       title: "Profit & Loss",
       dailyPnL: "Daily P&L",
       cumulativePnL: "Cumulative P&L",
+      buySwaps: "Buy swaps",
+      sellSwaps: "Sell swaps",
+      totalSwaps: "Total swaps",
+      buyVolume: "Buy volume",
+      sellVolume: "Sell volume",
+      totalVolume: "Total volume",
       profit: "Profit",
       loss: "Loss",
       date: "Date",
@@ -2439,6 +2449,7 @@ export const translation = {
       rank1130: "11–30",
       rank3150: "31–50",
       others: "Others",
+      ofTotalSupply: "of total supply",
       supplyBillion: "{{count}} billion {{symbol}}",
       supplyMillion: "{{count}} million {{symbol}}",
       supplyThousand: "{{count}} thousand {{symbol}}",
@@ -2834,5 +2845,3 @@ export const translation = {
 // English as base translation
 export const defineTranslation =
   defineTranslationWithBase<typeof translation>();
-
-

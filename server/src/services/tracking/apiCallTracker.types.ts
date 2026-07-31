@@ -1,4 +1,4 @@
-export type TrackedProvider = "birdeye" | "helius" | "moralis" | "coinmarketcap" | "unknown";
+export type TrackedProvider = "birdeye" | "helius" | "moralis" | "unknown";
 
 export interface ApiKeyMetadata {
     source: string;

@@ -8,10 +8,6 @@ import {
 } from "@sv/db/schema.js";
 import { and, eq } from "drizzle-orm";
 import { getTokenMeta } from "../tokens/token-info.js";
-import {
-  fetchHeliusSolanaPortfolio,
-
-} from "@sv/services/wallet/fetchers/walletDataFetcher.service.js";
 import { getWalletAnalysis } from "@sv/services/wallet/wallet-analysis.js";
 import type { WalletAnalysisSelect } from "@sv/db/schema.js";
 import type {
@@ -550,26 +546,21 @@ export function getOverviewFromFreshCache(
   return mapOverviewCacheRowToDto(cacheRow, address, DEFAULT_OVERVIEW_SELECTION);
 }
 
-export async function buildHoldingsSnapshotFromProviders(
-  address: string,
+export async function buildHoldingsSnapshotFromPortfolio(
+  portfolio: WalletPortfolioItem[],
   cacheRow: WalletOverviewCacheRow | null,
 ): Promise<OverviewHoldingsSnapshot> {
-  try {
-    const heliusPortfolio = await fetchHeliusSolanaPortfolio(address);
-    const totalAssetValueUsd = heliusPortfolio.reduce(
-      (sum, item) => sum + Number(item.valueUsd ?? 0),
-      0,
-    );
-    if (heliusPortfolio.length > 0 || totalAssetValueUsd > 0) {
-      return {
-        totalAssetValueUsd,
-        change24hPercent: null,
-        tokensHoldingCount: heliusPortfolio.length,
-        source: "helius-portfolio-fallback",
-      };
-    }
-  } catch (err) {
-    console.error("Failed to fetch Solana portfolio for overview holdings", err);
+  const totalAssetValueUsd = portfolio.reduce(
+    (sum, item) => sum + Number(item.valueUsd ?? 0),
+    0,
+  );
+  if (portfolio.length > 0 || totalAssetValueUsd > 0) {
+    return {
+      totalAssetValueUsd,
+      change24hPercent: null,
+      tokensHoldingCount: portfolio.length,
+      source: "helius-portfolio-fallback",
+    };
   }
 
   if (cacheRow) {

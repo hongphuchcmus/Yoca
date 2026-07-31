@@ -7,7 +7,7 @@ import {
 import { db } from "@sv/db/index.js";
 import { trendingTokens } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as bds from "@sv/util/util-birdeye.js";
 import {
     bds_TrendingListSchema,
@@ -30,10 +30,9 @@ async function fetchTrendingPage(params: {
     limit: String(params.limit),
   }).toString();
 
-  const resp = await rlFetch(bdsEndpoint, {
+  const resp = await pFetch(bds.spec, "birdeye.svc.trending_tokens", bdsEndpoint, {
     method: "GET",
     headers: bds.getRequiredHeaders(),
-    rlLimiter: bds.limiter,
   });
 
   if (!resp.ok) {

@@ -13,9 +13,9 @@ function mapStoredWinrateToResponse(
     walletAddress: row.walletAddress,
     walletName: row.walletAddress,
     winrate: row.winrate,
-    totalTrades: row.totalTrades,
-    winningTrades: row.winningTrades,
-    losingTrades: row.losingTrades,
+    totalTokens: row.totalTrades,
+    profitableTokens: row.winningTrades,
+    unprofitableTokens: row.losingTrades,
     winningDistribution: [
       { range: "0%-50%", count: row.win0To50Count, min: 0, max: 50 },
       { range: "50%-200%", count: row.win50To200Count, min: 50, max: 200 },

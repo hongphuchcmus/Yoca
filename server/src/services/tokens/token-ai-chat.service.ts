@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { WALLET_AUDIT_MODEL } from "@sv/config/constants.js";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 import { z } from "zod";
 
 import {
@@ -110,10 +111,10 @@ const TOKEN_AI_CHAT_MODEL =
 const TOKEN_AI_CHAT_BALANCED_MODEL =
   process.env.TOKEN_AI_CHAT_BALANCED_MODEL?.trim() ||
   process.env.TOKEN_AI_CHAT_FALLBACK_MODEL?.trim() ||
-  "gemini-2.5-flash";
+  "gemini-3.1-flash-lite";
 const TOKEN_AI_CHAT_FAST_MODEL =
   process.env.TOKEN_AI_CHAT_FAST_MODEL?.trim() ||
-  "gemini-2.5-flash-lite";
+  "gemini-3.1-flash-lite";
 const TOKEN_AI_CHAT_PROMPT_VERSION =
   process.env.TOKEN_AI_CHAT_PROMPT_VERSION?.trim() || "v4";
 const ANALYST_FALLBACK_CACHE_TTL_MS = 3 * 60 * 1000;
@@ -2068,7 +2069,7 @@ async function generateGeminiAnswerForModel(
 
   try {
     const client = new GoogleGenAI({ apiKey });
-    const response = await client.models.generateContent({
+    const response = await trackGemini("gemini.svc.token_ai_chat", model, () => client.models.generateContent({
       model,
       contents: buildPrompt({ request, context, intent }),
       config: {
@@ -2108,7 +2109,7 @@ async function generateGeminiAnswerForModel(
           required: ["tldr", "sections", "warnings", "confidence", "disclaimer"],
         },
       },
-    });
+    }));
 
     const rawText = response.text ?? "";
     const json = parseGeminiJsonText(rawText);

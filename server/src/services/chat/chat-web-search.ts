@@ -1,4 +1,6 @@
 import type { WebSearchArticle } from "./chat.types.js";
+import { pFetch, type ServiceOperationId } from "@sv/util/rate-limit.js";
+import * as brave from "@sv/util/util-brave.js";
 
 const BRAVE_NEWS_ENDPOINT = "https://api.search.brave.com/res/v1/news/search";
 const BRAVE_WEB_ENDPOINT = "https://api.search.brave.com/res/v1/web/search";
@@ -63,6 +65,7 @@ function normalizeItem(item: BraveItem): WebSearchArticle | null {
 
 async function fetchBrave(
   endpoint: string,
+  operation: ServiceOperationId<"brave">,
   query: string,
   count: number,
 ): Promise<BraveResponse> {
@@ -75,21 +78,16 @@ async function fetchBrave(
   url.searchParams.set("country", "US");
   url.searchParams.set("search_lang", "en");
 
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), BRAVE_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "X-Subscription-Token": apiKey,
-      },
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`Brave responded ${res.status}`);
-    return (await res.json()) as BraveResponse;
-  } finally {
-    clearTimeout(t);
-  }
+  const res = await pFetch(brave.spec, operation, url, {
+    headers: {
+      Accept: "application/json",
+      "X-Subscription-Token": apiKey,
+    },
+    rlRetries: 0,
+    rlTimeoutMs: BRAVE_TIMEOUT_MS,
+  });
+  if (!res.ok) throw new Error(`Brave responded ${res.status}`);
+  return JSON.parse(await res.text());
 }
 
 export async function searchNews(
@@ -99,7 +97,12 @@ export async function searchNews(
   const reason = getUnavailableReason();
   if (reason) throw new Error(`Web search unavailable: ${reason}`);
 
-  const payload = await fetchBrave(BRAVE_NEWS_ENDPOINT, query, count);
+  const payload = await fetchBrave(
+    BRAVE_NEWS_ENDPOINT,
+    "brave.svc.chat_news_search",
+    query,
+    count,
+  );
   const articles = (payload.results ?? [])
     .map(normalizeItem)
     .filter((a): a is WebSearchArticle => a != null)
@@ -115,7 +118,12 @@ export async function searchWeb(
   const reason = getUnavailableReason();
   if (reason) throw new Error(`Web search unavailable: ${reason}`);
 
-  const payload = await fetchBrave(BRAVE_WEB_ENDPOINT, query, count);
+  const payload = await fetchBrave(
+    BRAVE_WEB_ENDPOINT,
+    "brave.svc.chat_web_search",
+    query,
+    count,
+  );
   const articles = (payload.web?.results ?? [])
     .map(normalizeItem)
     .filter((a): a is WebSearchArticle => a != null)

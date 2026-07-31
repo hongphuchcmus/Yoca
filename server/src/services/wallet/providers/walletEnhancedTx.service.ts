@@ -13,6 +13,7 @@ import { fetchHeliusAddressTransactions } from "./helius-tx-fetcher.js";
 import { getMissingRanges, isMissingRangeSignificant } from "@sv/services/wallet/walletRange.utils.js";
 import type { WalletRangeMs } from "@sv/services/wallet/walletRange.utils.js";
 import type { HeliusEnhancedTransaction, HeliusEnhancedTokenTransfer, HeliusEnhancedNativeTransfer, HeliusEnhancedInstruction, HeliusEnhancedInnerInstruction } from "@sv/services/transactions.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 
 type TokenTransferRow = {
   mint: string;
@@ -479,6 +480,9 @@ export async function resolveEnhancedTransactions(
   }
 
   const allTxs = await getCachedTxsByRange(address, resolvedFromMs, resolvedToMs);
+  if (allTxs.length > 0) {
+    dataUsage.record("db_result");
+  }
 
   return allTxs;
 }

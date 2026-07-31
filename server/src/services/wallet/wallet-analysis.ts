@@ -7,8 +7,10 @@ import {
 import { db } from "@sv/db/index.js";
 import { walletAnalyses, type WalletAnalysisSelect } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import { mbl_WalletAnalysisSchema } from "@sv/services/_types/wallet-raw-responses.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { singleFlight } from "@sv/services/util/single-flight.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as mobula from "@sv/util/util-mobula.js";
 import dayjs from "dayjs";
 import { and, eq } from "drizzle-orm";
@@ -26,9 +28,9 @@ export interface WalletWinrateData {
   walletAddress: string;
   walletName?: string;
   winrate: number;
-  totalTrades: number;
-  winningTrades: number;
-  losingTrades: number;
+  totalTokens: number;
+  profitableTokens: number;
+  unprofitableTokens: number;
   winningDistribution: WinrateBin[];
   losingDistribution: WinrateBin[];
   avgWinUsd: number;
@@ -49,7 +51,7 @@ const MOBULA_PERIOD_BY_WINRATE_PERIOD: Record<WinratePeriod, string> = {
   "90D": "90d",
 };
 
-export async function fetchWalletAnalysis(
+async function fetchAndStoreWalletAnalysis(
   walletAddress: string,
   period: WinratePeriod,
 ): Promise<WalletAnalysisSelect> {
@@ -60,11 +62,22 @@ export async function fetchWalletAnalysis(
     period: MOBULA_PERIOD_BY_WINRATE_PERIOD[period],
   }).toString();
 
-  const response = await rlFetch(endpoint, {
-    method: "GET",
-    headers: mobula.getRequiredHeaders(),
-    rlLimiter: mobula.limiter,
-  });
+  const response = await pFetch(
+    mobula.spec,
+    "mobula.svc.wallet_analysis",
+    endpoint,
+    {
+      method: "GET",
+      headers: mobula.getRequiredHeaders(),
+    },
+  );
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `Mobula wallet analysis failed (${response.status})${body ? `: ${body.slice(0, 300)}` : ""}`,
+    );
+  }
+
   const result = await validateApiResult(mbl_WalletAnalysisSchema, response);
   if (!result) {
     throw new Error(
@@ -79,10 +92,9 @@ export async function fetchWalletAnalysis(
   const winOver500Count = distribution[">500%"];
   const loss0To50Count = distribution["-50%-0%"];
   const lossOver50Count = distribution["<-50%"];
-  const winningTrades =
-    win0To50Count + win50To200Count + win200To500Count + winOver500Count;
-  const losingTrades = loss0To50Count + lossOver50Count;
-  const totalTrades = winningTrades + losingTrades;
+  const profitableTokens = result.data.stat.periodWinCount;
+  const totalTokens = result.data.stat.periodActiveTokensCount;
+  const unprofitableTokens = Math.max(0, totalTokens - profitableTokens);
   const totalWinUsd = result.data.stat.winRealizedPnl;
   const totalLossUsd = Math.max(
     0,
@@ -90,7 +102,7 @@ export async function fetchWalletAnalysis(
   );
   const fetchedAtMs = dayjs.utc().valueOf();
 
-  const winrate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+  const winrate = totalTokens > 0 ? (profitableTokens / totalTokens) * 100 : 0;
 
   const rows = await db
     .insert(walletAnalyses)
@@ -98,11 +110,13 @@ export async function fetchWalletAnalysis(
       walletAddress,
       period,
       winrate,
-      totalTrades,
-      winningTrades,
-      losingTrades,
-      avgWinUsd: winningTrades > 0 ? totalWinUsd / winningTrades : 0,
-      avgLossUsd: losingTrades > 0 ? totalLossUsd / losingTrades : 0,
+      // Legacy database column names store token-level win-rate counts.
+      totalTrades: totalTokens,
+      winningTrades: profitableTokens,
+      losingTrades: unprofitableTokens,
+      avgWinUsd: profitableTokens > 0 ? totalWinUsd / profitableTokens : 0,
+      avgLossUsd:
+        unprofitableTokens > 0 ? totalLossUsd / unprofitableTokens : 0,
       win0To50Count,
       win50To200Count,
       win200To500Count,
@@ -129,11 +143,12 @@ export async function fetchWalletAnalysis(
       target: [walletAnalyses.walletAddress, walletAnalyses.period],
       set: {
         winrate,
-        totalTrades,
-        winningTrades,
-        losingTrades,
-        avgWinUsd: winningTrades > 0 ? totalWinUsd / winningTrades : 0,
-        avgLossUsd: losingTrades > 0 ? totalLossUsd / losingTrades : 0,
+        totalTrades: totalTokens,
+        winningTrades: profitableTokens,
+        losingTrades: unprofitableTokens,
+        avgWinUsd: profitableTokens > 0 ? totalWinUsd / profitableTokens : 0,
+        avgLossUsd:
+          unprofitableTokens > 0 ? totalLossUsd / unprofitableTokens : 0,
         win0To50Count,
         win50To200Count,
         win200To500Count,
@@ -167,6 +182,10 @@ export async function fetchWalletAnalysis(
   return saved;
 }
 
+export const fetchWalletAnalysis = singleFlight(fetchAndStoreWalletAnalysis).by(
+  (walletAddress, period) => `wallet_analysis:${walletAddress}:${period}`,
+);
+
 export async function getWalletAnalysis(
   walletAddress: string,
   period: WinratePeriod,
@@ -187,13 +206,17 @@ export async function getWalletAnalysis(
     stored &&
     stored.fetchedAtMs >= dayjs.utc().valueOf() - WINRATE_TTL_BY_PERIOD[period]
   ) {
+    dataUsage.record("db_result");
     return stored;
   }
+
+  dataUsage.record("provider_result");
 
   try {
     return await fetchWalletAnalysis(walletAddress, period);
   } catch (error) {
     if (stored) {
+      dataUsage.record("db_result", "stale_fallback");
       console.warn("Mobula win-rate refresh failed; returning stored data", {
         walletAddress,
         period,
@@ -206,6 +229,5 @@ export async function getWalletAnalysis(
   }
 }
 
-
 export * from "./wallet-analysis/wallet-winrate";
-export * from "./wallet-analysis/wallet-pnl";
+export * from "./wallet-analysis/wallet-pnl-history";

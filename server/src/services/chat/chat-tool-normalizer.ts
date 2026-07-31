@@ -11,7 +11,6 @@ const RANGE_TOOLS = new Set([
   "get_wallet_transfers",
   "get_wallet_swaps_compact",
   "get_wallet_transfers_compact",
-  "get_wallet_pnl",
 ]);
 
 export interface NormalizeToolOptions {

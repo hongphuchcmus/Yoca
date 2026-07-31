@@ -7,6 +7,7 @@ import {
     WALLET_AUDIT_MODEL,
 } from "@sv/config/constants.js";
 import env from "@sv/util/load-env.js";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 
 export type WalletAiEvidenceHighlight = {
     evidenceId: string;
@@ -65,7 +66,16 @@ export type WalletAiGeminiClientLike = {
                 temperature?: number;
                 responseMimeType?: string;
             };
-        }) => Promise<{ text?: string | null }>;
+        }) => Promise<{
+            text?: string | null;
+            usageMetadata?: {
+                promptTokenCount?: number;
+                candidatesTokenCount?: number;
+                cachedContentTokenCount?: number;
+                thoughtsTokenCount?: number;
+                totalTokenCount?: number;
+            };
+        }>;
     };
 };
 
@@ -431,19 +441,23 @@ export async function summarizeWalletWithGemini(params: {
     }
 
     try {
-        const response = await geminiClient.models.generateContent({
-            model: WALLET_AUDIT_MODEL,
-            contents: prompt,
-            config: {
-                temperature: 0.2,
-                responseMimeType: "application/json",
-                systemInstruction: [
-                    "You are an on-chain Solana wallet analyst.",
-                    "You must only explain the supplied evidence and never invent evidence IDs or signatures.",
-                    "Return valid JSON only.",
-                ].join(" "),
-            },
-        });
+        const response = await trackGemini(
+            "gemini.svc.wallet_ai_summary",
+            WALLET_AUDIT_MODEL,
+            () => geminiClient.models.generateContent({
+                model: WALLET_AUDIT_MODEL,
+                contents: prompt,
+                config: {
+                    temperature: 0.2,
+                    responseMimeType: "application/json",
+                    systemInstruction: [
+                        "You are an on-chain Solana wallet analyst.",
+                        "You must only explain the supplied evidence and never invent evidence IDs or signatures.",
+                        "Return valid JSON only.",
+                    ].join(" "),
+                },
+            }),
+        );
 
         const parsed = extractJsonObject(response.text ?? "");
         return sanitizeWalletAiSummaryResponse(parsed, input);

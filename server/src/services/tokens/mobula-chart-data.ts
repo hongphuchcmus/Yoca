@@ -1,5 +1,5 @@
 import * as mobula from "@sv/util/util-mobula.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
 import { z } from "zod";
 
@@ -27,10 +27,9 @@ export async function getMobulaChartData(
   endpoint.searchParams.set("chainId", "solana:solana");
   endpoint.searchParams.set("timeframe", timeframe);
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(mobula.spec, "mobula.svc.token_price_chart", endpoint, {
     method: "GET",
     headers: mobula.getRequiredHeaders(),
-    rlLimiter: mobula.limiter,
     rlTimeoutMs: MOBULA_CHART_TIMEOUT_MS,
   });
 

@@ -3,7 +3,14 @@ import client from "@/api/main";
 export type TokenAiTimeframe = "24h" | "7d" | "1m" | "3m" | "1y";
 export type TokenAiLanguage = "en" | "vi";
 export type TokenAiModelMode = "fast" | "balanced" | "deep";
-export type AIFeature = "ask_yoca_ai" | "general_ai_chat" | "token_chart_news_summary" | "volatility_signal_summary" | "wallet_ai_analysis" | "wash_trading_ai_analysis"
+export type AIFeature =
+  | "ask_yoca_ai"
+  | "general_ai_chat"
+  | "token_chart_news_summary"
+  | "volatility_signal_summary"
+  | "wallet_ai_analysis"
+  | "wash_trading_ai_analysis"
+  | "wash_trading_ai_chat";
 export type TokenAiProvider =
   | "gemini"
   | "gemini_model_fallback"

@@ -1,5 +1,5 @@
 import { validateApiResult } from "@sv/middlewares/validation.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import {
     cg_TokenMarketChartSchema
@@ -31,10 +31,9 @@ export async function getTokenHistoricalData(
     precision: "full",
   }).toString();
 
-  const resp = await rlFetch(cgEndpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.token_history", cgEndpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   if (!resp.ok) return null;

@@ -1,6 +1,7 @@
 import client from "@/api/main";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useUserTheme } from "@/contexts/ThemeContext";
+import { useGet, type UseGetResp } from "@/hooks/useGet";
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 import type { InferResponseType } from "hono/client";
@@ -47,37 +48,18 @@ interface DistributionData {
   rest: string;
 }
 
+interface TokenFundamentalsData {
+  distribution: AllocationItem[];
+  release_schedule: UnlockEvent[];
+  investors: InvestorData[];
+}
+
 interface TokenInsightTabsProps {
   address: string;
   meta: MetaData;
   market: MarketData | null;
   holders: TopHoldersData;
   holdersLoading?: boolean;
-}
-
-// ─── Asset name resolver ──────────────────────────────────────────────────────
-
-function resolveAssetName(symbol: string, name?: string): string {
-  let cleanName =
-    name && name !== "Unknown Token"
-      ? name.split(" (")[0].trim().toLowerCase()
-      : "";
-  if (cleanName.startsWith("wrapped ")) cleanName = cleanName.replace("wrapped ", "");
-  if (cleanName.startsWith("bridged "))  cleanName = cleanName.replace("bridged ", "");
-
-  const nameMap: Record<string, string> = {
-    sol: "solana", ether: "ethereum", eth: "ethereum",
-    bitcoin: "bitcoin", btc: "bitcoin", matic: "polygon",
-    bnb: "binancecoin", avax: "avalanche", arb: "arbitrum",
-    link: "chainlink", ada: "cardano", dot: "polkadot",
-    uni: "uniswap", atom: "cosmos", xlm: "stellar",
-    apt: "aptos", sui: "sui", op: "optimism",
-    near: "near", fil: "filecoin", algo: "algorand",
-  };
-
-  if (nameMap[cleanName]) return nameMap[cleanName];
-  const symLower = symbol.toLowerCase();
-  return nameMap[symLower] || cleanName || symLower;
 }
 
 // ─── Donut Chart ─────────────────────────────────────────────────────────────
@@ -94,6 +76,7 @@ type DonutTooltipParam = {
 function buildDonutOption(
   distribution: DistributionData,
   labels: { top10: string; mid1: string; mid2: string; others: string },
+  ofTotalSupply: string,
   isDark: boolean,
 ): EChartsOption {
   const mid1Key = "11_25";
@@ -122,7 +105,7 @@ function buildDonutOption(
         const barStr = "█".repeat(filled) + "░".repeat(track - filled);
         return [
           `<b style="color:#fff;font-size:14px">${params.name}</b>`,
-          `<span style="color:${params.color}">●</span> ${params.value.toFixed(2)}% của tổng cung`,
+          `<span style="color:${params.color}">●</span> ${params.value.toFixed(2)}% ${ofTotalSupply}`,
           `<span style="font-family:monospace;color:#7bb8f5;font-size:11px">${barStr}</span>`,
         ].join("<br/>");
       },
@@ -205,6 +188,7 @@ function InsightCard({ question, answer }: { question: string; answer: string })
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function TokenInsightTabs({
+  address,
   meta,
   market,
   holders,
@@ -216,81 +200,52 @@ export function TokenInsightTabs({
   const [activeTab, setActiveTab] = useState(0);
 
   // ── Mobula data (single fetch for all Tokenomics + Investors) ──────────────
-  const [mobulaLoading, setMobulaLoading] = useState(true);
-  const [allocation, setAllocation]       = useState<AllocationItem[]>([]);
-  const [releaseSchedule, setReleaseSchedule] = useState<UnlockEvent[]>([]);
-  const [investors, setInvestors]         = useState<InvestorData[]>([]);
+  const fundamentals: UseGetResp<TokenFundamentalsData> = useGet(
+    client.api.tokens.fundamentals[":address"],
+    200,
+    { param: { address } },
+    { enabled: address.length > 0 },
+  );
+  const fundamentalsLoading = fundamentals.isLoading;
+  const allocation = useMemo<AllocationItem[]>(() => {
+    const sorted = [...(fundamentals.data?.distribution ?? [])].sort(
+      (a, b) => b.percentage - a.percentage,
+    );
+    if (sorted.length <= 8) {
+      return sorted;
+    }
 
-  useEffect(() => {
-    let cancelled = false;
-    setMobulaLoading(true);
-    setAllocation([]);
-    setReleaseSchedule([]);
-    setInvestors([]);
-
-    const fetchMobula = async () => {
-      try {
-        const asset = resolveAssetName(meta.symbol, meta.name);
-        const res = await fetch(
-          `https://api.mobula.io/api/1/metadata?asset=${encodeURIComponent(asset)}`,
-          { headers: { Authorization: "26b01ba0-8418-475c-af44-91bcee6d32e6" } },
-        );
-        if (!res.ok || cancelled) return;
-        const json = await res.json();
-        const d = json.data;
-        if (!d || cancelled) return;
-
-        // Distribution / Allocation
-        if (d.distribution?.length > 0) {
-          const sorted = [...d.distribution].sort(
-            (a: AllocationItem, b: AllocationItem) => b.percentage - a.percentage,
-          );
-          let finalData = sorted;
-          if (sorted.length > 8) {
-            const top8 = sorted.slice(0, 8);
-            const othersSum = sorted
-              .slice(8)
-              .reduce((s: number, i: AllocationItem) => s + i.percentage, 0);
-            if (othersSum > 0) top8.push({ name: "Others", percentage: othersSum });
-            finalData = top8;
-          }
-          if (!cancelled) setAllocation(finalData);
-        }
-
-        // Release schedule
-        if (d.release_schedule?.length > 0 && !cancelled) {
-          setReleaseSchedule(d.release_schedule);
-        }
-
-        // Investors (lead first)
-        if (d.investors?.length > 0 && !cancelled) {
-          const sorted = [...d.investors].sort(
-            (a: InvestorData, b: InvestorData) => (b.lead ? 1 : 0) - (a.lead ? 1 : 0),
-          );
-          setInvestors(sorted);
-        }
-      } catch {
-        // silently fail — tabs simply won't appear
-      } finally {
-        if (!cancelled) setMobulaLoading(false);
-      }
-    };
-
-    fetchMobula();
-    return () => { cancelled = true; };
-  }, [meta.symbol, meta.name]);
+    const top8 = sorted.slice(0, 8);
+    const othersSum = sorted
+      .slice(8)
+      .reduce((sum, item) => sum + item.percentage, 0);
+    return othersSum > 0
+      ? [...top8, { name: "Others", percentage: othersSum }]
+      : top8;
+  }, [fundamentals.data]);
+  const releaseSchedule = useMemo<UnlockEvent[]>(
+    () => fundamentals.data?.release_schedule ?? [],
+    [fundamentals.data],
+  );
+  const investors = useMemo<InvestorData[]>(
+    () =>
+      [...(fundamentals.data?.investors ?? [])].sort(
+        (a, b) => Number(b.lead) - Number(a.lead),
+      ),
+    [fundamentals.data],
+  );
 
   // ── Dynamic tab visibility ─────────────────────────────────────────────────
-  const hasTokenomics = !mobulaLoading && (allocation.length > 0 || releaseSchedule.length > 0);
-  const hasInvestors  = !mobulaLoading && investors.length > 0;
+  const hasTokenomics = !fundamentalsLoading && (allocation.length > 0 || releaseSchedule.length > 0);
+  const hasInvestors  = !fundamentalsLoading && investors.length > 0;
 
   // If current tab becomes hidden (e.g. no data), reset to Stats
   useEffect(() => {
-    if (!mobulaLoading) {
+    if (!fundamentalsLoading) {
       if (activeTab === 2 && !hasTokenomics) setActiveTab(0);
       if (activeTab === 3 && !hasInvestors)  setActiveTab(0);
     }
-  }, [mobulaLoading, hasTokenomics, hasInvestors]);
+  }, [fundamentalsLoading, hasTokenomics, hasInvestors]);
 
   // ── Holders distribution (computed from holders prop) ─────────────────────
   const distribution = useMemo<DistributionData | null>(() => {
@@ -390,7 +345,7 @@ export function TokenInsightTabs({
                 <div className={styles.chartPlaceholder} />
               ) : distribution ? (
                 <div className={styles.chartBody}>
-                  <ReactECharts option={buildDonutOption(distribution, donutLabels, isDark)} style={{ height: "100%", width: "100%" }} notMerge />
+                  <ReactECharts option={buildDonutOption(distribution, donutLabels, tr("token.insightTabs.ofTotalSupply"), isDark)} style={{ height: "100%", width: "100%" }} notMerge />
                 </div>
               ) : (
                 <div className={styles.noData}>—</div>
@@ -421,5 +376,3 @@ export function TokenInsightTabs({
     </div>
   );
 }
-
-

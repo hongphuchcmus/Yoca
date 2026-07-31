@@ -1,0 +1,130 @@
+{
+  "benchmarks": [
+    {
+      "name": "Market Radar",
+      "coldMs": 25440,
+      "warmMs": 661,
+      "cold": "25,44 s",
+      "warm": "0,66 s"
+    },
+    {
+      "name": "Token Overview",
+      "coldMs": 17570,
+      "warmMs": 1141,
+      "cold": "17,57 s",
+      "warm": "1,14 s"
+    },
+    {
+      "name": "Wallet Core",
+      "coldMs": 5476,
+      "warmMs": 799,
+      "cold": "5,48 s",
+      "warm": "0,80 s"
+    }
+  ],
+  "scenarios": [
+    {
+      "mau": "300",
+      "conversion": "2%",
+      "paidUsers": "6",
+      "revenueUsd": "$303,00",
+      "directCostUsd": "$145,75",
+      "profitUsd": "$15,25",
+      "directRatio": 48.1,
+      "personnelRatio": 13.2,
+      "reinvestmentRatio": 33.66,
+      "profitMargin": 5.03
+    },
+    {
+      "mau": "3.000",
+      "conversion": "2,5%",
+      "paidUsers": "75",
+      "revenueUsd": "$3.787,50",
+      "directCostUsd": "$1.181,98",
+      "profitUsd": "$227,52",
+      "directRatio": 31.21,
+      "personnelRatio": 29.57,
+      "reinvestmentRatio": 33.21,
+      "profitMargin": 6.01
+    },
+    {
+      "mau": "30.000",
+      "conversion": "3%",
+      "paidUsers": "900",
+      "revenueUsd": "$45.450,00",
+      "directCostUsd": "$9.647,05",
+      "profitUsd": "$2.557,75",
+      "directRatio": 21.23,
+      "personnelRatio": 14.08,
+      "reinvestmentRatio": 59.07,
+      "profitMargin": 5.63
+    }
+  ],
+  "costMix3k": [
+    {
+      "name": "Gemini + Brave Search",
+      "value": "$476,64",
+      "amount": 476.64,
+      "share": "40,3%",
+      "color": "#0f62fe"
+    },
+    {
+      "name": "Data provider",
+      "value": "$523,00",
+      "amount": 523,
+      "share": "44,2%",
+      "color": "#4589ff"
+    },
+    {
+      "name": "Thanh toán",
+      "value": "$132,34",
+      "amount": 132.34,
+      "share": "11,2%",
+      "color": "#78a9ff"
+    },
+    {
+      "name": "Hạ tầng + email",
+      "value": "$50,00",
+      "amount": 50,
+      "share": "4,2%",
+      "color": "#d0e2ff"
+    }
+  ],
+  "costMix30k": [
+    {
+      "name": "Qwen GPU",
+      "value": "$3.166,00",
+      "amount": 3166,
+      "share": "32,8%",
+      "color": "#0f62fe"
+    },
+    {
+      "name": "Brave Search",
+      "value": "$3.451,00",
+      "amount": 3451,
+      "share": "35,8%",
+      "color": "#0043ce"
+    },
+    {
+      "name": "Data provider",
+      "value": "$1.342,00",
+      "amount": 1342,
+      "share": "13,9%",
+      "color": "#4589ff"
+    },
+    {
+      "name": "Thanh toán",
+      "value": "$1.588,05",
+      "amount": 1588.05,
+      "share": "16,5%",
+      "color": "#78a9ff"
+    },
+    {
+      "name": "Hạ tầng + email",
+      "value": "$100,00",
+      "amount": 100,
+      "share": "1,0%",
+      "color": "#d0e2ff"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+---
+config:
+  layout: elk
+---
+erDiagram
+    direction TB
+
+    WALLET_ADDRESS {
+        varchar address PK
+    }
+    WALLET_OVERVIEW_CACHE {
+        varchar address PK
+        decimal total_asset_value_usd
+        decimal pnl_usd_total
+        timestamp fetched_at
+    }
+    WALLET_ANALYSES {
+        varchar wallet_address PK
+        varchar period PK
+        decimal winrate
+        decimal pnl_total_usd
+    }
+    WALLET_TOKEN_DETAILS {
+        varchar address PK
+        varchar token_address PK
+        decimal realized_profit_usd
+        decimal unrealized_profit_usd
+    }
+    WALLET_BALANCE_HISTORY {
+        varchar address PK
+        varchar token_address
+        bigint timestamp_ms PK
+        decimal usd_value
+    }
+
+    WALLET_ADDRESS ||..o| WALLET_OVERVIEW_CACHE : summarizes
+    WALLET_ADDRESS ||..o{ WALLET_ANALYSES : analyzes
+    WALLET_ADDRESS ||..o{ WALLET_TOKEN_DETAILS : breaks_down
+    WALLET_ADDRESS ||..o{ WALLET_BALANCE_HISTORY : tracks

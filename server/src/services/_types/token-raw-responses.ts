@@ -485,7 +485,54 @@ const mbl_TokenTopHoldersMetadataSchema = z
     entityDiscord: z.string().nullable(),
     entityTelegram: z.string().nullable(),
   })
-  .nullable();
+    .nullable();
+
+const mbl_TokenAllocationSchema = z.object({
+  name: z.string(),
+  percentage: z.coerce.number(),
+});
+
+const mbl_TokenUnlockEventSchema = z.object({
+  unlock_date: z.coerce.number(),
+  tokens_to_unlock: z.coerce.number().nullish().transform((value) => value ?? 0),
+  allocation_details: z
+    .record(z.string(), z.coerce.number())
+    .nullish()
+    .transform((value) => value ?? {}),
+});
+
+const mbl_TokenInvestorSchema = z.object({
+  name: z.string(),
+  type: z.string().nullish().transform((value) => value ?? ""),
+  image: z.string().nullish().transform((value) => value ?? ""),
+  country_name: z.string().nullish().transform((value) => value ?? ""),
+  description: z.string().nullish().transform((value) => value ?? ""),
+  lead: z.boolean().nullish().transform((value) => value ?? false),
+});
+
+export const mbl_TokenFundamentalsResponseSchema = z.object({
+  data: z.object({
+    distribution: z
+      .array(mbl_TokenAllocationSchema)
+      .nullable()
+      .transform((value) => value ?? [])
+      .optional(),
+    release_schedule: z
+      .array(mbl_TokenUnlockEventSchema)
+      .nullable()
+      .transform((value) => value ?? [])
+      .optional(),
+    investors: z
+      .array(mbl_TokenInvestorSchema)
+      .nullable()
+      .transform((value) => value ?? [])
+      .optional(),
+  }),
+});
+
+export type MBL_TokenFundamentalsResponse = z.infer<
+  typeof mbl_TokenFundamentalsResponseSchema
+>;
 
 export const mbl_TokenTopHoldersSchema = z.object({
   data: z.array(
@@ -674,12 +721,12 @@ export const helius_WalletFundedBySchema = z.strictObject({
 
 export type HL_WalletFundedBy = z.infer<typeof helius_WalletFundedBySchema>;
 
-const helius_EnhancedRawTokenAmountSchema = z.strictObject({
+const helius_EnhancedRawTokenAmountSchema = z.object({
   tokenAmount: z.string().optional(),
   decimals: z.number().optional(),
 });
 
-const helius_EnhancedSwapLegSchema = z.strictObject({
+const helius_EnhancedSwapLegSchema = z.object({
   mint: z.string().optional(),
   tokenAmount: z.coerce.number().optional(),
   amount: z.coerce.number().optional(),
@@ -696,7 +743,7 @@ const helius_EnhancedSwapLegSchema = z.strictObject({
   rawTokenAmount: helius_EnhancedRawTokenAmountSchema.optional(),
 });
 
-const helius_EnhancedSwapNativeLegSchema = z.strictObject({
+const helius_EnhancedSwapNativeLegSchema = z.object({
   amount: z.coerce.number().optional(),
   userAccount: z.string().optional(),
   account: z.string().optional(),
@@ -704,7 +751,7 @@ const helius_EnhancedSwapNativeLegSchema = z.strictObject({
   destination: z.string().optional(),
 });
 
-const helius_EnhancedSwapEventSchema = z.strictObject({
+const helius_EnhancedSwapEventSchema = z.object({
   user: z.string().optional(),
   userAccount: z.string().optional(),
   tokenInputs: z.array(helius_EnhancedSwapLegSchema).optional(),
@@ -716,7 +763,7 @@ const helius_EnhancedSwapEventSchema = z.strictObject({
   programId: z.string().optional(),
   innerSwaps: z
     .array(
-      z.strictObject({
+      z.object({
         user: z.string().optional(),
         userAccount: z.string().optional(),
         tokenInputs: z.array(helius_EnhancedSwapLegSchema).optional(),
@@ -731,13 +778,13 @@ const helius_EnhancedSwapEventSchema = z.strictObject({
     .optional(),
 });
 
-const helius_EnhancedInstructionSchema = z.strictObject({
+const helius_EnhancedInstructionSchema = z.object({
   accounts: z.array(z.string()).optional(),
   data: z.string().optional(),
   programId: z.string().optional(),
   innerInstructions: z
     .array(
-      z.strictObject({
+      z.object({
         accounts: z.array(z.string()).optional(),
         data: z.string().optional(),
         programId: z.string().optional(),
@@ -746,7 +793,7 @@ const helius_EnhancedInstructionSchema = z.strictObject({
     .optional(),
 });
 
-const helius_EnhancedTokenTransferSchema = z.strictObject({
+const helius_EnhancedTokenTransferSchema = z.object({
   mint: z.string().optional(),
   tokenMint: z.string().optional(),
   tokenAmount: z.coerce.number().optional(),
@@ -766,7 +813,7 @@ const helius_EnhancedTokenTransferSchema = z.strictObject({
   tokenStandard: z.string().nullable().optional(),
 });
 
-const helius_EnhancedNativeTransferSchema = z.strictObject({
+const helius_EnhancedNativeTransferSchema = z.object({
   amount: z.coerce.number().optional(),
   fromUserAccount: z.string().optional(),
   toUserAccount: z.string().optional(),
@@ -777,7 +824,7 @@ const helius_EnhancedNativeTransferSchema = z.strictObject({
 });
 
 export const helius_EnhancedTransactionsSchema = z.array(
-  z.strictObject({
+  z.object({
     signature: z.string(),
     feePayer: z.string().optional(),
     fee: z.number().optional(),
@@ -789,7 +836,7 @@ export const helius_EnhancedTransactionsSchema = z.array(
     programName: z.string().optional(),
     instructions: z.array(helius_EnhancedInstructionSchema).optional(),
     events: z
-      .strictObject({
+      .object({
         swap: helius_EnhancedSwapEventSchema.optional(),
         nft: z.object({
           mint: z.string().optional(),
@@ -811,14 +858,14 @@ export const helius_EnhancedTransactionsSchema = z.array(
       })
       .optional(),
     transactionEvents: z
-      .strictObject({
+      .object({
         swap: helius_EnhancedSwapEventSchema.optional(),
       })
       .optional(),
     accountData: z.array(z.unknown()).optional(),
     transactionError: z.unknown().optional(),
     info: z
-      .strictObject({
+      .object({
         feePayer: z.string().optional(),
         fee: z.number().optional(),
         slot: z.number().optional(),
@@ -873,105 +920,13 @@ export const dex_TopPoolsSchema = z.object({
 
 export type DEX_TopPools = z.infer<typeof dex_TopPoolsSchema>;
 
-const bds_NullableNumberSchema = z.number().nullable();
-
 export const bds_TokenListV3Schema = z.object({
   success: z.literal(true),
   data: z.object({
-    has_next: z.boolean(),
     items: z.array(
       z.object({
         address: z.string(),
-        name: z.string(),
-        symbol: z.string(),
-        decimals: z.number(),
-        logo_uri: z.string().nullable(),
-        is_scaled_ui_token: z.boolean(),
-        multiplier: bds_NullableNumberSchema,
-        price: z.number(),
-        liquidity: z.number(),
-        market_cap: z.number(),
-        fdv: z.number(),
-        holder: z.number(),
-        circulating_supply: z.number(),
-        total_supply: z.number(),
-        last_trade_unix_time: z.number(),
-        recent_listing_time: bds_NullableNumberSchema,
-        extensions: z.object({
-          twitter: z.string().optional(),
-          website: z.string().optional(),
-          description: z.string().optional(),
-          telegram: z.string().optional(),
-          github: z.string().optional(),
-          coingecko_id: z.string().optional(),
-        }),
-        global_fees_paid: z.number(),
-        price_change_1m_percent: z.number(),
-        price_change_5m_percent: z.number(),
-        price_change_30m_percent: z.number(),
-        price_change_1h_percent: z.number(),
-        price_change_2h_percent: z.number(),
-        price_change_4h_percent: z.number(),
-        price_change_8h_percent: z.number(),
         price_change_24h_percent: z.number(),
-        price_change_7d_percent: z.number(),
-        price_change_30d_percent: z.number(),
-        trade_1m_count: z.number(),
-        trade_5m_count: z.number(),
-        trade_30m_count: z.number(),
-        trade_1h_count: z.number(),
-        trade_2h_count: z.number(),
-        trade_4h_count: z.number(),
-        trade_8h_count: z.number(),
-        trade_24h_count: z.number(),
-        trade_7d_count: z.number(),
-        trade_30d_count: z.number(),
-        volume_1m_usd: z.number(),
-        volume_5m_usd: z.number(),
-        volume_30m_usd: z.number(),
-        volume_1h_usd: z.number(),
-        volume_2h_usd: z.number(),
-        volume_4h_usd: z.number(),
-        volume_8h_usd: z.number(),
-        volume_24h_usd: z.number(),
-        volume_7d_usd: z.number(),
-        volume_30d_usd: z.number(),
-        volume_1m_change_percent: bds_NullableNumberSchema,
-        volume_5m_change_percent: bds_NullableNumberSchema,
-        volume_30m_change_percent: bds_NullableNumberSchema,
-        volume_1h_change_percent: bds_NullableNumberSchema,
-        volume_2h_change_percent: bds_NullableNumberSchema,
-        volume_4h_change_percent: bds_NullableNumberSchema,
-        volume_8h_change_percent: bds_NullableNumberSchema,
-        volume_24h_change_percent: bds_NullableNumberSchema,
-        volume_7d_change_percent: bds_NullableNumberSchema,
-        volume_30d_change_percent: bds_NullableNumberSchema,
-        buy_24h: z.number(),
-        sell_24h: z.number(),
-        buy_7d: z.number(),
-        sell_7d: z.number(),
-        buy_30d: z.number(),
-        sell_30d: z.number(),
-        buy_24h_change_percent: bds_NullableNumberSchema,
-        sell_24h_change_percent: bds_NullableNumberSchema,
-        buy_7d_change_percent: bds_NullableNumberSchema,
-        sell_7d_change_percent: bds_NullableNumberSchema,
-        buy_30d_change_percent: bds_NullableNumberSchema,
-        sell_30d_change_percent: bds_NullableNumberSchema,
-        volume_buy_24h_usd: z.number(),
-        volume_sell_24h_usd: z.number(),
-        volume_buy_7d_usd: z.number(),
-        volume_sell_7d_usd: z.number(),
-        volume_buy_30d_usd: z.number(),
-        volume_sell_30d_usd: z.number(),
-        volume_buy_24h_change_percent: bds_NullableNumberSchema,
-        volume_sell_24h_change_percent: bds_NullableNumberSchema,
-        volume_buy_7d_change_percent: bds_NullableNumberSchema,
-        volume_sell_7d_change_percent: bds_NullableNumberSchema,
-        volume_buy_30d_change_percent: bds_NullableNumberSchema,
-        volume_sell_30d_change_percent: bds_NullableNumberSchema,
-        unique_wallet_24h: z.number(),
-        unique_wallet_24h_change_percent: bds_NullableNumberSchema,
       }),
     ),
   }),

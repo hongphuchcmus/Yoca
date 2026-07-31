@@ -7,7 +7,8 @@ import {
     walletTokenBalanceWeekHistory,
     zerionTokenList,
 } from "@sv/db/schema.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import dayjs from "dayjs";
 import { and, between, eq, inArray } from "drizzle-orm";
 import {
@@ -80,10 +81,9 @@ async function fetchZerionId(
       .join(","),
   }).toString();
 
-  const resp = await rlFetch(req, {
+  const resp = await pFetch(zrn.spec, "zerion.svc.wallet_token_balances", req, {
     method: "GET",
     headers: zrn.getRequiredHeaders(),
-    rlLimiter: zrn.limiter,
   });
 
   const res = await validateApiResult(zrn_FungiblesResponseSchema, resp);
@@ -201,10 +201,12 @@ export async function getWalletTokenBalanceHistory(
     );
     const merged = { ...grouped, ...fetched };
     const normalizedGrouped = normalizeByDay(merged);
+    dataUsage.record("db_result");
     return alignEndTimestamps(normalizedGrouped);
   }
 
   const normalizedGrouped = normalizeByDay(grouped);
+  dataUsage.record("db_result");
   return alignEndTimestamps(normalizedGrouped);
 }
 
@@ -236,8 +238,7 @@ export async function fetchWalletTokenBalanceHistory(
       }).toString();
 
       // Use the shared limiter
-      const resp = await rlFetch(req, {
-        rlLimiter: zrn.limiter,
+      const resp = await pFetch(zrn.spec, "zerion.svc.wallet_token_chart", req, {
         method: "GET",
         headers: zrn.getRequiredHeaders(),
         rlRetries: 3,

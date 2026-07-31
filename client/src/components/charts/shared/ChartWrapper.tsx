@@ -161,7 +161,9 @@ export function ChartWrapper({
    */
   const renderContent = () => (
     <>
-      {loadingState.status === "loading" && <ChartSkeleton />}
+      {loadingState.status === "loading" && (
+        <ChartSkeleton height={wrapperMinHeight ?? 400} />
+      )}
 
       {loadingState.status === "error" && loadingState.error && (
         <ChartErrorState error={loadingState.error} onRetry={onRetry} />

@@ -112,8 +112,6 @@ function renderTopbar() {
   return render(
     <WalletTopbar
       address={walletAddress}
-      onAiAnalysisOpen={vi.fn()}
-
       currentPeriod="24H"
       onPeriodChange={vi.fn()}
     />,

@@ -1,12 +1,5 @@
-% Template KLTN cho SV trường ĐHKHTN
-% Liên hệ: nqminh@fit.hcmus.edu.vn
-% Last update: 08/06/2016
-
-% Chú ý: đọc các phần chú ý đóng khung của file này và chỉnh lại cho phù hợp.
-% Trước khi build, xóa hết các file được tạo ra trong quá trình build trước đó, và build theo thứ tự: BIB > PDF > PDF.
-% Nếu cập nhật tài liệu tham khảo, cũng cần build lại theo cách trên.
-
 \documentclass[oneside,a4paper,14pt]{extreport}
+\pdfminorversion=7
 
 % Font tiếng Việt
 \usepackage[T5]{fontenc}
@@ -16,9 +9,8 @@
 % Tài liệu tham khảo
 \usepackage[
 	sorting=nty,
-	backend=bibtex,
-	defernumbers=true]{biblatex}
-\usepackage[unicode]{hyperref} % Bookmark tiếng Việt
+	backend=biber]{biblatex}
+\usepackage[unicode,hypertexnames=false]{hyperref} % Bookmark tiếng Việt
 \usepackage{xurl} % Cho phép URL dài trong tài liệu tham khảo tự xuống dòng, tránh overfull hbox
 \addbibresource{References/references.bib}
 
@@ -116,34 +108,15 @@
 \usetikzlibrary{calc}
 \newcommand\HRule{\rule{\textwidth}{1pt}}
 
-% ========================================================================================= %
-% CHÚ Ý: Thông tin chung về KLTN - sinh viên điền vào đây để tự động update các trang khác  %
-% ========================================================================================= %
-\newcommand{\tenSV}{Nguyễn~Văn~A~-~Trần~Văn~B} % Dấu ~ là khoảng trắng không được tách (các chữ nối với nhau bằng dấu ~ sẽ nằm cùng 1 dòng
-\newcommand{\mssv}{1234567}
-\newcommand{\tenKL}{Sử~dụng~LaTeX trong Khoá~luận~tốt~nghiệp} % Chú ý dấu ~ trong tên khóa luận
-\newcommand{\tenGVHD}{Tên~Giáo~Viên}
-\newcommand{\tenBM}{Công nghệ tri thức}
-
 \begin{document}
 
 \input{Title/title.tex}
-% Sasu trang Title, các bạn chèn nhận xét gủa GVHD và GVPB. Nhận xét sẽ được giáo vụ phát sau buổi bảo vệ để các bạn đóng quyển.
 
-\pagenumbering{roman} % Đánh số i, ii, iii, ...
+\pagenumbering{roman}
 
 \addcontentsline{toc}{chapter}{Lời cam đoan}
 \include{Appendix/reassurances}
 
-% \addcontentsline{toc}{chapter}{Thuyết minh chỉnh sửa đề tài}
-% \include{Appendix/revision-explanation}
-
-% \addcontentsline{toc}{chapter}{Nhận xét hướng dẫn}
-% \include{Appendix/supervisor-comments}
-
-% \addcontentsline{toc}{chapter}{Nhận xét phản biện}
-% \include{Appendix/reviewer-comments}
-    
 \addcontentsline{toc}{chapter}{Lời cảm ơn}
 \include{Appendix/thanks}
 
@@ -151,15 +124,12 @@
 \includepdf[pages=-]{Appendix/proposal.pdf}
 
 
-% Mục lục, danh sách hình, danh sách bảng
 \addcontentsline{toc}{chapter}{Mục lục}
 \tableofcontents
 
-% Danh sách hình, bảng
 \addcontentsline{toc}{chapter}{Danh sách hình}
 \listoffigures
 
-% Thêm Danh sách bảng vào Mục lục
 \addcontentsline{toc}{chapter}{Danh sách bảng}
 \listoftables
 
@@ -168,9 +138,8 @@
 
 \clearpage
 
-\pagenumbering{arabic} % Đánh số 1, 2, 3, ...
+\pagenumbering{arabic}
 
-% Các chương nội dung
 \include{Chapter1/chapter1}
 
 \include{Chapter2/chapter2}
@@ -181,34 +150,13 @@
 
 \include{Chapter5/chapter5}
 
-% Công trình của tác giả (nếu không có thì comment 02 dòng dưới)
-% \addcontentsline{toc}{chapter}{Danh mục công trình của tác giả}
-% \include{Appendix/publish}
-
-% In tài liệu tham khảo
 \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
 
 \DeclareNameAlias{sortname}{family-given}
 \DeclareNameAlias{default}{family-given}
 
 \printbibliography[title={Tài liệu tham khảo}]
-% ================================================================================ %
-% CHÚ Ý: hiện tại references.bib chưa có tài liệu nào gắn keyword=Viet, nên danh   %
-% mục được in thành một danh sách liên tục, đánh số từ 1. Nếu sau này bổ sung tài  %
-% liệu tiếng Việt (thêm keyword = {Viet} vào entry trong .bib), có thể khôi phục   %
-% cách chia 2 mục bằng đoạn sau, nhớ luôn đặt resetnumbers = (số tài liệu Việt) + 1 %
-% cho mục Tiếng Anh để không bị lệch số:                                          %
-%                                                                                  %
-% \printbibheading[title={Tài liệu tham khảo}]                                    %
-% \printbibliography[heading=subbibliography, title={Tiếng Việt},                 %
-%   keyword=Viet, resetnumbers=true]                                              %
-% \printbibliography[heading=subbibliography, title={Tiếng Anh},                  %
-%   notkeyword=Viet, resetnumbers=<số tài liệu Việt + 1>]                         %
-% ================================================================================ %
 
-% Phần phụ lục
-\include{Appendix/business-model}
-%\include{Appendix/appendix1}
-%\include{Appendix/appendix2}
+\include{Appendix/wash-trading}
 
 \end{document} 

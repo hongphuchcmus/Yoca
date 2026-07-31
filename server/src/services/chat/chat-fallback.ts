@@ -827,7 +827,7 @@ function buildComparisonSections(
   if (!addresses) return [];
 
   const overviewResult = findResultByName(allResults, "get_wallet_overview");
-  const pnlResult = findResultByName(allResults, "get_wallet_pnl");
+  const pnlResult = findResultByName(allResults, "get_wallet_realized_pnl_desc_breakdown");
   const portfolioResult = findResultByName(allResults, "get_wallet_portfolio");
 
   const perAddress: Record<string, {
@@ -867,7 +867,7 @@ function buildComparisonEvidence(
       addr,
     );
     const pnl = extractDataForAddress(
-      findResultByName(allResults, "get_wallet_pnl"),
+      findResultByName(allResults, "get_wallet_realized_pnl_desc_breakdown"),
       addr,
     );
     const label = shortenAddress(addr);
@@ -886,7 +886,7 @@ function buildComparisonEvidence(
         label: language === "vi" ? `PnL ${label}` : `${label} PnL`,
         value: pnl.realizedPnlUsd != null ? compactCurrency(pnl.realizedPnlUsd) : undefined,
         detail: pnl.tradeCount != null ? `${pnl.tradeCount} trades` : undefined,
-        toolName: "get_wallet_pnl",
+        toolName: "get_wallet_realized_pnl_desc_breakdown",
       });
     }
   }
@@ -933,7 +933,7 @@ function buildEvidence(results: ChatToolResult[]): WalletChatEvidence[] {
       const arr = Array.isArray(r.data) ? r.data : [];
       label = "Transfers";
       value = `${arr.length} transfers`;
-    } else if (r.name === "get_wallet_pnl") {
+    } else if (r.name === "get_wallet_realized_pnl_desc_breakdown") {
       label = "PnL";
       value = compactCurrency(data.realizedPnlUsd);
       detail = `${data.tradeCount ?? "?"} trades, ${percent(data.winRate)} win rate`;
@@ -1010,7 +1010,7 @@ export function buildWalletFallbackResponse(
   language: "en" | "vi",
 ): ChatResponse {
   const overview = findResult(allResults, "get_wallet_overview");
-  const pnlData = findResult(allResults, "get_wallet_pnl");
+  const pnlData = findResult(allResults, "get_wallet_realized_pnl_desc_breakdown");
   const portfolio = findResultArray(allResults, "get_wallet_portfolio");
   const swaps = findResultArray(allResults, "get_wallet_swaps");
   const transfers = findResultArray(allResults, "get_wallet_transfers");

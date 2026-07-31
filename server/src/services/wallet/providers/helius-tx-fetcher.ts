@@ -6,9 +6,9 @@ import { helius_EnhancedTransactionsSchema } from "@sv/services/_types/token-raw
 import {
   getEndpoint,
   getRequiredHeaders,
-  limiter as heliusLimiter,
+  spec as heliusSpec,
 } from "@sv/util/util-helius.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 
 export type HeliusTxFetcherResult = {
   transactions: HeliusEnhancedTransaction[];
@@ -43,10 +43,9 @@ export async function fetchHeliusAddressTransactions(
           endpoint.searchParams.set("before", cursor);
         }
 
-        const response = await rlFetch(endpoint, {
+        const response = await pFetch(heliusSpec, "helius.svc.wallet_transactions", endpoint, {
           method: "GET",
           headers: getRequiredHeaders(),
-          rlLimiter: heliusLimiter,
         });
 
         if (!response.ok) {

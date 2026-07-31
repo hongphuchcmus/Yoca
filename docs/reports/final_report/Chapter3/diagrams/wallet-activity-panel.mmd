@@ -1,0 +1,32 @@
+---
+config:
+  layout: elk
+---
+erDiagram
+    direction TB
+
+    WALLET_ADDRESS {
+        varchar address PK
+    }
+    WALLET_ACTIVITY_HISTORY {
+        varchar address PK
+        varchar transaction_hash PK
+        bigint block_timestamp_ms
+        enum activity_type
+    }
+    WALLET_ENHANCED_TRANSACTIONS {
+        varchar address PK
+        text signature PK
+        bigint block_timestamp_ms
+        varchar program_id
+    }
+    WALLET_ENHANCED_DETAILS {
+        varchar address
+        text signature
+        varchar detail_type
+        integer item_index
+    }
+
+    WALLET_ADDRESS ||..o{ WALLET_ACTIVITY_HISTORY : records
+    WALLET_ADDRESS ||..o{ WALLET_ENHANCED_TRANSACTIONS : details
+    WALLET_ENHANCED_TRANSACTIONS ||..o{ WALLET_ENHANCED_DETAILS : contains

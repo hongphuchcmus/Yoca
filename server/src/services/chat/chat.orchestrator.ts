@@ -38,6 +38,10 @@ import {
 import type { ActionSpec, ChartSpec, ChatSource, TableSpec, ToolDataReference, WalletConfidence, WalletWarning, WalletChatSection, WebSearchArticle } from "./chat.types.js";
 import { z } from "zod";
 import { WALLET_CHAT_RESPONSE_LIMITS as L } from "./chat-fallback.js";
+import {
+  trackGemini,
+  type GeminiOperationId,
+} from "@sv/services/tracking/gemini-metrics.js";
 
 const MAX_ITERATIONS = 3;
 
@@ -76,12 +80,16 @@ function extractJsonObject(text: string): unknown {
   }
 }
 
-async function callGemini(prompt: string, systemInstruction?: string): Promise<string | null> {
+async function callGemini(
+  operation: GeminiOperationId,
+  prompt: string,
+  systemInstruction?: string,
+): Promise<string | null> {
   const client = getClient();
   chatDebug("Gemini call start", { promptLength: prompt.length, hasSystemInstruction: !!systemInstruction });
   const start = performance.now();
   try {
-    const response = await client.models.generateContent({
+    const response = await trackGemini(operation, CHAT_MODEL, () => client.models.generateContent({
       model: CHAT_MODEL,
       contents: prompt,
       config: {
@@ -89,7 +97,7 @@ async function callGemini(prompt: string, systemInstruction?: string): Promise<s
         responseMimeType: "application/json",
         ...(systemInstruction ? { systemInstruction } : {}),
       },
-    });
+    }));
     const duration = Math.round(performance.now() - start);
     const text = response.text ?? null;
     chatDebug("Gemini call success", { durationMs: duration, responseLength: text?.length ?? 0 });
@@ -117,7 +125,10 @@ async function selectTool(
   history?: HistoryMessage[],
 ): Promise<ChatToolCall[] | { type: "no_tool" | "general"; message: string }> {
   const prompt = buildToolSelectionPrompt(query, TOOL_DEFINITIONS, addresses, context, history, language);
-  const raw = await callGemini(prompt);
+  const raw = await callGemini(
+    "gemini.svc.chat_tool_selection",
+    prompt,
+  );
 
   if (!raw) {
     chatWarn("selectTool: Gemini returned null", { addresses });
@@ -625,7 +636,11 @@ async function generateResponse(
   const prompt = buildResponseGenerationPrompt(query, allResults, history);
   chatDebug("generateResponse: prompt built", { resultCount: allResults.length });
 
-  const raw = await callGemini(prompt, CHAT_SYSTEM_INSTRUCTION);
+  const raw = await callGemini(
+    "gemini.svc.chat_response",
+    prompt,
+    CHAT_SYSTEM_INSTRUCTION,
+  );
   if (!raw) {
     chatWarn("generateResponse: Gemini returned null");
     return {
@@ -750,7 +765,7 @@ async function generateResponse(
   const TIME_SERIES_TOOLS = new Set([
     "get_balance_history",
     "get_drawdown_chart",
-    "get_pnl_chart",
+    "get_wallet_pnl_history",
     "get_token_price_24h",
     "get_token_price_hourly",
     "get_token_price_daily",

@@ -1,0 +1,11 @@
+{
+  "runId": "2026-07-19T06-12-02-734Z_journey-smoke",
+  "commit": "1a152b00",
+  "environment": "local_benchmark",
+  "database": "configured_server_database",
+  "startedAt": "2026-07-19T06:12:02.748Z",
+  "phase": "observed_first_and_warm_repeat",
+  "datasetVersion": "2026-07-19",
+  "providerMode": "real",
+  "notes": "Sequential smoke run; observed-first is not claimed as cold cache."
+}

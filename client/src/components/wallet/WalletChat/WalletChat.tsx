@@ -27,10 +27,10 @@ const PLANS_POPUP_ESTIMATED_HEIGHT = 430;
 const PLANS_POPUP_OFFSET = 8;
 
 const WALLET_CHAT_TIERS = [
-  { key: "Free", label: "Standard", limit: 5 },
-  { key: "Lite", label: "Lite", limit: 20 },
-  { key: "Plus", label: "Plus", limit: 50 },
-  { key: "Pro", label: "Pro", limit: 100 },
+  { key: "Free", label: "Standard", limit: 1 },
+  { key: "Lite", label: "Lite", limit: 4 },
+  { key: "Plus", label: "Plus", limit: 8 },
+  { key: "Pro", label: "Pro", limit: 12 },
 ] as const;
 
 interface Props {
@@ -720,4 +720,3 @@ export function WalletChat({ address, addresses, lang, variant = "widget", chatP
     </ChatContextProvider>
   );
 }
-

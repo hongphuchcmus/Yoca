@@ -1,9 +1,15 @@
 import Bottleneck from "bottleneck";
+import { defineProvider } from "./rate-limit.js";
 import env from "./load-env.js";
 
 export const limiter = new Bottleneck({
   maxConcurrent: 1,
   minTime: 1_000,
+});
+
+export const spec = defineProvider({
+  id: "mobula",
+  limiter,
 });
 
 export function getEndpoint(path: string): URL {

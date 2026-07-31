@@ -1,0 +1,921 @@
+{
+  "generatedAt": "2026-07-18T09:35:22.415Z",
+  "baseUrl": "http://localhost:4000",
+  "candidateCount": 213,
+  "selectedCount": 24,
+  "jupiterDiscoveryEnabled": true,
+  "tokens": [
+    {
+      "resourceId": "token_001",
+      "address": "So11111111111111111111111111111111111111112",
+      "symbol": "SOL",
+      "source": "required_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 1002,
+          "classification": "data",
+          "payloadBytes": 223
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1574,
+          "classification": "data",
+          "payloadBytes": 4002
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6752,
+          "classification": "data",
+          "payloadBytes": 30960
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 645,
+          "classification": "data",
+          "payloadBytes": 235899
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 1101,
+          "classification": "data",
+          "payloadBytes": 9311
+        }
+      }
+    },
+    {
+      "resourceId": "token_002",
+      "address": "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3",
+      "symbol": "PYTH",
+      "source": "required_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 236,
+          "classification": "data",
+          "payloadBytes": 259
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1212,
+          "classification": "data",
+          "payloadBytes": 4408
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6549,
+          "classification": "data",
+          "payloadBytes": 30908
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 4413,
+          "classification": "data",
+          "payloadBytes": 226722
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 624,
+          "classification": "data",
+          "payloadBytes": 8523
+        }
+      }
+    },
+    {
+      "resourceId": "token_003",
+      "address": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv",
+      "symbol": "PENGU",
+      "source": "required_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 230,
+          "classification": "data",
+          "payloadBytes": 252
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1365,
+          "classification": "data",
+          "payloadBytes": 4531
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6341,
+          "classification": "data",
+          "payloadBytes": 31536
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 667,
+          "classification": "data",
+          "payloadBytes": 235275
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 448,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_004",
+      "address": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+      "symbol": "JUP",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 226,
+          "classification": "data",
+          "payloadBytes": 221
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1238,
+          "classification": "data",
+          "payloadBytes": 4301
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6783,
+          "classification": "data",
+          "payloadBytes": 31386
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1520,
+          "classification": "data",
+          "payloadBytes": 233303
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 1001,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_005",
+      "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "symbol": "USDC",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 292,
+          "classification": "data",
+          "payloadBytes": 220
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1840,
+          "classification": "data",
+          "payloadBytes": 4177
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 10665,
+          "classification": "data",
+          "payloadBytes": 31452
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 12027,
+          "classification": "data",
+          "payloadBytes": 235632
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 1605,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_006",
+      "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      "symbol": "USDT",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 235,
+          "classification": "data",
+          "payloadBytes": 223
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 3064,
+          "classification": "data",
+          "payloadBytes": 4173
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7595,
+          "classification": "data",
+          "payloadBytes": 31370
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1005,
+          "classification": "data",
+          "payloadBytes": 235272
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 461,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_007",
+      "address": "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL",
+      "symbol": "JTO",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 232,
+          "classification": "data",
+          "payloadBytes": 218
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1984,
+          "classification": "data",
+          "payloadBytes": 4172
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7127,
+          "classification": "data",
+          "payloadBytes": 30944
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1032,
+          "classification": "data",
+          "payloadBytes": 233725
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 451,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_008",
+      "address": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      "symbol": "BONK",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 218,
+          "classification": "data",
+          "payloadBytes": 221
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1323,
+          "classification": "data",
+          "payloadBytes": 5147
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6499,
+          "classification": "data",
+          "payloadBytes": 31309
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1027,
+          "classification": "data",
+          "payloadBytes": 237259
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 477,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_009",
+      "address": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+      "symbol": "WIF",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 224,
+          "classification": "data",
+          "payloadBytes": 230
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1276,
+          "classification": "data",
+          "payloadBytes": 4305
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6467,
+          "classification": "data",
+          "payloadBytes": 31164
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 856,
+          "classification": "data",
+          "payloadBytes": 233461
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 449,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_010",
+      "address": "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux",
+      "symbol": "HNT",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 214,
+          "classification": "data",
+          "payloadBytes": 231
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1486,
+          "classification": "data",
+          "payloadBytes": 4315
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6425,
+          "classification": "data",
+          "payloadBytes": 30961
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 904,
+          "classification": "data",
+          "payloadBytes": 232051
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 484,
+          "classification": "data",
+          "payloadBytes": 7129
+        }
+      }
+    },
+    {
+      "resourceId": "token_011",
+      "address": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
+      "symbol": "RAY",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 216,
+          "classification": "data",
+          "payloadBytes": 235
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1255,
+          "classification": "data",
+          "payloadBytes": 4132
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6548,
+          "classification": "data",
+          "payloadBytes": 31592
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 904,
+          "classification": "data",
+          "payloadBytes": 233140
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 513,
+          "classification": "data",
+          "payloadBytes": 366
+        }
+      }
+    },
+    {
+      "resourceId": "token_012",
+      "address": "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE",
+      "symbol": "ORCA",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 239,
+          "classification": "data",
+          "payloadBytes": 225
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1398,
+          "classification": "data",
+          "payloadBytes": 4159
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6681,
+          "classification": "data",
+          "payloadBytes": 30652
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 816,
+          "classification": "data",
+          "payloadBytes": 231398
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 475,
+          "classification": "data",
+          "payloadBytes": 4398
+        }
+      }
+    },
+    {
+      "resourceId": "token_013",
+      "address": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
+      "symbol": "mSOL",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 216,
+          "classification": "data",
+          "payloadBytes": 235
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1243,
+          "classification": "data",
+          "payloadBytes": 4117
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7407,
+          "classification": "data",
+          "payloadBytes": 31197
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1254,
+          "classification": "data",
+          "payloadBytes": 233138
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 438,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_014",
+      "address": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+      "symbol": "JitoSOL",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 214,
+          "classification": "data",
+          "payloadBytes": 255
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1549,
+          "classification": "data",
+          "payloadBytes": 4004
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6115,
+          "classification": "data",
+          "payloadBytes": 31713
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1128,
+          "classification": "data",
+          "payloadBytes": 234606
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 464,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_015",
+      "address": "bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1",
+      "symbol": "bSOL",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 220,
+          "classification": "data",
+          "payloadBytes": 244
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1240,
+          "classification": "data",
+          "payloadBytes": 4017
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6457,
+          "classification": "data",
+          "payloadBytes": 31073
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1007,
+          "classification": "data",
+          "payloadBytes": 232407
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 464,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_016",
+      "address": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+      "symbol": "SAMO",
+      "source": "verified_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 227,
+          "classification": "data",
+          "payloadBytes": 231
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1311,
+          "classification": "data",
+          "payloadBytes": 4798
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6496,
+          "classification": "data",
+          "payloadBytes": 30885
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1056,
+          "classification": "data",
+          "payloadBytes": 236260
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 462,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_017",
+      "address": "EchesyfXePKdLtoiZSL8pBe8Myagyy8ZRqsACNCFGnvp",
+      "symbol": "FIDA",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 216,
+          "classification": "data",
+          "payloadBytes": 227
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1192,
+          "classification": "data",
+          "payloadBytes": 4489
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6396,
+          "classification": "data",
+          "payloadBytes": 30047
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 895,
+          "classification": "data",
+          "payloadBytes": 232986
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 436,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_018",
+      "address": "SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y",
+      "symbol": "SHDW",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 212,
+          "classification": "data",
+          "payloadBytes": 240
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1252,
+          "classification": "data",
+          "payloadBytes": 4438
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6313,
+          "classification": "data",
+          "payloadBytes": 30701
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 891,
+          "classification": "data",
+          "payloadBytes": 234485
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 425,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_019",
+      "address": "StepAscQoEioFxxWGnh2sLBDFp9d8rvKz2Yp39iDpyT",
+      "symbol": "STEP",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 211,
+          "classification": "data",
+          "payloadBytes": 228
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1175,
+          "classification": "data",
+          "payloadBytes": 4819
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 6626,
+          "classification": "data",
+          "payloadBytes": 30008
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1090,
+          "classification": "data",
+          "payloadBytes": 234603
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 458,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_020",
+      "address": "kinXdEcpDQeHPEuQnqmUgtYykqKGVFq6CeVX5iAHJq6",
+      "symbol": "KIN",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 216,
+          "classification": "data",
+          "payloadBytes": 217
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1397,
+          "classification": "data",
+          "payloadBytes": 4487
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7286,
+          "classification": "data",
+          "payloadBytes": 30788
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1511,
+          "classification": "data",
+          "payloadBytes": 234593
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 486,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_021",
+      "address": "9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E",
+      "symbol": "soBTC",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 220,
+          "classification": "data",
+          "payloadBytes": 247
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1274,
+          "classification": "data",
+          "payloadBytes": 3943
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7519,
+          "classification": "data",
+          "payloadBytes": 30282
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 1415,
+          "classification": "data",
+          "payloadBytes": 230760
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 1409,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_022",
+      "address": "2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk",
+      "symbol": "soETH",
+      "source": "legacy_seed",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 267,
+          "classification": "data",
+          "payloadBytes": 246
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 3529,
+          "classification": "data",
+          "payloadBytes": 4121
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 26616,
+          "classification": "data",
+          "payloadBytes": 29949
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 6817,
+          "classification": "data",
+          "payloadBytes": 231340
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 2128,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_023",
+      "address": "CASHx9KJUStyftLFWGvEVf59SGeG9sh5FfcnZMVPCASH",
+      "symbol": "CASH",
+      "source": "jupiter_toporganicscore",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 4470,
+          "classification": "data",
+          "payloadBytes": 221
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1757,
+          "classification": "data",
+          "payloadBytes": 4156
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7780,
+          "classification": "data",
+          "payloadBytes": 30380
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 14356,
+          "classification": "data",
+          "payloadBytes": 232558
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 3703,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    },
+    {
+      "resourceId": "token_024",
+      "address": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
+      "symbol": "ANSEM",
+      "source": "jupiter_toporganicscore",
+      "coverage": {
+        "metadata": {
+          "status": 200,
+          "durationMs": 7065,
+          "classification": "data",
+          "payloadBytes": 241
+        },
+        "market": {
+          "status": 200,
+          "durationMs": 1074,
+          "classification": "data",
+          "payloadBytes": 4288
+        },
+        "pools": {
+          "status": 200,
+          "durationMs": 7099,
+          "classification": "data",
+          "payloadBytes": 31499
+        },
+        "holders": {
+          "status": 200,
+          "durationMs": 5187,
+          "classification": "data",
+          "payloadBytes": 233960
+        },
+        "fundamentals": {
+          "status": 200,
+          "durationMs": 2363,
+          "classification": "empty_valid",
+          "payloadBytes": 56
+        }
+      }
+    }
+  ]
+}

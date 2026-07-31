@@ -1,6 +1,10 @@
 // rate-limited-fetch.ts
 
 import Bottleneck from "bottleneck";
+import {
+  captureUsageContext,
+  recordProviderAttempt,
+} from "@sv/middlewares/request-context.js";
 
 type FetchRetryOptions = {
   rlRetries?: number;
@@ -11,7 +15,35 @@ type FetchRetryOptions = {
 export type RateLimitedFetchOptions = RequestInit &
   FetchRetryOptions & {
     rlLimiter: Bottleneck;
+    trackingId?: string;
   };
+
+export interface ProviderSpec<ProviderId extends string> {
+  id: ProviderId;
+  limiter: Bottleneck;
+}
+
+export function defineProvider<const ProviderId extends string>(
+  spec: ProviderSpec<ProviderId>,
+): ProviderSpec<ProviderId> {
+  return spec;
+}
+
+export type ServiceOperationId<ProviderId extends string> =
+  `${ProviderId}.svc.${string}`;
+
+export async function pFetch<ProviderId extends string>(
+  spec: ProviderSpec<ProviderId>,
+  trackingId: ServiceOperationId<ProviderId>,
+  url: URL,
+  options: RequestInit & FetchRetryOptions = {},
+): Promise<Response> {
+  return rlFetch(url, {
+    ...options,
+    rlLimiter: spec.limiter,
+    trackingId,
+  });
+}
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -43,6 +75,22 @@ function computeBackoff(attempt: number, baseDelay: number) {
   return baseDelay * Math.pow(2, attempt) + Math.floor(Math.random() * 250);
 }
 
+function sanitizedRequestUrl(url: URL): string {
+  const sanitized = new URL(url);
+  for (const key of sanitized.searchParams.keys()) {
+    const normalized = key.toLowerCase();
+    if (
+      normalized.includes("key") ||
+      normalized.includes("token") ||
+      normalized.includes("secret") ||
+      normalized.includes("authorization")
+    ) {
+      sanitized.searchParams.set(key, "[REDACTED]");
+    }
+  }
+  return sanitized.toString();
+}
+
 async function readResponsePreview(resp: Response): Promise<string | null> {
   try {
     const text = await resp.clone().text();
@@ -70,13 +118,15 @@ export async function rlFetch(
     rlRetries = 3,
     rlRetryDelayMs = 500,
     rlTimeoutMs = 30_000,
+    trackingId,
     ...fetchInit
   } = options;
+  const requestContext = captureUsageContext();
 
   return rlLimiter.schedule(async () => {
     let lastErr: unknown;
     const requestStartedAtMs = Date.now();
-    const requestUrl = url.toString();
+    const requestUrl = sanitizedRequestUrl(url);
     const requestMethod = fetchInit.method ?? "GET";
 
     for (let attempt = 0; attempt <= rlRetries; attempt++) {
@@ -84,6 +134,12 @@ export async function rlFetch(
 
       try {
         const resp = await fetchWithTimeout(url, fetchInit, rlTimeoutMs);
+        recordProviderAttempt(requestContext, {
+          trackingId: trackingId ?? "untracked",
+          attempt: attempt + 1,
+          status: resp.status,
+          durationMs: Date.now() - attemptStartedAtMs,
+        });
 
         if (resp.status == 429 || (resp.status >= 500 && resp.status <= 599)) {
           const retryAfter = resp.headers.get("Retry-After");
@@ -94,6 +150,7 @@ export async function rlFetch(
               "Outbound request returned retryable status after retries",
               {
                 url: requestUrl,
+                trackingId,
                 method: requestMethod,
                 status: resp.status,
                 attempt: attempt + 1,
@@ -126,6 +183,7 @@ export async function rlFetch(
               } else {
                 console.warn("Outbound request received invalid Retry-After", {
                   url: requestUrl,
+                  trackingId,
                   method: requestMethod,
                   status: resp.status,
                   retryAfter: normalizedRetryAfter,
@@ -136,6 +194,7 @@ export async function rlFetch(
 
           console.warn("Outbound request retry", {
             url: requestUrl,
+            trackingId,
             method: requestMethod,
             status: resp.status,
             attempt: attempt + 1,
@@ -167,6 +226,7 @@ export async function rlFetch(
 
         console.info("Outbound request completed", {
           url: requestUrl,
+          trackingId,
           method: requestMethod,
           status: resp.status,
           attempt: attempt + 1,
@@ -176,6 +236,16 @@ export async function rlFetch(
         return resp;
       } catch (e) {
         lastErr = e;
+        recordProviderAttempt(requestContext, {
+          trackingId: trackingId ?? "untracked",
+          attempt: attempt + 1,
+          status: null,
+          durationMs: Date.now() - attemptStartedAtMs,
+          failure:
+            e instanceof Error && e.name == "AbortError"
+              ? "timeout"
+              : "network_error",
+        });
 
         if (attempt == rlRetries) {
           break;
@@ -185,6 +255,7 @@ export async function rlFetch(
 
         console.warn("Outbound request network-error retry", {
           url: requestUrl,
+          trackingId,
           method: requestMethod,
           status: null,
           attempt: attempt + 1,
@@ -203,6 +274,7 @@ export async function rlFetch(
 
     console.error("Outbound request failed after retries", {
       url: requestUrl,
+      trackingId,
       method: requestMethod,
       status: null,
       attempts: rlRetries + 1,

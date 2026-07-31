@@ -7,7 +7,7 @@ import {
 } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
 import { excluded } from "@sv/util/orm-sql.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import {
     cg_CoinListSchema
@@ -98,10 +98,9 @@ async function syncCoinGeckoList() {
     include_platform: "true",
   }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.token_list", endpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   if (!resp.ok) {

@@ -12,6 +12,7 @@ export interface TokenIdentityCellProps {
   imageSize?: number;
   tooltipAlign?: TooltipAlign;
   emphasizeSymbol?: boolean;
+  fullNameMaxLength?: number;
 }
 
 export function TokenIdentityCell({
@@ -21,9 +22,15 @@ export function TokenIdentityCell({
   imageSize = 30,
   tooltipAlign = "right",
   emphasizeSymbol = false,
+  fullNameMaxLength,
 }: TokenIdentityCellProps): React.ReactElement {
   const normalizedSymbol = symbol?.trim().toUpperCase() || "UNKNOWN";
-  const tooltipLabel = fullName?.trim() || normalizedSymbol;
+  const normalizedFullName = fullName?.trim() || "";
+  const displayedFullName =
+    fullNameMaxLength != null && normalizedFullName.length > fullNameMaxLength
+      ? `${normalizedFullName.slice(0, fullNameMaxLength).trimEnd()}…`
+      : normalizedFullName;
+  const tooltipLabel = normalizedFullName || normalizedSymbol;
   const source = imageUrl || null;
 
   return (
@@ -36,7 +43,7 @@ export function TokenIdentityCell({
           ) : (
             <span>{normalizedSymbol}</span>
           )}
-          {fullName?.trim() && <Txt size="sm" secondary>{fullName.trim()}</Txt>}
+          {displayedFullName && <Txt size="sm" secondary>{displayedFullName}</Txt>}
         </div>
       </Tooltip>
     </Stack>

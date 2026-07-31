@@ -1,11 +1,13 @@
 import { db } from "@sv/db/index.js";
 import { walletUserTags } from "@sv/db/schema.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import { and, eq } from "drizzle-orm";
 
 export async function getWalletTags(
   userId: string,
   walletAddress: string,
 ): Promise<string[]> {
+  dataUsage.record("db_result");
   const [row] = await db
     .select({ tags: walletUserTags.tags })
     .from(walletUserTags)
@@ -24,6 +26,7 @@ export async function setWalletTags(
   walletAddress: string,
   tags: string[],
 ): Promise<void> {
+  dataUsage.record("db_result");
   await db
     .insert(walletUserTags)
     .values({ userId, walletAddress, tags })

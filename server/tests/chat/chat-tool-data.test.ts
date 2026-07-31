@@ -62,8 +62,8 @@ describe("chat tool selection prompt", () => {
     );
 
     expect(prompt).toContain("COMPLEMENTARY TOOL SELECTION");
-    expect(prompt).toContain("get_wallet_overview + get_wallet_pnl + get_wallet_portfolio");
-    expect(prompt).toContain("get_wallet_pnl + get_wallet_overview");
+    expect(prompt).toContain("get_wallet_overview + get_wallet_realized_pnl_desc_breakdown + get_wallet_portfolio");
+    expect(prompt).toContain("get_wallet_realized_pnl_desc_breakdown + get_wallet_overview");
     expect(prompt).toContain("get_drawdown_chart + get_wallet_overview");
   });
 

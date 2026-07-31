@@ -1,4 +1,5 @@
 import { AUTH_COOKIE_NAME } from "@sv/config/constants.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import {
   solanaBase58Schema,
   userPayloadSchema,
@@ -430,6 +431,10 @@ const app = new Hono().get("/", async (c) => {
     return c.json(setErr("UNAUTHORIZED"), statusCode.Unauthorized);
   }
 
+  if (forceRefresh) {
+    dataUsage.record("forced_refresh");
+  }
+
   let reservation: AiUsageReservation | undefined;
   let usageCounted = false;
   const reserveForSummary = async () => {
@@ -469,6 +474,7 @@ const app = new Hono().get("/", async (c) => {
               },
             );
           } else {
+            dataUsage.record("db_result");
             console.info("[token-chart-news-events] cache hit", {
               address,
               symbol: cacheKey.symbol,

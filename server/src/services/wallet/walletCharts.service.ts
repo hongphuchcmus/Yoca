@@ -21,7 +21,9 @@ import {
     WALLET_BALANCE_HISTORY_STORED_TTL_MS,
     MOBULA_WALLET_ACTIVITY_BACKWARD_OVERLAP_MS,
 } from "@sv/config/constants.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
+import { singleFlight } from "@sv/services/util/single-flight.js";
 import { excluded } from "@sv/util/orm-sql.js";
 
 /**
@@ -171,7 +173,10 @@ export async function getWalletBalanceHistory(
     .orderBy(walletBalanceHistory.timestampMs);
 
   if (res.length == 0) {
-    return fetchWalletBalanceHistory(address, start, end);
+    dataUsage.record("provider_result");
+    return walletBalanceHistoryFlight
+      .key(`wallet_balance_history:${address}:${start}:${end}`)
+      .run(address, start, end);
   }
 
   const storedPoints = normalizeByDay(
@@ -196,24 +201,29 @@ export async function getWalletBalanceHistory(
   const storedUpdatedRecently = newestStoredUpdateMs >= storedThresholdMs;
 
   if (hasRangeCoverage && hasFreshTail && storedUpdatedRecently) {
+    dataUsage.record("db_result");
     return storedPoints;
   }
 
   if (hasRangeCoverage && lastStoredPoint != null) {
     const partialStart = Math.max(start, lastStoredPoint.timestampMs - DAY_MS);
-    const fetched = await fetchWalletBalanceHistory(
-      address,
-      partialStart,
-      end,
-    );
+    dataUsage.record("provider_result");
+    const fetched = await walletBalanceHistoryFlight
+      .key(`wallet_balance_history:${address}:${partialStart}:${end}`)
+      .run(address, partialStart, end);
     if (!fetched) {
+      dataUsage.record("db_result", "stale_fallback");
       return storedPoints;
     }
 
+    dataUsage.record("db_result");
     return normalizeByDay([...storedPoints, ...fetched]);
   }
 
-  return fetchWalletBalanceHistory(address, start, end);
+  dataUsage.record("provider_result");
+  return walletBalanceHistoryFlight
+    .key(`wallet_balance_history:${address}:${start}:${end}`)
+    .run(address, start, end);
 }
 
 async function fetchWalletBalanceHistory(
@@ -232,10 +242,9 @@ async function fetchWalletBalanceHistory(
     unlistedAssets: "false",
   }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(mobula.spec, "mobula.svc.wallet_balance_chart", endpoint, {
     method: "GET",
     headers: mobula.getRequiredHeaders(),
-    rlLimiter: mobula.limiter,
     rlTimeoutMs: WALLET_BALANCE_HISTORY_FETCH_TIMEOUT_MS,
   });
 
@@ -275,6 +284,8 @@ async function fetchWalletBalanceHistory(
 
   return normalizedPoints;
 }
+
+const walletBalanceHistoryFlight = singleFlight(fetchWalletBalanceHistory);
 
 // Group data points by UTC day, keeping only the latest point per day.
 function normalizeByDay(

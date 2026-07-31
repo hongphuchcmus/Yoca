@@ -18,13 +18,13 @@ Bên cạnh đó, dữ liệu thị trường có thể chịu ảnh hưởng b�
 
 \subsection{Tính cấp thiết và độ khó của bài toán}
 
-Bài toán xây dựng một nền tảng phân tích dữ liệu Solana không chỉ nằm ở việc tổng hợp và hiển thị dữ liệu mà còn liên quan đến hiệu năng, tính nhất quán và khả năng duy trì dữ liệu theo thời gian. Dữ liệu blockchain phát sinh liên tục, trong khi mỗi nhà cung cấp có phạm vi bao phủ, chu kỳ cập nhật, cấu trúc phản hồi và chính sách giới hạn truy vấn khác nhau.
+Bài toán xây dựng một nền tảng phân tích dữ liệu Solana bao gồm việc tổng hợp, hiển thị và duy trì dữ liệu nhất quán theo thời gian. Dữ liệu blockchain phát sinh liên tục, trong khi mỗi nhà cung cấp có phạm vi bao phủ, chu kỳ cập nhật, cấu trúc phản hồi và chính sách giới hạn truy vấn khác nhau.
 
 Một trang phân tích token hoặc ví có thể cần đồng thời nhiều nhóm dữ liệu như thông tin nhận diện, giá, biểu đồ lịch sử, pool, holder, danh mục tài sản, swap và chuyển token. Nếu các yêu cầu này được gửi trực tiếp và lặp lại đến nhà cung cấp, hệ thống dễ gặp giới hạn truy vấn, làm tăng thời gian phản hồi và ảnh hưởng đến trải nghiệm sử dụng.
 
 Đối với dữ liệu lịch sử, hệ thống cần có khả năng tái sử dụng phần dữ liệu đã được đồng bộ khi người dùng thay đổi khoảng thời gian phân tích. Việc định giá danh mục ví tại một thời điểm trong quá khứ còn yêu cầu tái dựng số dư token và kết hợp với dữ liệu giá tương ứng. Những token mới, có thanh khoản thấp hoặc thiếu dữ liệu giá lịch sử cần được xử lý thận trọng để tránh tạo ra kết quả thiếu căn cứ.
 
-Bài toán phát hiện wash trading cũng có độ phức tạp riêng. Một giao dịch đơn lẻ thường không đủ để phản ánh dấu hiệu bất thường; thay vào đó, cần xem xét quan hệ giữa nhiều ví, hướng luân chuyển token, mức độ lặp lại về thời gian và số lượng, cũng như sự xuất hiện của các chu trình giao dịch. Vì vậy, dữ liệu cần được phân tích trong bối cảnh của toàn bộ mạng lưới giao dịch thay vì chỉ được xem như những bản ghi độc lập.
+Bài toán phát hiện wash trading cũng có độ phức tạp riêng. Một giao dịch đơn lẻ thường không đủ để phản ánh dấu hiệu bất thường; quá trình phân tích cần xem xét quan hệ giữa nhiều ví, hướng luân chuyển token, mức độ lặp lại về thời gian và số lượng, cũng như sự xuất hiện của các chu trình giao dịch. Vì vậy, dữ liệu được đặt trong bối cảnh của mạng lưới giao dịch để làm rõ mối liên hệ giữa các bản ghi riêng lẻ.
 
 Ngoài ra, việc tích hợp trí tuệ nhân tạo vào phân tích dữ liệu tài chính cần bảo đảm nội dung diễn giải có cơ sở đối chiếu. Mô hình ngôn ngữ cần sử dụng dữ liệu đã được hệ thống tính toán và chuẩn hóa, trong khi bảng, biểu đồ và giao dịch nguồn vẫn đóng vai trò là căn cứ chính của quá trình phân tích.
 
@@ -51,7 +51,7 @@ Một mục tiêu quan trọng khác là xây dựng mô-đun phát hiện dấu
 
 Song song với đó, đề tài tích hợp mô hình ngôn ngữ lớn nhằm hỗ trợ diễn giải dữ liệu token, ví và các tín hiệu bất thường. Dữ liệu được xử lý thành ngữ cảnh có cấu trúc trước khi chuyển đến mô hình AI, qua đó giúp nội dung phản hồi gắn với đúng đối tượng và phạm vi dữ liệu đang được phân tích.
 
-Cuối cùng, Yoca hướng đến việc cung cấp trải nghiệm sử dụng nhất quán thông qua biểu đồ tương tác, chức năng so sánh ví, watchlist, cảnh báo, xuất báo cáo, quản lý hồ sơ và hỗ trợ đa ngôn ngữ. Các chức năng này được tổ chức trong cùng một nền tảng nhằm giảm sự phân tán trong quá trình khai thác dữ liệu on-chain.
+Cuối cùng, Yoca hướng đến trải nghiệm sử dụng nhất quán thông qua biểu đồ tương tác, so sánh ví, watchlist, cảnh báo, quản lý hồ sơ và trợ lý AI. Giao diện tiếng Việt cùng cách định dạng số, ngày giờ và tiền tệ theo locale hỗ trợ người dùng trong nước tiếp cận dữ liệu thuận tiện hơn.
 
 \section{Đối tượng và phạm vi ứng dụng}
 \label{sec:doi_tuong_pham_vi}
@@ -60,7 +60,7 @@ Cuối cùng, Yoca hướng đến việc cung cấp trải nghiệm sử dụng
 
 Yoca hướng đến ba nhóm người dùng chính. Nhóm thứ nhất là người nghiên cứu dữ liệu blockchain và người tìm kiếm token tiềm năng, có nhu cầu theo dõi thanh khoản, pool, phân bố holder, hoạt động của các ví lớn và những dấu hiệu giao dịch bất thường.
 
-Nhóm thứ hai là nhà giao dịch cá nhân cần một không gian làm việc tích hợp để quan sát dữ liệu thị trường, danh mục ví, lịch sử giao dịch, biến động số dư và kết quả lãi/lỗ theo thời gian. Các chức năng so sánh ví, cảnh báo và xuất báo cáo hỗ trợ nhóm người dùng này trong quá trình tổng hợp và đối chiếu thông tin.
+Nhóm thứ hai là nhà giao dịch cá nhân cần một không gian làm việc tích hợp để quan sát dữ liệu thị trường, danh mục ví, lịch sử giao dịch, biến động số dư và kết quả lãi/lỗ theo thời gian. Các chức năng so sánh ví và cảnh báo hỗ trợ nhóm người dùng này trong quá trình tổng hợp và đối chiếu thông tin.
 
 Nhóm thứ ba là người dùng mới tiếp cận thị trường tài sản số. Đối với nhóm này, giao diện trực quan và trợ lý AI giúp đơn giản hóa việc đọc các chỉ số kỹ thuật, đồng thời duy trì khả năng kiểm tra thông tin thông qua bảng, biểu đồ và dữ liệu nguồn.
 
@@ -68,11 +68,13 @@ Nhóm thứ ba là người dùng mới tiếp cận thị trường tài sản 
 
 Đề tài tập trung khai thác dữ liệu on-chain và dữ liệu thị trường thuộc hệ sinh thái Solana. Các nhóm dữ liệu chính bao gồm thông tin token, giá, vốn hóa, khối lượng, pool thanh khoản, holder, giao dịch, chuyển token, swap, danh mục ví và lịch sử số dư.
 
-Hệ thống tích hợp nhiều nguồn dữ liệu theo từng miền nghiệp vụ. Helius và hạ tầng RPC của Solana được sử dụng cho dữ liệu giao dịch và sự kiện on-chain; CoinGecko, GeckoTerminal và Birdeye hỗ trợ dữ liệu thị trường, giá và pool; Moralis và Mobula bổ sung các thông tin liên quan đến token, holder và tokenomics. Dữ liệu được kiểm tra và chuẩn hóa trước khi đưa vào các chức năng phân tích.
+Hệ thống tích hợp nhiều nguồn dữ liệu theo từng miền nghiệp vụ. Helius cung cấp dữ liệu giao dịch, danh mục ví và sự kiện on-chain; CoinGecko, GeckoTerminal và Birdeye hỗ trợ dữ liệu thị trường, giá và pool; Mobula đảm nhiệm các chỉ số phân tích ví và lịch sử tổng tài sản; Zerion cung cấp lịch sử ở cấp token; Moralis bổ sung metadata cho một số luồng dữ liệu. Dữ liệu được kiểm tra và chuẩn hóa trước khi đưa vào các chức năng phân tích.
 
-Về chức năng, Yoca bao gồm quản lý tài khoản và hồ sơ; tìm kiếm và khám phá thị trường; phân tích token và pool; phân tích ví, so sánh ví và trực quan hóa giao dịch; phát hiện dấu hiệu wash trading; hỗ trợ diễn giải bằng AI; quản lý watchlist, cảnh báo, gói dịch vụ, thanh toán và xuất báo cáo.
+Về chức năng, Yoca bao gồm quản lý tài khoản và hồ sơ; tìm kiếm và khám phá thị trường; phân tích token và pool; phân tích ví, so sánh ví và trực quan hóa giao dịch; phát hiện dấu hiệu wash trading; hỗ trợ diễn giải bằng AI; quản lý watchlist, cảnh báo, gói dịch vụ và thanh toán.
 
 Hệ thống đóng vai trò là công cụ quan sát và hỗ trợ phân tích. Phạm vi đề tài không bao gồm việc tự động đặt lệnh, thực hiện chiến lược đầu tư hoặc thay mặt người dùng ký giao dịch. Các kết quả AI và tín hiệu wash trading được trình bày cùng dữ liệu liên quan để người dùng có thể kiểm tra và đối chiếu.
+
+Vì dữ liệu khai thác gắn với địa chỉ ví thật trên Solana, nhóm chúng em đặt ra một số nguyên tắc khi thiết kế và trình bày kết quả. Yoca không suy diễn danh tính hoặc chủ sở hữu thật đứng sau một địa chỉ ví; hệ thống chỉ làm việc với nhãn do người dùng tự gán hoặc dữ liệu công khai trên chuỗi. Tín hiệu wash trading và nội dung do AI diễn giải được xem là gợi ý cần đối chiếu với giao dịch nguồn trước khi đưa ra nhận định về một hành vi cụ thể. Dữ liệu cá nhân mà hệ thống thu thập được giới hạn ở mức cần thiết để vận hành tài khoản, watchlist, cảnh báo và thanh toán; người dùng có thể yêu cầu xóa tài khoản cùng dữ liệu liên quan theo quy trình xác nhận trong phần hồ sơ cá nhân.
 
 \section{Giải pháp và cách tiếp cận}
 \label{sec:giai_phap}
@@ -90,15 +92,13 @@ Cách tiếp cận trên giúp Yoca kết hợp nhiều lớp dữ liệu trong 
 
 Về mặt kỹ thuật, đề tài xây dựng một kiến trúc tích hợp dữ liệu phù hợp với hệ thống phân tích blockchain sử dụng nhiều nhà cung cấp. Cơ chế điều phối yêu cầu và tái sử dụng dữ liệu theo phạm vi thời gian giúp giảm truy vấn lặp, duy trì dữ liệu lịch sử và cải thiện khả năng phản hồi trong những lần truy cập tiếp theo.
 
-Đề tài đồng thời xây dựng quy trình phân tích ví kết hợp dữ liệu giao dịch, số dư và giá lịch sử. Dữ liệu được chuẩn hóa trước khi sử dụng để tính giá trị danh mục, PnL, khối lượng và các chỉ số so sánh, qua đó tạo nguồn dữ liệu thống nhất cho bảng, biểu đồ, báo cáo và các chức năng phân tích hỗ trợ bởi AI.
+Đề tài đồng thời xây dựng quy trình phân tích ví kết hợp danh mục, lịch sử số dư, hoạt động giao dịch và kết quả PnL từ các nguồn chuyên biệt. Dữ liệu được chuẩn hóa về cùng mô hình nội bộ, qua đó tạo đầu vào thống nhất cho bảng, biểu đồ, chức năng so sánh và trợ lý AI.
 
 Một đóng góp nổi bật của đề tài là mô-đun phân tích dấu hiệu wash trading dựa trên cấu trúc đồ thị giao dịch. Hệ thống kết hợp mối quan hệ giữa các ví với những đặc điểm về chu trình, thời gian, số lượng và khối lượng giao dịch để xác định các địa chỉ hoặc cụm hoạt động đáng chú ý. Kết quả được trình bày trên đồ thị tương tác và đi kèm thông tin giải thích, giúp người dùng quan sát được cả tín hiệu rủi ro và cơ sở hình thành tín hiệu.
 
-Về mặt trải nghiệm, Yoca hướng đến nhóm người dùng mới hoặc chưa có nhiều kiến thức chuyên sâu về blockchain. Thay vì yêu cầu người dùng tự tổng hợp dữ liệu từ nhiều nền tảng và diễn giải các chỉ số kỹ thuật riêng lẻ, hệ thống liên kết dữ liệu thị trường, token, pool, ví và giao dịch trong một luồng sử dụng thống nhất. Trợ lý AI hỗ trợ chuyển các dữ liệu đã được xử lý thành nội dung dễ tiếp cận hơn, trong khi bảng, biểu đồ và giao dịch nguồn vẫn được duy trì để người dùng kiểm tra và từng bước hình thành khả năng đọc dữ liệu on-chain.
-
-Trong bối cảnh lĩnh vực blockchain tại Việt Nam đang phát triển và ngày càng thu hút sự quan tâm của cộng đồng, Yoca góp phần mở rộng khả năng tiếp cận các công cụ phân tích dữ liệu on-chain cho người dùng trong nước. Việc hỗ trợ tiếng Việt, quy đổi giá trị sang VND và diễn giải các chỉ số bằng ngôn ngữ tự nhiên giúp giảm rào cản về ngôn ngữ và kiến thức chuyên môn. Qua đó, đề tài góp phần thúc đẩy việc ứng dụng dữ liệu blockchain trong học tập, nghiên cứu và theo dõi thị trường, đồng thời tạo nền tảng cho sự phát triển của các công cụ phân tích tài sản số phù hợp hơn với nhu cầu của người dùng Việt Nam.
+Về mặt trải nghiệm, Yoca hướng đến người dùng chưa có nhiều kiến thức chuyên sâu về blockchain. Hệ thống liên kết dữ liệu thị trường, token, pool, ví và giao dịch trong một luồng sử dụng thống nhất; trợ lý AI hỗ trợ diễn giải, còn bảng, biểu đồ và giao dịch nguồn giúp người dùng kiểm tra kết quả. Giao diện tiếng Việt và định dạng dữ liệu theo locale góp phần giảm rào cản khi tiếp cận công cụ phân tích on-chain.
 
 \section{Bố cục của báo cáo}
 \label{sec:bo_cuc}
 
-Báo cáo được cấu trúc thành năm chương. Chương 1 trình bày bối cảnh, vấn đề, mục tiêu, phạm vi và hướng tiếp cận của đề tài. Chương 2 khảo sát các hệ thống liên quan, đồng thời trình bày cơ sở lý thuyết và công nghệ áp dụng, bao gồm phân tích wash trading bằng đồ thị giao dịch. Chương 3 trình bày yêu cầu, kiến trúc, các luồng nghiệp vụ, thiết kế cơ sở dữ liệu, thiết kế mô-đun wash trading và kế hoạch kiểm thử. Chương 4 mô tả môi trường triển khai, quy trình tích hợp và triển khai, kết quả hiện thực các chức năng, những thách thức kỹ thuật và kết quả đánh giá hệ thống. Cuối cùng, Chương 5 tổng kết các kết quả đạt được, trình bày đóng góp, các giới hạn khách quan và đề xuất hướng phát triển trong tương lai.
+Báo cáo được cấu trúc thành sáu chương. Chương 1 trình bày bối cảnh, vấn đề, mục tiêu, phạm vi và hướng tiếp cận của đề tài. Chương 2 khảo sát các hệ thống liên quan, làm rõ khoảng trống mà Yoca hướng đến và giới thiệu những nguồn dữ liệu đang được sử dụng. Chương 3 phân tích hành trình người dùng, các nhóm yêu cầu chức năng, yêu cầu chất lượng và tiêu chí chấp nhận. Chương 4 trình bày kiến trúc tổng thể, hợp đồng dữ liệu, cơ chế truy xuất--lưu đệm và thiết kế cơ sở dữ liệu. Chương 5 mô tả môi trường triển khai, các chức năng chính, giải pháp kỹ thuật và kết quả kiểm thử. Cuối cùng, Chương 6 tổng kết kết quả đạt được, trình bày đóng góp, giới hạn và các hướng phát triển tiếp theo.

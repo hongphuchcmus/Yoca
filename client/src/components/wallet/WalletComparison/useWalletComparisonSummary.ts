@@ -8,12 +8,12 @@ export interface WalletMetricSummary {
   totalAssetValue: number | null;
   tradingVolume: number | null;
   winRate: number | null;
-  totalTrades: number | null;
+  totalTokens: number | null;
   pnl: number | null;
   realizedPnl: number | null;
   unrealizedPnl: number | null;
-  winningTrades: number | null;
-  losingTrades: number | null;
+  profitableTokens: number | null;
+  unprofitableTokens: number | null;
   avgWinUsd: number | null;
   avgLossUsd: number | null;
 }
@@ -47,7 +47,7 @@ export function useWalletComparisonSummary(
   );
 
   const pnlResp = useGet(
-    client.api.wallets.analysis.pnl,
+    client.api.wallets.analysis["pnl-history"],
     200,
     { query: { wallets: walletsString, period: period as never } },
     { enabled },
@@ -104,12 +104,12 @@ export function useWalletComparisonSummary(
         totalAssetValue: latestValue,
         tradingVolume: volEntry?.tradingVolumeUsd ?? null,
         winRate: wrEntry?.winrate ?? null,
-        totalTrades: wrEntry?.totalTrades ?? null,
+        totalTokens: wrEntry?.totalTokens ?? null,
         pnl: pnlEntry?.totalPnL ?? null,
         realizedPnl: pnlEntry?.realizedPnL ?? null,
         unrealizedPnl: pnlEntry?.unrealizedPnL ?? null,
-        winningTrades: wrEntry?.winningTrades ?? null,
-        losingTrades: wrEntry?.losingTrades ?? null,
+        profitableTokens: wrEntry?.profitableTokens ?? null,
+        unprofitableTokens: wrEntry?.unprofitableTokens ?? null,
         avgWinUsd: wrEntry?.avgWinUsd ?? null,
         avgLossUsd: wrEntry?.avgLossUsd ?? null,
       };

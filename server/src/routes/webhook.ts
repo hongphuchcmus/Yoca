@@ -2,19 +2,17 @@ import {
   processHeliusWebhookTransactions,
   type HeliusEnhancedTransaction,
 } from "@sv/services/walletAlerts.service.js";
+import env from "@sv/util/load-env.js";
 import { Hono } from "hono";
 
 function webhookAuthKey(): string {
-  return (
-    process.env.HELIUS_WEBHOOK_AUTH_KEY?.trim() ||
-    process.env.HELIUS_AUTH_HEADER?.trim() ||
-    "thisisphuonglekey"
-  );
+  return env.HELIUS_WEBHOOK_AUTH_KEY;
 }
 
 function isAuthorized(authorization: string | undefined): boolean {
   const key = webhookAuthKey();
-  return authorization === key || authorization === `Bearer ${key}`;
+  return Boolean(key) &&
+    (authorization == key || authorization == `Bearer ${key}`);
 }
 
 function coerceTransactionsPayload(

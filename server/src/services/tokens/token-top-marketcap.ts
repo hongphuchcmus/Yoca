@@ -9,7 +9,7 @@ import {
 } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
 import { excludedAutoFromInsert, excludedAutoNonNullFromInsert } from "@sv/util/orm-sql.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import { asc, gt } from "drizzle-orm";
 import { cg_CoinMarketsSchema } from "../_types/token-raw-responses.js";
@@ -38,10 +38,9 @@ export async function getTopTokensByMarketCap() {
     sparkline: "true",
   }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.top_market_cap", endpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   const res = (await validateApiResult(cg_CoinMarketsSchema, resp)) ?? [];

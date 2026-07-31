@@ -1,0 +1,183 @@
+{
+  "runId": "2026-07-19T12-08-19-402Z_journey-observed",
+  "journeys": [
+    {
+      "journey": "wallet_behavior_ai",
+      "pass": "observed_first",
+      "resourceId": "wallet_behavior_ai",
+      "durationMs": 71996,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 5,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T12-08-19-402Z_journey-observed-wallet_behavior_ai-observed_first-1",
+          "route": "/api/wallet-analysis/analyze",
+          "status": 200,
+          "durationMs": 71832,
+          "payloadBytes": 27219,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wallet_transactions",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 5
+        }
+      ],
+      "dataUsage": [],
+      "aiRequests": [
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_ai_summary",
+            "model": "gemini-2.5-flash",
+            "outcome": "success"
+          },
+          "value": 1
+        }
+      ],
+      "aiTokens": [
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_ai_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "prompt"
+          },
+          "value": 14042
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_ai_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "output"
+          },
+          "value": 14028
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_ai_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "thinking"
+          },
+          "value": 583
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_ai_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "total"
+          },
+          "value": 28653
+        }
+      ]
+    },
+    {
+      "journey": "wallet_swap_summary_ai",
+      "pass": "observed_first",
+      "resourceId": "wallet_swap_summary_ai",
+      "durationMs": 74982,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 31,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T12-08-19-402Z_journey-observed-wallet_swap_summary_ai-observed_first-1",
+          "route": "/api/wallets/ai-swap-summary",
+          "status": 200,
+          "durationMs": 74945,
+          "payloadBytes": 1485,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_activity",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 31
+        }
+      ],
+      "dataUsage": [
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/ai-swap-summary",
+            "status_class": "2xx",
+            "source": "db_provider",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        }
+      ],
+      "aiRequests": [
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_swap_summary",
+            "model": "gemini-2.5-flash",
+            "outcome": "success"
+          },
+          "value": 1
+        }
+      ],
+      "aiTokens": [
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_swap_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "prompt"
+          },
+          "value": 183
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_swap_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "output"
+          },
+          "value": 256
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_swap_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "thinking"
+          },
+          "value": 1900
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wallet_swap_summary",
+            "model": "gemini-2.5-flash",
+            "token_type": "total"
+          },
+          "value": 2339
+        }
+      ]
+    }
+  ]
+}

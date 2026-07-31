@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import {
-  getPnLData,
+  getPnlHistory,
   getWinrateData,
 } from "@sv/services/wallet/wallet-analysis.js";
 import { solanaBase58Schema, validate } from "@sv/middlewares/validation";
@@ -19,7 +19,7 @@ const winrateRequestSchema = z.object({
     .pipe(solanaBase58Schema.array()),
 });
 
-const pnlRequestSchema = z.object({
+const pnlHistoryRequestSchema = z.object({
   period: z.enum(["7D", "30D"]).optional().default("30D"),
   wallets: z
     .string()
@@ -45,7 +45,7 @@ const app = new Hono()
       return serverErr(c, e);
     }
   })
-  .get("/pnl", validate("query", pnlRequestSchema), async (c) => {
+  .get("/pnl-history", validate("query", pnlHistoryRequestSchema), async (c) => {
     try {
       const { wallets, period } = c.req.valid("query");
 
@@ -59,7 +59,7 @@ const app = new Hono()
         );
       }
 
-      const data = await getPnLData(wallets, period);
+      const data = await getPnlHistory(wallets, period);
 
       return c.json(
         {

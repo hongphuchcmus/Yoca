@@ -104,21 +104,21 @@ function RiskSummaryTable({
       {
         id: "winCount",
         label: tr("walletComparison.tabs.risk.metrics.winCount"),
-        getValue: (s: WalletMetricSummary) => s.winningTrades,
+        getValue: (s: WalletMetricSummary) => s.profitableTokens,
         format: fmt.num.decimal,
         higherIsBetter: true,
       },
       {
         id: "lossCount",
         label: tr("walletComparison.tabs.risk.metrics.lossCount"),
-        getValue: (s: WalletMetricSummary) => s.losingTrades,
+        getValue: (s: WalletMetricSummary) => s.unprofitableTokens,
         format: fmt.num.decimal,
         higherIsBetter: false,
       },
       {
-        id: "totalTrades",
+        id: "totalTokens",
         label: tr("walletComparison.tabs.risk.metrics.totalTrades"),
-        getValue: (s: WalletMetricSummary) => s.totalTrades,
+        getValue: (s: WalletMetricSummary) => s.totalTokens,
         format: fmt.num.decimal,
         higherIsBetter: false,
       },
@@ -140,8 +140,8 @@ function RiskSummaryTable({
         id: "winLossRatio",
         label: tr("walletComparison.tabs.risk.metrics.winLossRatio"),
         getValue: (s: WalletMetricSummary) =>
-          s.losingTrades && s.losingTrades > 0 && s.winningTrades != null
-            ? s.winningTrades / s.losingTrades
+          s.unprofitableTokens && s.unprofitableTokens > 0 && s.profitableTokens != null
+            ? s.profitableTokens / s.unprofitableTokens
             : null,
         format: (v: number) => fmt.num.decimal(v),
         higherIsBetter: true,

@@ -20,6 +20,8 @@ import {
 } from "./dtos/walletTokenAnalysisObjects.js";
 import env from "@sv/util/load-env.js";
 import { statusCode } from "@sv/util/responses.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 // ---------------------------------------------------------------------------
 // Error
 // ---------------------------------------------------------------------------
@@ -254,7 +256,7 @@ async function callGeminiForToken(
 
   let response;
   try {
-    response = await client.models.generateContent({
+    response = await trackGemini("gemini.svc.wallet_token_analysis", GEMINI_MODEL, () => client.models.generateContent({
       model: GEMINI_MODEL,
       contents: JSON.stringify(payload, null, 2),
       config: {
@@ -270,7 +272,7 @@ async function callGeminiForToken(
           required: ["analysis", "riskNotes"],
         },
       },
-    });
+    }));
   } catch (err) {
     throw new WalletTokenAnalysisServiceError(
       `Gemini call failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -328,7 +330,10 @@ export async function getTokenDeepAnalysis(
   }
 
   const cached = readCached(normalizedAddress, normalizedToken, language);
-  if (cached) return cached;
+  if (cached) {
+    dataUsage.record("memory_result");
+    return cached;
+  }
 
   const swapsResult = await getWalletSwaps(normalizedAddress);
   const recent = (swapsResult.swaps ?? []).slice(0, SWAPS_SAMPLE_SIZE);

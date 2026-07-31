@@ -29,9 +29,9 @@ type WinrateData = {
     walletAddress: string;
     walletName?: string | undefined;
     winrate: number;
-    totalTrades: number;
-    winningTrades: number;
-    losingTrades: number;
+    totalTokens: number;
+    profitableTokens: number;
+    unprofitableTokens: number;
     winningDistribution: WinrateBin[];
     losingDistribution: WinrateBin[];
     avgWinUsd: number;
@@ -136,9 +136,9 @@ export function WinrateChart({
           const wallet = data.wallets[param.dataIndex];
           return formatItemTooltip(fmt.text.address(wallet.walletAddress), [
             { label: "Winrate", value: `${param.value}%` },
-            { label: "Winning Trades", value: wallet.winningTrades.toString() },
-            { label: "Losing Trades", value: wallet.losingTrades.toString() },
-            { label: "Total Trades", value: wallet.totalTrades.toString() },
+            { label: "Profitable Tokens", value: wallet.profitableTokens.toString() },
+            { label: "Unprofitable Tokens", value: wallet.unprofitableTokens.toString() },
+            { label: "Traded Tokens", value: wallet.totalTokens.toString() },
           ]);
         },
       },
@@ -336,4 +336,3 @@ export function WinrateChart({
     </ChartWrapper>
   );
 }
-

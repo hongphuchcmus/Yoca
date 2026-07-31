@@ -104,7 +104,8 @@ export default function PricingPage() {
       | "pricing.features.generalAiChat"
       | "pricing.features.tokenChartNewsSummary"
       | "pricing.features.walletAiAnalysis"
-      | "pricing.features.washTradingAiAnalysis",
+      | "pricing.features.washTradingAiAnalysis"
+      | "pricing.features.washTradingAiChat",
     count: number,
   ): FeatureEntry => ({ text: String(tr(key, { $count: count })) });
   const plainFeature = (key: "pricing.features.dailyReset"): FeatureEntry => ({
@@ -119,10 +120,10 @@ export default function PricingPage() {
     period: periodLabel,
     intro: everythingIn(STANDARD_DATA.name),
     features: [
-      aiFeature("pricing.features.askYoca", 20),
-      aiFeature("pricing.features.generalAiChat", 20),
-      aiFeature("pricing.features.tokenChartNewsSummary", 20),
-      aiFeature("pricing.features.volatilitySummary", 25),
+      aiFeature("pricing.features.askYoca", 8),
+      aiFeature("pricing.features.generalAiChat", 8),
+      aiFeature("pricing.features.tokenChartNewsSummary", 8),
+      aiFeature("pricing.features.volatilitySummary", 8),
       plainFeature("pricing.features.dailyReset"),
     ],
     cta: tr("pricing.cta.buyNow"),
@@ -137,7 +138,7 @@ export default function PricingPage() {
       aiFeature("pricing.features.askYoca", 5),
       aiFeature("pricing.features.generalAiChat", 5),
       aiFeature("pricing.features.tokenChartNewsSummary", 5),
-      aiFeature("pricing.features.volatilitySummary", 10),
+      aiFeature("pricing.features.volatilitySummary", 5),
       plainFeature("pricing.features.dailyReset"),
     ],
     cta: tr("pricing.cta.tryForFree"),
@@ -149,12 +150,12 @@ export default function PricingPage() {
     period: periodLabel,
     intro: everythingIn(LITE_DATA.name),
     features: [
-      aiFeature("pricing.features.askYoca", 50),
-      aiFeature("pricing.features.generalAiChat", 50),
-      aiFeature("pricing.features.tokenChartNewsSummary", 50),
-      aiFeature("pricing.features.volatilitySummary", 50),
-      aiFeature("pricing.features.walletAiAnalysis", 50),
-      aiFeature("pricing.features.washTradingAiAnalysis", 50),
+      aiFeature("pricing.features.askYoca", 12),
+      aiFeature("pricing.features.generalAiChat", 12),
+      aiFeature("pricing.features.tokenChartNewsSummary", 12),
+      aiFeature("pricing.features.volatilitySummary", 12),
+      aiFeature("pricing.features.washTradingAiAnalysis", 3),
+      aiFeature("pricing.features.washTradingAiChat", 5),
       plainFeature("pricing.features.dailyReset"),
     ],
   };
@@ -165,12 +166,12 @@ export default function PricingPage() {
     period: periodLabel,
     intro: everythingIn(PLUS_TIER.name),
     features: [
-      aiFeature("pricing.features.askYoca", 100),
-      aiFeature("pricing.features.generalAiChat", 100),
-      aiFeature("pricing.features.tokenChartNewsSummary", 100),
-      aiFeature("pricing.features.volatilitySummary", 100),
-      aiFeature("pricing.features.walletAiAnalysis", 100),
-      aiFeature("pricing.features.washTradingAiAnalysis", 100),
+      aiFeature("pricing.features.askYoca", 20),
+      aiFeature("pricing.features.generalAiChat", 20),
+      aiFeature("pricing.features.tokenChartNewsSummary", 20),
+      aiFeature("pricing.features.volatilitySummary", 20),
+      aiFeature("pricing.features.washTradingAiAnalysis", 5),
+      aiFeature("pricing.features.washTradingAiChat", 10),
       plainFeature("pricing.features.dailyReset"),
     ],
   };

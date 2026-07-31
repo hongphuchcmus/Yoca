@@ -15,6 +15,7 @@ import React, {
   useState,
 } from "react";
 import { TokenStack } from "./TokenStack";
+import { resolveNativeSolTokenAddress } from "@/util/wallet-portfolio-mapper";
 import { TimelineView } from "./TimelineView";
 import { TxRow } from "./TxRow";
 import { WalletSelector } from "./WalletSelector";
@@ -141,9 +142,13 @@ export const DayActivityPopup: React.FC<DayActivityPopupProps> = ({
   }, [dragging]);
 
   const addChart = useCallback((token: WalletDayToken) => {
+    const chartToken = {
+      ...token,
+      address: resolveNativeSolTokenAddress(token.address),
+    };
     setChartTokens((prev) => {
-      if (prev.some((t) => t.address === token.address)) return prev;
-      return [...prev, token];
+      if (prev.some((item) => item.address == chartToken.address)) return prev;
+      return [...prev, chartToken];
     });
   }, []);
 

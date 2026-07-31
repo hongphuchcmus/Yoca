@@ -1,50 +1,18 @@
-\chapter{Triển khai thực nghiệm và Đánh giá}
-\label{Chapter4}
-Chương này trình bày quá trình triển khai thực nghiệm hệ thống Yoca dựa trên kiến trúc và các luồng nghiệp vụ đã được thiết kế ở Chương 3, bao gồm môi trường triển khai, kết quả hiện thực các chức năng cốt lõi, những thách thức kỹ thuật và giải pháp được áp dụng. Đồng thời, chương trình bày kết quả kiểm thử và đánh giá hệ thống về khả năng vận hành, hiệu năng, độ ổn định và mức độ đáp ứng các yêu cầu đã đặt ra.
+\chapter{Triển khai thực nghiệm và đánh giá}
+\label{Chapter5}
 
-\section{Môi trường và công cụ triển khai}
+Chương này trình bày cách Yoca được triển khai thành một hệ thống hoàn chỉnh, từ môi trường vận hành và quy trình tích hợp mã nguồn đến các chức năng người dùng và kết quả kiểm thử. Nội dung được tổ chức theo hành trình sử dụng của sản phẩm, qua đó cho thấy mối liên hệ giữa dữ liệu thị trường, token, pool, ví, cảnh báo và các mô-đun hỗ trợ phân tích.
+
+\section{Môi trường, tích hợp và triển khai hệ thống}
 \label{sec:moi_truong_trien_khai}
-% Cấu hình các biến môi trường (ENV), quản lý API Key (CoinGecko, Helius, Moralis).
 
-\subsection{Tổ chức môi trường triển khai}
+Yoca là một ứng dụng web full-stack được tổ chức trong npm workspace. Client sử dụng React 19 và Vite 7 để xây dựng giao diện; server vận hành trên Node.js với Hono để xử lý xác thực, nghiệp vụ và tích hợp dịch vụ. PostgreSQL lưu dữ liệu tài khoản, cấu hình người dùng và các cache bền vững; Drizzle ORM quản lý lược đồ cùng các truy vấn liên quan. ECharts đảm nhiệm phần lớn biểu đồ tài chính, trong khi quan hệ giao dịch giữa các ví được biểu diễn bằng đồ thị tương tác.
 
-Yoca được triển khai theo mô hình ứng dụng web full-stack, gồm phần giao diện và máy chủ API được tổ chức trong cùng một monorepo. Hai thành phần cùng sử dụng TypeScript và chia sẻ các kiểu dữ liệu cần thiết, qua đó duy trì sự thống nhất trong quá trình trao đổi dữ liệu và phát triển chức năng.
+Dữ liệu được phân công theo miền chức năng. CoinGecko và GeckoTerminal cung cấp metadata, giá, lịch sử thị trường và dữ liệu pool; Birdeye bổ sung các nhóm dữ liệu giao dịch và xu hướng; Helius cung cấp danh mục ví, giao dịch đã giải mã và sự kiện webhook; Mobula đảm nhiệm các chỉ số phân tích ví cùng lịch sử tổng tài sản; Zerion cung cấp lịch sử ở cấp token; Moralis bổ sung metadata cho một số luồng. Gemini hỗ trợ diễn giải dữ liệu và Stripe phục vụ thanh toán thẻ. Các khóa truy cập, chuỗi kết nối và thông tin ký phiên chỉ được nạp ở server; client chỉ nhận những biến cấu hình công khai cần thiết cho quá trình build.
 
-Phần giao diện được xây dựng bằng React 19 và Vite 7, đảm nhiệm việc trình bày dữ liệu và xử lý tương tác của người dùng. Phần máy chủ vận hành trên Node.js với Hono, chịu trách nhiệm xác thực, xử lý nghiệp vụ, chuẩn hóa dữ liệu và kết nối với các dịch vụ bên ngoài. PostgreSQL được sử dụng làm cơ sở dữ liệu chính, kết hợp với Drizzle ORM để quản lý lược đồ và truy vấn dữ liệu. Redis được sử dụng cho các trường hợp cần lưu trữ đệm và tái sử dụng kết quả truy vấn.
+Mã nguồn client và server được quản lý trong cùng một Git repository. Workflow GitHub Actions chạy typecheck, lint, test và production build cho hai workspace. Các job được tách riêng để nhóm nhận biết nhanh lỗi thuộc hợp đồng kiểu, quy tắc mã nguồn, kiểm thử hay quá trình đóng gói. Khi toàn bộ bước kiểm tra trên nhánh \texttt{main} hoàn tất, job deploy kích hoạt hai Render deploy hook được lưu trong GitHub Actions Secrets.
 
-Các thành phần trực quan hóa được xây dựng chủ yếu bằng ECharts; riêng dữ liệu có cấu trúc mạng lưới như luồng giao dịch và quan hệ giữa các ví được biểu diễn dưới dạng đồ thị tương tác. Hệ thống cũng hỗ trợ kết xuất dữ liệu và kết quả phân tích thành PDF, bảng tính và hình ảnh để phục vụ việc lưu trữ, đối chiếu và lập báo cáo.
-
-\subsection{Tích hợp nguồn dữ liệu}
-\label{subsec:tich_hop_nguon_du_lieu}
-Yoca tổng hợp dữ liệu từ nhiều nhà cung cấp chuyên biệt theo từng miền nghiệp vụ, thay vì phụ thuộc vào một nguồn duy nhất.
-\begin{itemize}
-    \item Dữ liệu thị trường và token: CoinGecko và GeckoTerminal cung cấp giá, vốn hóa, khối lượng, lịch sử giá và thông tin tokenomics. Birdeye bổ sung dữ liệu portfolio, snapshot lịch sử danh mục ví và dữ liệu holder. Moralis và Mobula cung cấp dữ liệu pool, nhà đầu tư và phân phối holder theo phân lớp.
-    \item Dữ liệu on-chain: Helius Enhanced API và Solana RPC được sử dụng để truy xuất lịch sử giao dịch, theo dõi webhook và xác minh giao dịch on-chain. Helius cung cấp dạng giao dịch đã được phân tích sẵn (enhanced transactions), giúp giảm đáng kể khối lượng phân tích thủ công.
-    \item Tin tức và nội dung: Tin tức liên quan đến token được tổng hợp từ nhiều luồng RSS và kết quả tìm kiếm web, sau đó được chuẩn hóa và loại trùng theo địa chỉ URL trước khi lưu trữ.
-    \item AI và thanh toán: Gemini (Google GenAI) được tích hợp trong các chức năng giải thích dữ liệu bằng ngôn ngữ tự nhiên, bao gồm tóm tắt hành vi ví, diễn giải wash trading và hỗ trợ hội thoại. Stripe xử lý thanh toán thẻ, trong khi giao dịch thanh toán bằng Solana được xác minh độc lập phía máy chủ thông qua Helius RPC trước khi ghi nhận quyền sử dụng.
-\end{itemize}
-
-Cấu hình hệ thống được tách thành hai nhóm rõ ràng. Các giá trị công khai như địa chỉ máy chủ API, khóa công khai Stripe và cấu hình mạng Solana được cung cấp cho giao diện thông qua biến môi trường Vite (tiền tố \texttt{VITE\_}). Các giá trị nhạy cảm như khóa API nhà cung cấp, chuỗi kết nối cơ sở dữ liệu, khóa ký phiên đăng nhập và khóa bí mật Stripe chỉ được nạp ở phía máy chủ và không bao giờ được gửi về giao diện.
-
-\section{Quy trình tích hợp và triển khai hệ thống}
-\label{sec:quy_trinh_trien_khai}
-
-\subsection{Quản lý mã nguồn và môi trường}
-Mã nguồn client và server được quản lý trong cùng một Git repository dưới dạng npm workspace. Cấu trúc này cho phép nhóm phát triển hai phần độc lập nhưng vẫn dùng chung phiên bản TypeScript và hợp đồng kiểu Hono. Các thay đổi về route hoặc schema thường cần được đối chiếu với consumer tương ứng trước khi tích hợp, đặc biệt ở các miền Wallet và Payment có nhiều phụ thuộc.
-
-Cấu hình runtime được truyền qua biến môi trường. Client chỉ nhận các giá trị có tiền tố \texttt{VITE\_} và được phép xuất hiện trong browser; khóa provider, chuỗi kết nối PostgreSQL, JWT secret và Stripe secret chỉ thuộc server. Repository cung cấp script riêng cho dev, test, lint, build và đồng bộ schema Drizzle. Trong phạm vi báo cáo, nhóm không đưa nội dung tệp \texttt{.env} hoặc giá trị secret vào phụ lục hay ảnh minh họa.
-
-\subsection{Tích hợp liên tục bằng GitHub Actions}
-
-Workflow CI được đặt tại \texttt{.github/workflows/ci.yml} và chạy khi có thay đổi được đẩy lên nhánh \texttt{main}, \texttt{dev} hoặc khi pull request hướng vào \texttt{main}. Pipeline gồm sáu job kiểm tra độc lập: typecheck, lint, test server, test client, build server và build client. Mỗi job checkout cùng revision, cài dependency theo npm workspace rồi thực hiện script tương ứng. Cách tách này giúp nhóm nhìn rõ lỗi thuộc hợp đồng kiểu, quy tắc mã nguồn, regression test hay production build, thay vì gộp mọi bước vào một lệnh khó chẩn đoán.
-
-Các job test chạy Vitest trong từng workspace; build client tạo static artifact bằng Vite, còn build server biên dịch TypeScript và xử lý path alias trước khi Node khởi động. Concurrency được cấu hình theo Git reference để một lần chạy mới có thể hủy lần chạy cũ trên cùng nhánh. Secret provider và deploy hook không được ghi trực tiếp vào workflow; chúng được quản lý bằng GitHub Actions Secrets và biến môi trường của nền tảng triển khai.
-
-Một job thứ bảy, \texttt{deploy}, phụ thuộc vào cả sáu job trên (\texttt{needs}) và chỉ chạy khi sự kiện là \texttt{push} trên nhánh \texttt{main}. Job này gọi hai \texttt{curl POST} tới deploy hook của Render (một cho Static Site, một cho Web Service) được lưu trong GitHub Actions Secrets, tức bước liên kết CI với Render đã được hiện thực chứ không còn là kiến trúc dự kiến.
-
-\subsection{Triển khai và kiểm tra sau triển khai}
-
-Mã nguồn vẫn được giữ trong một monorepo nhưng được triển khai thành hai đơn vị độc lập trên Render. Client là một Static Site: Render checkout source, chạy \texttt{npm install} và \texttt{npm run client:build}, sau đó phân phối thư mục \texttt{client/build} do Vite tạo ra. Vì vậy production không sử dụng Vite development server. Server là một Web Service: Render chạy \texttt{npm run server:build} rồi khởi động \texttt{node server/build/main.js}. Cách tổ chức này giữ lợi ích chia sẻ kiểu của monorepo nhưng cho phép client và server có vòng đời build, biến môi trường và khả năng triển khai riêng.
+Client và server được triển khai thành hai dịch vụ độc lập từ cùng monorepo. Render Static Site chạy Vite production build và phân phối thư mục \texttt{client/build}; Render Web Service build server rồi khởi động mã JavaScript bằng Node.js. Cơ sở dữ liệu PostgreSQL được vận hành trên Supabase. Cách tổ chức này cho phép hai thành phần có cấu hình và vòng đời triển khai riêng, đồng thời giữ lợi ích chia sẻ hợp đồng kiểu trong quá trình phát triển.
 
 \begin{figure}[H]
     \centering
@@ -53,337 +21,220 @@ Mã nguồn vẫn được giữ trong một monorepo nhưng được triển kh
     \label{fig:deployment-architecture}
 \end{figure}
 
-Sau khi các cổng CI đạt, hai deploy hook bí mật được dùng để yêu cầu Render build revision mới cho Static Site và Web Service. Client chỉ nhận các biến \texttt{VITE\_} công khai tại build time; API key, JWT/Stripe secret và chuỗi kết nối database chỉ được cấu hình cho Web Service. PostgreSQL được lưu trên Supabase Free; trong môi trường demo có thể tạo lại, schema Drizzle được đồng bộ bằng quy trình \texttt{db:reset} thay vì duy trì dữ liệu cũ qua migration. Thao tác này không được dùng trên database cần bảo toàn dữ liệu.
-
-Sau triển khai, nhóm kiểm tra endpoint \texttt{/api}, CORS giữa hai domain, SPA rewrite của Static Site và hành trình Market Overview -- Token Pool -- Token Overview -- Wallet -- User -- AI. Free tier có thể tạo cold start hoặc giới hạn tài nguyên, nên báo cáo không xem thời gian phản hồi của lần gọi đầu tiên là một SLA ổn định và không tuyên bố có rollback hay monitoring tự động ngoài phạm vi Render cung cấp sẵn.
+Hình~\ref{fig:github-actions-ci} ghi nhận một lần chạy hoàn chỉnh của pipeline trên nhánh \texttt{main}. Sau bước kiểm tra, Render nhận revision mới và build hai dịch vụ. Giao diện được phục vụ tại \texttt{yoca.id.vn}; Web Service cung cấp API tại \texttt{yoca-backend.onrender.com} và kết nối đến cơ sở dữ liệu Supabase.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/chapter5/github-actions-ci.png}
-    \caption{Một lần chạy GitHub Actions thành công trên \texttt{main}: bảy job typecheck, lint, test server/client, build server/client và \texttt{deploy} đều đạt, tổng thời gian 3m2s}
+    \caption{Các job kiểm tra, build và deploy hoàn tất trên GitHub Actions}
     \label{fig:github-actions-ci}
 \end{figure}
-
-Job \texttt{deploy} gọi hai deploy hook của Render; Hình~\ref{fig:render-deployment-frontend} và Hình~\ref{fig:render-deployment-backend} xác nhận cả hai service đã build xong và đang ở trạng thái Live. Yoca hiện chạy thật trên tên miền \texttt{yoca.id.vn}: Static Site \texttt{yoca-frontend} phục vụ giao diện tại địa chỉ này, Web Service \texttt{yoca-backend} phục vụ API tại \texttt{yoca-backend.onrender.com} và đã ghi nhận các request \texttt{GET /api} trả về 200 trong log thời gian thực.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/chapter5/render-deployment-frontend.jpg}
-    \caption{Render Static Site \texttt{yoca-frontend} ở trạng thái Live, phục vụ tại tên miền \texttt{yoca.id.vn}}
+    \caption{Render Static Site phục vụ giao diện Yoca tại tên miền \texttt{yoca.id.vn}}
     \label{fig:render-deployment-frontend}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/chapter5/render-deployment-backend.jpg}
-    \caption{Render Web Service \texttt{yoca-backend} ở trạng thái Live tại \texttt{yoca-backend.onrender.com}, log cho thấy các request \texttt{GET /api} thật trả về 200}
+    \caption{Render Web Service vận hành API của Yoca}
     \label{fig:render-deployment-backend}
 \end{figure}
 
-
-\section{Kết quả triển khai các chức năng cốt lõi}
+\section{Kết quả triển khai các chức năng chính}
 \label{sec:ket_qua_trien_khai}
-Các chức năng cốt lõi của Yoca đã được kết nối thành một chuỗi sử dụng liên tục. Người dùng có thể bắt đầu từ tìm kiếm hoặc tổng quan thị trường, đi sâu vào token và pool, phân tích ví và giao dịch, sau đó lưu đối tượng quan tâm hoặc thiết lập cảnh báo.
 
-\subsection{Xác thực tài khoản}
+Các chức năng của Yoca được kết nối theo một hành trình chung. Người dùng có thể bắt đầu từ dữ liệu thị trường, mở token hoặc pool liên quan, tiếp tục đến ví xuất hiện trong giao dịch, sau đó lưu đối tượng quan tâm hoặc thiết lập cảnh báo. Cách điều hướng này giữ ngữ cảnh phân tích và giúp các trang hỗ trợ lẫn nhau.
 
-Yoca hỗ trợ ba phương thức xác thực gồm đăng nhập bằng email, đăng nhập bằng Google và xác thực thông qua ví Solana, đáp ứng nhu cầu của nhiều nhóm người dùng trong hệ sinh thái blockchain.
+\subsection{Khám phá thị trường và tìm kiếm}
 
-Với phương thức email, người dùng có thể đăng ký tài khoản và đăng nhập bằng địa chỉ email cùng mật khẩu. Hệ thống cũng hỗ trợ luồng quên mật khẩu, cho phép người dùng đặt lại mật khẩu thông qua mã xác nhận được gửi qua email.
+Market Overview tập hợp các nhóm dữ liệu như token thịnh hành, khối lượng và số giao dịch nổi bật, biến động giá, pool mới và hoạt động của các nhà giao dịch có lợi nhuận đáng chú ý. Người dùng lựa chọn khung thời gian, sắp xếp bảng và áp dụng bộ lọc về thanh khoản, vốn hóa, khối lượng hoặc độ tuổi pool. Mỗi kết quả là một điểm điều hướng đến token, pool hoặc ví tương ứng.
 
-Đối với đăng nhập bằng Google, người dùng có thể xác thực nhanh mà không cần tạo tài khoản riêng.
-
-Với xác thực bằng ví Solana, người dùng ký một thông điệp xác thực để chứng minh quyền sở hữu ví. Quá trình này không thực hiện giao dịch trên blockchain và chỉ được sử dụng để thiết lập phiên đăng nhập.
-
-Giao diện xác thực được thiết kế dưới dạng hộp thoại, cho phép chuyển đổi linh hoạt giữa đăng nhập và đăng ký, đồng thời hỗ trợ hiển thị thông báo lỗi và tương thích với cả giao diện sáng và tối.
-
-% CHÈN HÌNH: Modal xác thực với các phương thức đăng nhập bằng email, Google và ví Solana.
-
-\subsection{Trang tổng quan thị trường}
-\label{subsec:tong_quan_thi_truong}
-Trang tổng quan thị trường của Yoca được thiết kế xoay quanh hoạt động giao dịch thực tế thay vì chỉ xếp hạng token theo vốn hóa, nhằm phản ánh trung thực hơn những gì đang diễn ra trên các sàn giao dịch phi tập trung.
-Giao diện tổ chức dữ liệu thành sáu nhóm có thể chuyển đổi độc lập:
-\begin{itemize}
-    \item Trending: Token hoặc pool đang thu hút sự chú ý theo lượng tìm kiếm và hoạt động giao dịch.
-    \item Top Volume/Transactions: Nhóm dẫn đầu theo khối lượng giao dịch hoặc số lần giao dịch.
-    \item Gainers/Losers: Nhóm tăng hoặc giảm giá đáng chú ý trong khoảng thời gian quan sát.
-    \item New Pairs: Các cặp giao dịch mới xuất hiện gần đây trên các sàn phi tập trung.
-    \item Profitable Traders: Những nhà giao dịch đạt lợi nhuận hoặc chịu thua lỗ lớn nhất.
-\end{itemize}
-
-Bộ lọc thời gian cho phép người dùng quan sát dữ liệu Trending theo các cửa sổ 5 phút, 1 giờ, 6 giờ và 24 giờ. Nhóm Profitable Traders hỗ trợ khoảng quan sát 1 ngày, 7 ngày, 30 ngày và 90 ngày. Mỗi dòng dữ liệu hiển thị đầy đủ: tên token hoặc cặp giao dịch, vốn hóa thị trường, định giá pha loãng hoàn toàn (FDV), giá hiện tại, tuổi của pool, số giao dịch 24 giờ, khối lượng 24 giờ, biến động theo 5 phút, 1 giờ, 6 giờ và 24 giờ, cùng thanh khoản hiện có.
-
-Người dùng có thể sắp xếp bảng theo bất kỳ cột nào và áp dụng bộ lọc theo khoảng thanh khoản, vốn hóa, khối lượng, số giao dịch, tuổi pool hoặc mức biến động. Việc chọn một token, pool hoặc địa chỉ nhà giao dịch từ danh sách sẽ điều hướng đến trang phân tích tương ứng, đảm bảo trang tổng quan không chỉ là nơi quan sát mà còn là điểm khởi đầu của quá trình nghiên cứu sâu hơn.
-% CHÈN HÌNH: Trang tổng quan thị trường với các nhóm Trending, Top Volume/Transactions, Gainers/Losers, New Pairs và Profitable Traders.
-
-\subsection{Tìm kiếm}
-\label{subsec:tim_kiem}
-
-Thanh tìm kiếm toàn cục là công cụ điều hướng trung tâm của hệ thống, hỗ trợ tra cứu đồng thời ba loại đối tượng: token, pool giao dịch và địa chỉ ví.
-
-Mỗi kết quả kèm theo thông tin cơ bản tương ứng với từng loại đối tượng: token hiển thị ký hiệu, giá, biến động 24 giờ, vốn hóa thị trường, khối lượng và biểu đồ sparkline 7 ngày; pool hiển thị tên cặp, sàn giao dịch và các chỉ số thanh khoản; ví hiển thị địa chỉ và thông tin nhận diện. Người dùng có thể xem thông tin này ngay trong giao diện tìm kiếm mà không cần mở trang riêng.
-
-Người dùng có thể điều khiển danh sách kết quả bằng bàn phím hoặc chuột. Khi lựa chọn một kết quả, hệ thống tự động điều hướng đến trang tổng quan token, trang chi tiết pool hoặc trang phân tích ví tương ứng.
-
-% CHÈN HÌNH: Thanh tìm kiếm toàn cục với kết quả token, pool và ví kèm thông tin cơ bản.
-
-\subsection{Trang tổng quan token}
-\label{subsec:tong_quan_token}
-
-Trang tổng quan token cung cấp bức tranh toàn diện về một token, bao gồm thông tin nhận diện, thống kê thị trường, biểu đồ giá và các phân tích chuyên sâu theo nhiều chiều dữ liệu.
-
-Phần đầu trang hiển thị tên, ký hiệu, địa chỉ hợp đồng, ảnh đại diện và các liên kết chính thức khi có. Khu vực thống kê nhanh trình bày giá và biến động, giá cao/thấp trong 24 giờ, thứ hạng vốn hóa, vốn hóa thị trường, FDV, khối lượng giao dịch 24 giờ, ATH và ATL lịch sử.
-
-Biểu đồ hỗ trợ ba chế độ: đường giá, đường vốn hóa và nến. Hai chế độ đường hỗ trợ các khoảng 24 giờ, 7 ngày, 30 ngày, 90 ngày và 1 năm. Biểu đồ nến sử dụng pool ưu tiên của token để phản ánh diễn biến giao dịch thực tế. Các sự kiện tin tức được đánh dấu trực tiếp trên trục thời gian; khi chọn một sự kiện, phần tóm lược và danh sách bài viết liên quan hiện ngay phía dưới mà không cần rời khỏi ngữ cảnh biến động giá.
-
-Phần nội dung chuyên sâu được tổ chức thành nhiều thẻ:
-\begin{itemize}
-    \item Overview: giải thích các chỉ số về khối lượng, biến động, vốn hóa, nguồn cung lưu hành, FDV và khoảng cách hiện tại so với ATH/ATL.
-    \item Holders: hiển thị danh sách địa chỉ nắm giữ lớn và biểu đồ phân bố nguồn cung theo bốn lớp: 10 ví lớn nhất, nhóm ví từ vị trí 11 đến 25, nhóm từ vị trí 26 đến 50, và phần còn lại. Cách phân lớp này giúp người dùng đánh giá mức độ tập trung nguồn cung một cách trực quan mà không cần đọc từng địa chỉ riêng lẻ.
-    \item Tokenomics: trình bày cơ cấu phân bổ token, tỷ trọng từng nhóm, lượng token mở khóa tích lũy theo thời gian và các đợt mở khóa sắp tới.
-    \item Investors: liệt kê các tổ chức hoặc cá nhân hậu thuẫn token, bao gồm vai trò, loại hình, quốc gia và mô tả.
-    \item Markets: liệt kê các pool nổi bật theo sàn giao dịch, cặp, giá, biến động 24 giờ, khối lượng và thanh khoản. Lựa chọn một pool sẽ chuyển đến trang chi tiết pool tương ứng.
-    \item News: tổng hợp bài viết từ nhiều nguồn RSS và kết quả tìm kiếm, phân biệt giữa tin tức chính thức và nội dung chỉ đề cập đến token trên web.
-\end{itemize}
-
-Khu vực quy đổi tỷ giá cho phép nhập một giá trị và xem ngay kết quả quy đổi sang nhiều đơn vị tiền tệ khác. Trợ lý AI được tích hợp trực tiếp trong trang, nhận bối cảnh token hiện tại làm đầu vào để hỗ trợ người dùng đặt câu hỏi phân tích.
-
-Ngoài ra, trang token cũng cung cấp mục dữ liệu lịch sử, nơi giá đóng cửa, vốn hóa và khối lượng giao dịch được trình bày theo ngày dưới dạng bảng, sắp xếp mới nhất lên đầu. Người dùng chọn khoảng quan sát từ 7 ngày đến 1 năm và có thể tải thêm dữ liệu theo từng trang, phù hợp khi cần tra cứu giá trị tại một thời điểm cụ thể hoặc lấy số liệu thô cho phân tích bên ngoài.
-
-% CHÈN HÌNH: Trang tổng quan token với biểu đồ giá/vốn hóa/nến và các thẻ Holders, Tokenomics, Investors.
-
-\subsection{Trang chi tiết pool}
-
-Trang chi tiết pool phục vụ việc phân tích token trong bối cảnh một cặp thanh khoản cụ thể. Trang này được tách biệt với trang tổng quan token nhằm phân biệt các chỉ số của toàn bộ token với các chỉ số chỉ áp dụng cho một pool giao dịch.
-
-Người dùng có thể chuyển giữa các pool nổi bật của cùng một token thông qua bộ chọn pool. Mỗi lựa chọn hiển thị sàn giao dịch (DEX), tên cặp, địa chỉ pool, thanh khoản và khối lượng giao dịch trong 24 giờ, giúp việc so sánh giữa các pool trở nên thuận tiện.
-
-Sau khi lựa chọn pool, hệ thống hiển thị khu vực thống kê với các chỉ số quan trọng như giá token, thanh khoản, vốn hóa, FDV, biến động giá, khối lượng mua và bán, tỷ lệ mua--bán, số lượng giao dịch, số nhà giao dịch, tỷ lệ nắm giữ của các holder lớn và nguồn cung.
-
-Biểu đồ nến phản ánh diễn biến của cặp giao dịch đang được chọn. Đồng thời, khối tín hiệu biến động tổng hợp các thay đổi đáng chú ý trong dữ liệu gần đây, hỗ trợ người dùng nhanh chóng nhận biết các biến động nổi bật của thị trường.
-
-Ngoài thông tin tổng quan, hệ thống còn cung cấp bảng giao dịch gần đây với các lệnh mua và bán, kèm theo số lượng token, giá, giá trị giao dịch, địa chỉ ví và mã giao dịch. Từ mỗi giao dịch, người dùng có thể mở phần chi tiết để theo dõi luồng chuyển tài sản trên blockchain.
-
-Bên cạnh lịch sử giao dịch, tab Bubblemaps hiển thị biểu đồ phân bố holder, giúp trực quan hóa mối quan hệ giữa các ví nắm giữ token mà không cần rời khỏi trang. Điều này cho phép người dùng kết hợp quan sát hoạt động giao dịch với cấu trúc phân bố holder trong cùng một ngữ cảnh.
-
-Cuối cùng, trang tiếp tục tích hợp tin tức liên quan, dữ liệu holder và trợ lý AI, giúp người dùng phân tích hoạt động của pool trong bối cảnh tổng thể của token.
-
-% CHÈN HÌNH: Trang chi tiết pool với bộ chọn pool, thống kê thị trường và bảng giao dịch gần đây.
-
-\subsection{Trang phân tích ví}
-\label{subsec:phan_tich_vi}
-
-Trang phân tích ví là một trong những chức năng trọng tâm của Yoca, cung cấp cái nhìn toàn diện về tài sản và hoạt động của một địa chỉ ví Solana. Phần đầu trang hiển thị thông tin ví cùng các thao tác như theo dõi, so sánh, chia sẻ, xuất dữ liệu và phân tích bằng AI.
-
-Người dùng có thể lựa chọn khoảng thời gian 7, 30 hoặc 90 ngày để theo dõi các chỉ số tổng quan như tổng giá trị tài sản, số token đang nắm giữ hoặc đã giao dịch, tổng lãi/lỗ, lãi/lỗ đã thực hiện, lãi/lỗ chưa thực hiện, khối lượng giao dịch cùng số lần mua và bán.
-
-Tiếp theo, hệ thống trực quan hóa dữ liệu thông qua biểu đồ số dư và biểu đồ PnL, giúp người dùng theo dõi sự thay đổi giá trị danh mục cũng như hiệu quả giao dịch theo từng giai đoạn.
-
-Bên cạnh các biểu đồ, bảng danh mục tài sản liệt kê những token đang được nắm giữ cùng số dư, giá hiện tại và giá trị quy đổi. Từ đây, người dùng có thể chuyển trực tiếp đến trang tổng quan của từng token để tiếp tục phân tích.
-
-Ngoài thông tin tổng quan, hệ thống còn cung cấp phần phân tích chi tiết cho từng vị thế token, bao gồm số dư hiện tại, lãi/lỗ, khối lượng mua và bán, giá trị ròng, số lần giao dịch cùng giá mua và giá bán trung bình. Lịch sử của từng token cũng có thể được xem theo nhiều khoảng thời gian khác nhau.
-
-Hoạt động của ví được chia thành hai nhóm gồm các giao dịch swap và chuyển tài sản. Mỗi giao dịch đều hiển thị đầy đủ thông tin về tài sản, giá trị, thời gian, địa chỉ ví liên quan và mã giao dịch, đồng thời cho phép mở xem chi tiết mà không làm mất trạng thái hiện tại của trang.
-
-Ngoài việc cung cấp dữ liệu giao dịch, hệ thống còn hỗ trợ gán nhãn ví, nhận diện tự động một số đặc trưng hành vi và tích hợp trợ lý AI để diễn giải hoạt động của ví dựa trên dữ liệu đang hiển thị. Kết quả AI đóng vai trò hỗ trợ phân tích và luôn được đặt cạnh các bảng hoặc biểu đồ tương ứng để người dùng dễ dàng đối chiếu với dữ liệu gốc.
-
-Người dùng cũng có thể xuất dữ liệu của ví dưới nhiều định dạng khác nhau nhằm phục vụ nhu cầu lưu trữ hoặc phân tích bên ngoài.
-
-% CHÈN HÌNH: Trang phân tích ví với tổng quan tài sản, biểu đồ số dư/PnL, danh mục và lịch sử hoạt động.
-
-\subsection{Trang so sánh nhiều ví}
- 
-Trang so sánh cho phép quan sát từ hai đến nhiều địa chỉ ví trong cùng một hệ quy chiếu thời gian và thước đo, giúp nhận diện sự khác biệt về chiến lược, hiệu quả và mức độ rủi ro giữa các ví.
-
-Người dùng thêm ví bằng cách nhập địa chỉ hoặc chọn từ danh sách ví đã theo dõi. Các biểu đồ được tổ chức thành ba nhóm chức năng:
-\begin{itemize}
-    \item Nhóm tổng quát: Xu hướng số dư nhiều ví theo thời gian, khối lượng giao dịch tổng, phân bố khối lượng và khối lượng trung bình trên mỗi giao dịch.
-    \item Nhóm tài sản: Phân bố danh mục tài sản theo ví và tỷ lệ stablecoin của từng ví.
-    \item Nhóm rủi ro và hiệu quả: PnL theo cửa sổ thời gian, tỷ lệ giao dịch có lãi và mức suy giảm tài sản tối đa (drawdown).
-\end{itemize}
-
-Mỗi biểu đồ có thể được đưa vào ngữ cảnh của trợ lý AI để đặt câu hỏi trực tiếp về dữ liệu đang hiển thị. Người dùng cũng có thể mở lại trang phân tích riêng của từng ví hoặc xuất toàn bộ phần so sánh sang định dạng PDF.
-
-\subsection{Trang cảnh báo và theo dõi ví}
-
-Trang cảnh báo yêu cầu người dùng đăng nhập và cung cấp cơ chế theo dõi ví theo thời gian thực thông qua tích hợp webhook Helius.
-
-Quản lý danh sách ví theo dõi: Người dùng thêm địa chỉ ví cần theo dõi và đặt nhãn phân biệt. Khi một ví được thêm hoặc xóa khỏi danh sách, hệ thống tự động đồng bộ cấu hình với Helius Webhook: các địa chỉ được phân phối vào các nhóm webhook (shards) theo giới hạn 25 địa chỉ mỗi shard. Quá trình đồng bộ tạo, cập nhật hoặc xóa shard phù hợp để luôn phản ánh đúng danh sách hiện tại mà không yêu cầu người dùng thao tác thủ công.
-
-Mỗi quy tắc cảnh báo được tạo qua hai bước rõ ràng. Ở bước đầu (cấu hình điều kiện), người dùng chỉ định:
-\begin{itemize}
-    \item Ví cần áp dụng quy tắc;
-    \item Loại hoạt động kích hoạt: swap, chuyển tài sản hoặc tất cả;
-    \item Khoảng giá trị tối thiểu và tối đa;
-    \item Đơn vị giá trị: USD hoặc SOL;
-    \item Kiểu kích hoạt: một lần (one-shot) hoặc lặp lại (recurring);
-    \item Thời điểm hết hạn của quy tắc.
-\end{itemize}
-
-Ở bước thứ hai (cấu hình thông báo), người dùng chọn kênh nhận thông báo. Theo mặc định, thông báo được gửi đến email đã đăng ký. Người dùng có thể chỉ định email riêng hoặc URL Discord webhook cho từng quy tắc. Ngoài ra, người dùng đặt tên quy tắc và xem trước nội dung thông báo sẽ nhận được.
+Thanh tìm kiếm toàn cục hỗ trợ token, pool và địa chỉ ví. Kết quả hiển thị các thông tin nhận diện cùng một số chỉ số chính, giúp người dùng phân biệt đối tượng trước khi mở trang chi tiết. Hai thành phần này tạo thành điểm bắt đầu của hành trình phân tích: Market Overview phục vụ khám phá, còn tìm kiếm đáp ứng nhu cầu truy cập một đối tượng đã biết.
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.47\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/chapter5/alert-config-1.png}\\[3pt]
-        {\small (a) Bước 1: điều kiện kích hoạt}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.47\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{images/chapter5/alert-config-2.png}\\[3pt]
-        {\small (b) Bước 2: kênh nhận và xem trước nội dung}
-    \end{minipage}
-    \caption{Tạo một alert rule thật: theo dõi swap của một ví trong khoảng giá trị 10--100 USD}
-    \label{fig:alert-config}
+    \includegraphics[width=0.95\textwidth]{images/chapter5/market-overview.png}
+    \caption{Market Overview với nhóm Trending, bộ lọc thời gian và bảng token/pool}
+    \label{fig:market-overview}
 \end{figure}
 
-Danh sách quy tắc hiển thị ví, loại hoạt động, khoảng giá trị, kiểu kích hoạt và thời hạn; từ đó người dùng có thể tắt hoặc xóa quy tắc bất kỳ lúc nào.
+\subsection{Phân tích token và pool}
 
-Sau khi ít nhất một kênh gửi thành công, hệ thống ghi Alert History theo đúng tài khoản. Mỗi bản ghi giữ nội dung, mức độ, transaction signature, ví liên quan, thời điểm và kết quả email/Discord. Người dùng có thể xem lịch sử theo thứ tự mới nhất, đánh dấu đã đọc/chưa đọc hoặc đánh dấu toàn bộ; khóa idempotency ngăn webhook retry tạo thông báo trùng.
+Token Overview cung cấp thông tin nhận diện, giá, vốn hóa, khối lượng, nguồn cung và các mốc giá quan trọng. Biểu đồ hỗ trợ nhiều khoảng thời gian và cho phép người dùng quan sát giá, vốn hóa hoặc dữ liệu nến. Những nội dung chuyên sâu như phân bố holder, tokenomics, thị trường giao dịch và tin tức được tổ chức theo từng thẻ để người dùng mở rộng phân tích mà vẫn giữ nguyên token đang xem.
+
+Phần holder kết hợp danh sách địa chỉ nắm giữ lớn với biểu đồ phân bố nguồn cung. Thông tin này giúp người dùng nhận biết mức độ tập trung tài sản và tiếp tục mở một địa chỉ ví để xem danh mục cùng lịch sử hoạt động. Tin tức và nội dung AI sử dụng token đang xem làm ngữ cảnh, nhờ đó phần diễn giải gắn với biểu đồ và dữ liệu thị trường được quan sát.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/chapter5/token-overview.png}
+    \caption{Thông tin thị trường và biểu đồ trên trang Token Overview}
+    \label{fig:token-overview}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/chapter5/token-overview-holders.png}
+    \caption{Danh sách holder và phân bố nguồn cung của token}
+    \label{fig:token-overview-holders}
+\end{figure}
+
+Pool Detail tập trung vào một cặp giao dịch cụ thể. Trang hiển thị sàn giao dịch, địa chỉ pool, hai token thành phần, thanh khoản, khối lượng, biến động và lịch sử giao dịch gần nhất. Khi một token có nhiều pool, người dùng có thể chuyển pool để đối chiếu thanh khoản và diễn biến giao dịch. Biểu đồ nến phản ánh dữ liệu của pool đang chọn, bổ sung góc nhìn giao dịch thực tế cho các chỉ số tổng hợp ở Token Overview.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/chapter5/token-pool.png}
+    \caption{Thông tin thị trường và biểu đồ nến của pool đang được phân tích}
+    \label{fig:token-pool}
+\end{figure}
+
+\subsection{Phân tích và so sánh ví}
+\label{subsec:phan_tich_vi}
+
+Wallet Overview tổng hợp danh mục tài sản, tổng giá trị ví, lịch sử số dư, PnL, win rate, khối lượng mua bán và mức độ hoạt động theo thời gian. Người dùng có thể thay đổi kỳ phân tích để quan sát sự khác biệt giữa các giai đoạn. Các biểu đồ về giá trị tài sản, phân bổ danh mục và kết quả giao dịch cung cấp góc nhìn tổng quan trước khi đi sâu vào từng token.
+
+Mỗi vị thế token trình bày số dư, giá trị tại thời điểm truy vấn, lãi/lỗ đã thực hiện và đang ghi nhận, khối lượng mua bán, số lần giao dịch cùng giá mua và bán trung bình. Hoạt động của ví được chia thành swap và transfer; mỗi bản ghi giữ thời gian, tài sản, số lượng, địa chỉ liên quan và mã giao dịch. Khi người dùng mở chi tiết, Helius Enhanced Transactions cung cấp các lần chuyển token, chuyển SOL, chỉ thị thực thi và những tài khoản tham gia giao dịch.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/chapter5/wallet-analysis.png}
+    \caption{Tổng quan tài sản, PnL và hoạt động của một ví}
+    \label{fig:wallet-analysis}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/chapter5/wallet-analysis-positions.png}
+    \caption{Phân tích lãi/lỗ và hoạt động theo từng vị thế token}
+    \label{fig:wallet-analysis-positions}
+\end{figure}
+
+Chức năng Compare Wallet cho phép chọn nhiều địa chỉ và đặt các chỉ số tổng hợp cạnh nhau. Bảng so sánh tập trung vào giá trị danh mục, PnL, win rate, khối lượng và số lượng giao dịch, phù hợp khi người dùng đã xác định được một nhóm ví cần đối chiếu. Đây là phần mở rộng của Wallet Overview nên sử dụng cùng cách tính và cùng kỳ phân tích, giúp kết quả giữa hai trang nhất quán.
+
+\subsection{Tài khoản, theo dõi và cảnh báo}
+
+Yoca hỗ trợ đăng nhập bằng email, Google và ví Solana. Người dùng đã xác thực có thể quản lý hồ sơ, liên kết ví, gắn nhãn địa chỉ, lưu watchlist, theo dõi gói dịch vụ và lịch sử thanh toán. Giao diện hỗ trợ tiếng Anh và tiếng Việt, đồng thời định dạng số, ngày giờ và giá trị tiền tệ theo locale được chọn.
+
+Khi người dùng theo dõi một ví, hệ thống đồng bộ địa chỉ với Helius Webhook để nhận sự kiện mới. Quy tắc cảnh báo cho phép chọn loại sự kiện và điều kiện giá trị; thông báo được gửi qua email hoặc Discord theo cấu hình tài khoản. Mỗi sự kiện được lưu trong Alert History cùng nguồn, mức độ, trạng thái gửi và thời điểm. Người dùng có thể xem lịch sử, thay đổi trạng thái đọc; khóa sự kiện bảo đảm một lần gửi lại không tạo thêm bản ghi trùng lặp.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/chapter5/alert-config-1.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/chapter5/alert-config-2.png}
+    \end{minipage}
+    \caption{Cấu hình điều kiện theo dõi hoạt động của ví}
+    \label{fig:alert-config}
+\end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{images/chapter5/alert-delivery-email.png}
-    \caption{Email cảnh báo nhận được thật sau khi rule ở Hình~\ref{fig:alert-config} kích hoạt: sự kiện SWAP trên ví theo dõi, kèm nguồn, số lượng và transaction signature}
+    \caption{Email cảnh báo được gửi khi giao dịch thỏa điều kiện theo dõi}
     \label{fig:alert-delivery-email}
 \end{figure}
 
-Hai hình trên xác nhận luồng end-to-end (tạo rule -- Helius phát sinh sự kiện -- gửi thành công) đã chạy được trên môi trường thật. % TODO(SCREENSHOT-OPTIONAL): nếu có, bổ sung thêm ảnh giao diện Alert History (danh sách, trạng thái đã đọc/chưa đọc) để minh họa phần lưu trữ phía trong ứng dụng; không bắt buộc vì email đã là bằng chứng delivery độc lập.
+\subsection{Wash Trading và trợ lý AI}
 
-\subsection{Trang hồ sơ cá nhân}
+Mô-đun Wash Trading tổ chức dữ liệu chuyển token thành đồ thị có hướng, trong đó mỗi nút biểu diễn một địa chỉ ví và mỗi cạnh biểu diễn một giao dịch chuyển token từ ví gửi đến ví nhận. Dữ liệu được thu thập, chuẩn hóa và phân tích tại máy chủ trước khi gửi đến giao diện. Để hạn chế chồng lấn trên đồ thị, các giao dịch có cùng chiều giữa một cặp ví được gộp thành một luồng; tổng lượng token và số lượt chuyển tương ứng được cộng dồn để người dùng dễ quan sát quan hệ giao dịch.
 
-Trang hồ sơ cá nhân là trung tâm quản lý tài sản và tùy chỉnh trải nghiệm, được tổ chức thành các thẻ chức năng liên kết chặt chẽ với nhau.
+Hệ thống tìm kiếm các chu trình giao dịch nghi vấn và phân tích sáu đặc trưng của từng ví, gồm mức độ tham gia chu trình (\textit{circular pattern}), tín hiệu thời gian giao dịch (\textit{time regularity}), độ tương đồng lượng token (\textit{amount similarity}), giao dịch tự chuyển (\textit{self-loop}), mức độ kết nối của ví trong đồ thị (\textit{hubness}) và khối lượng tương đối so với ví có khối lượng lớn nhất (\textit{volume signal}). Trong đó, tín hiệu thời gian được xác định từ khoảng thời gian trung bình giữa các giao dịch liên tiếp; \textit{hubness} được tính dựa trên tổng số liên kết vào và ra của ví. Các đặc trưng được chuẩn hóa và tổng hợp bằng trọng số để tạo điểm nghi vấn cho từng ví, từ đó hỗ trợ người dùng tập trung vào các cấu trúc có dấu hiệu phối hợp, lặp lại hoặc luân chuyển token bất thường.
 
-Bắt đầu từ thẻ Portfolio (Overview), người dùng thiết lập danh sách các ví cần theo dõi. Thẻ này cung cấp cái nhìn nhanh về tổng giá trị của từng ví, cho phép thêm mới hoặc gỡ bỏ các ví không còn nhu cầu giám sát. 
+GCN, GAT và GraphSAGE trên giao diện là ba cấu hình trọng số heuristic lấy cảm hứng từ mạng nơ-ron đồ thị, không phải các mô hình GNN đã được huấn luyện trên dữ liệu có nhãn. GCN phân bổ trọng số tương đối cân bằng và ưu tiên tín hiệu chu trình; GAT tăng ảnh hưởng của chu trình và độ tương đồng lượng token; GraphSAGE tăng vai trò của \textit{hubness} và \textit{volume signal}. Việc chuyển đổi giữa ba cấu hình chỉ làm thay đổi mức đóng góp của các đặc trưng trong phép tính điểm rủi ro, qua đó cung cấp những góc nhìn phân tích khác nhau trên cùng một tập giao dịch. Trọng số và công thức tính cụ thể được trình bày tại Phụ lục~\ref{appendix:wash-trading-scoring}.
 
-Thẻ Dashboard là nơi tổng hợp toàn bộ dữ liệu từ các ví của người dùng thành một bảng điều khiển trung tâm duy nhất. Chức năng này cung cấp bức tranh toàn cảnh về sức khỏe tài chính thông qua các biểu đồ phân tích chuyên sâu được tạo sẵn, như phân bố khối lượng giao dịch, ma trận cơ cấu tài sản, và đối sánh lãi/lỗ (PnL). Nhờ đó, người dùng nắm bắt được hiệu suất của toàn bộ danh mục đầu tư mà không cần thao tác thiết lập phức tạp.
+Kết quả phân tích bao gồm điểm rủi ro tổng thể của token, các chỉ số tổng hợp, đồ thị tương tác, danh sách ví nghi vấn, các chu trình nghi vấn được phát hiện, nhật ký phân tích và phần giải thích cho từng nhóm tín hiệu. Điểm rủi ro tổng thể được tổng hợp từ độ tin cậy của chu trình, điểm trung bình của các ví được giữ lại, tỷ lệ khối lượng liên quan đến các ví thuộc chu trình, tỷ lệ ví có mức rủi ro cao và mật độ ví nghi vấn trong toàn bộ đồ thị. Các kết quả này là tín hiệu hỗ trợ sàng lọc và không được xem là bằng chứng khẳng định một ví hoặc token đã thực hiện wash trading.
 
-Bên cạnh tài sản cá nhân, người dùng có thể theo dõi thị trường thông qua thẻ Watchlist. Thẻ này hoạt động như một sổ tay lưu trữ các token và ví tiềm năng đang trong tầm ngắm, giúp dễ dàng mở nhanh để xem biến động hoặc chỉnh sửa nhãn phân loại.
+Trên đồ thị, người dùng có thể di chuột hoặc chọn một nút để xem địa chỉ, loại ví, trạng thái tham gia chu trình và điểm nghi vấn. Khi di chuột lên một cạnh, giao diện hiển thị ví gửi, ví nhận, tổng lượng token và số giao dịch đã được gộp.
 
-Tiếp theo là thẻ Subscriptions, thẻ này giúp quản lý gói dịch vụ và lịch sử thanh toán minh bạch. Hệ thống hỗ trợ thanh toán qua thẻ ngân hàng hoặc bằng tiền mã hóa. Khi thanh toán bằng Solana, giao dịch chuyển tiền từ ví người dùng sẽ được máy chủ tự động truy xuất và xác minh nghiêm ngặt trên chuỗi khối (địa chỉ nhận, số tiền, trạng thái) trước khi cấp quyền dịch vụ.
+Hình~\ref{fig:wash-trading-analysis} minh họa một phiên phân tích gồm 120 giao dịch của 69 ví. Giao diện tổng hợp điểm rủi ro, khối lượng giao dịch ước tính liên quan đến các ví thuộc chu trình, số ví cần chú ý và các cụm chu trình, sau đó biểu diễn luồng chuyển token để người dùng quan sát quan hệ giữa chúng. Khi chọn một ví, khu vực chi tiết hiển thị điểm nghi vấn cùng mức đóng góp của các đặc trưng \textit{circular pattern}, \textit{time regularity}, \textit{amount similarity}, \textit{self-loop}, \textit{hubness} và \textit{volume signal}. Cách trình bày này giúp người dùng đối chiếu điểm số với những tín hiệu đã tạo nên điểm và nhận biết nguyên nhân khiến một ví được đưa vào danh sách cần kiểm tra.
 
-Cuối cùng, mọi thiết lập định danh và bảo mật được quản lý tập trung tại thẻ Settings. Tại đây, người dùng có thể tùy chỉnh tên hiển thị, theo dõi và liên kết các phương thức đăng nhập đa dạng (như Email, tài khoản Google hoặc ví Solana). Thẻ này cũng cho phép thay đổi mật khẩu định kỳ hoặc thực hiện quy trình xóa tài khoản an toàn với bước xác nhận bổ sung, đảm bảo người dùng luôn có toàn quyền kiểm soát dữ liệu cá nhân của mình.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{images/ui/wash-trading-1.png}
 
-\subsection{Mô-đun phát hiện dấu hiệu wash trading}
+    \vspace{0.4em}
+    \includegraphics[width=0.45\textwidth]{images/ui/wash-trading-2.png}
+    \caption{Đồ thị giao dịch, cụm ví nghi vấn và điểm rủi ro của ví được chọn}
+    \label{fig:wash-trading-analysis}
+\end{figure}
 
-Mô-đun phát hiện dấu hiệu wash trading hỗ trợ nhận diện các mẫu giao dịch có khả năng tạo khối lượng giả thông qua phân tích quan hệ giữa các ví trên blockchain. Đây là chức năng bổ sung cho các chỉ số thị trường truyền thống, giúp người dùng quan sát hành vi giao dịch ở mức độ sâu hơn.
+Trợ lý AI hoạt động theo ngữ cảnh của từng khu vực phân tích. Tại trang Wash Trading, khung chat được giới hạn theo địa chỉ mint, khung thời gian, cấu hình chấm điểm và kết quả phân tích tương ứng. Trước khi gửi yêu cầu đến mô hình, máy chủ chuẩn bị ngữ cảnh gồm nguồn dữ liệu, các chỉ số tổng hợp, điểm rủi ro, chu trình nghi vấn, ví tiêu biểu, đặc trưng của ví và nhật ký phát hiện. Nhờ đó, trợ lý có thể giải thích nguyên nhân hình thành điểm, ý nghĩa của các đặc trưng, sự khác nhau giữa ba cấu hình chấm điểm và những tín hiệu đáng chú ý trong kết quả hiện tại.
 
-Người dùng nhập địa chỉ mint của token, ký hiệu token và lựa chọn khoảng thời gian phân tích 24 giờ, 7 ngày hoặc 30 ngày. Từ dữ liệu giao dịch thu thập được, hệ thống xây dựng đồ thị ví--giao dịch và tính toán điểm rủi ro dựa trên nhiều đặc trưng, bao gồm:
+Các tham số đầu vào của API được kiểm tra bằng schema Zod nhằm bảo đảm địa chỉ mint, khung thời gian, cấu hình thuật toán và nội dung câu hỏi đúng định dạng. Đối với phản hồi từ mô hình, máy chủ yêu cầu dữ liệu có cấu trúc JSON, sau đó thực hiện đọc và chuẩn hóa các trường cần thiết. Khi mô hình không khả dụng hoặc phản hồi không hợp lệ, hệ thống sử dụng phần phân tích cục bộ làm phương án thay thế để vẫn cung cấp thông tin cơ bản cho người dùng. Do đó, hệ thống không xem toàn bộ phản hồi AI là dữ liệu đã được xác thực trực tiếp bằng Zod, mà chỉ sử dụng các trường đã đọc và chuẩn hóa thành công.
 
-\begin{itemize}
-    \item Chu trình giao dịch (circular patterns);
-    \item Tính đều đặn về thời gian (time regularity);
-    \item Mức tương đồng về số lượng giao dịch (amount similarity);
-    \item Giao dịch tự quay lại (self-loop);
-    \item Vai trò của ví trung tâm (hubness);
-    \item Tín hiệu bất thường về khối lượng (volume anomaly).
-\end{itemize}
+Nguồn dữ liệu ưu tiên của mô-đun là Helius Enhanced Transactions; Helius RPC thông qua các tài khoản token được sử dụng như một phương án dự phòng. Khi không thể thu thập đủ dữ liệu on-chain, hệ thống có thể chuyển sang nguồn \texttt{demo-fallback}. Trong trường hợp này, giao diện và trợ lý sẽ thông báo rõ rằng kết quả chỉ là dữ liệu mô phỏng phục vụ minh họa quy trình và trải nghiệm người dùng, không phải kết luận được rút ra từ hoạt động on-chain thực tế.
 
-Sau khi phân tích hoàn tất, hệ thống hiển thị các chỉ số tổng hợp như tổng số giao dịch, số lượng ví tham gia, khối lượng wash trading ước tính, số ví đáng ngờ, số cụm giao dịch vòng và độ tin cậy của kết quả phân tích.
+Ngoài mô-đun Wash Trading, trợ lý AI còn được tích hợp tại Token Overview và Wallet Overview. Tại Token Overview, Ask Yoca AI sử dụng dữ liệu thị trường, biến động giá, thông tin holder và dữ liệu on-chain hiện có để giải thích xu hướng hoặc các tín hiệu rủi ro của token. Tại Wallet Overview, trợ lý sử dụng danh mục tài sản, vị thế token, lịch sử giao dịch và các chỉ số phân tích để giải thích hoạt động của ví. Hai trường hợp trong Hình~\ref{fig:yoca-ai-contexts} lần lượt minh họa phần phân tích rủi ro token và câu trả lời kết hợp nhận xét với biểu đồ số dư 30 ngày của ví đang được xem.
 
-Bên cạnh các chỉ số thống kê, đồ thị ví--giao dịch được sử dụng để trực quan hóa mối quan hệ giữa các ví. Người dùng có thể phóng to, thu nhỏ, di chuyển đồ thị hoặc lựa chọn từng ví để xem các đặc trưng nổi bật và điểm rủi ro tương ứng. Giao diện cũng hỗ trợ chuyển đổi giữa các cấu hình thuật toán GCN, GAT và GraphSAGE nhằm so sánh kết quả phân tích theo các mô hình khác nhau.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{images/ui/token_overview__ask_yoca_ai_is_this_token_risky.png}
 
-Ngoài kết quả phân tích, hệ thống tích hợp trợ lý AI để diễn giải các dấu hiệu được phát hiện dựa trên bối cảnh của đồ thị và các chỉ số đã tính toán. Phần giải thích luôn được hiển thị cùng với dữ liệu nguồn, giúp người dùng dễ dàng đối chiếu và sử dụng kết quả như một tín hiệu hỗ trợ đánh giá, thay vì kết luận độc lập về hành vi gian lận.
+    \vspace{0.4em}
+    \includegraphics[width=0.46\textwidth]{images/ui/wallet_overview__wallet_ai_histrical_balance_30d.png}
+    \caption{Ask Yoca AI phân tích token và Wallet AI giải thích lịch sử số dư 30 ngày}
+    \label{fig:yoca-ai-contexts}
+\end{figure}
 
-% CHÈN HÌNH: Mô-đun wash trading với đồ thị ví-giao dịch, chỉ số tổng hợp và phần giải thích rủi ro.
-
-\section{Giải quyết các thách thức kỹ thuật}
+\section{Các giải pháp kỹ thuật tiêu biểu}
 \label{sec:giai_quyet_thach_thuc}
 
-\subsection{Xử lý giới hạn truy vấn và điều phối khóa truy cập}
-Các nhà cung cấp dữ liệu đều áp dụng giới hạn về số lượng yêu cầu trong một khoảng thời gian nhất định. Trong khi đó, một thao tác như mở trang phân tích ví có thể đồng thời yêu cầu nhiều dữ liệu từ nhiều endpoint và nhiều nhà cung cấp khác nhau, dễ dẫn đến lỗi HTTP 429 và làm gián đoạn quá trình tải dữ liệu. 
+\subsection{Điều phối truy vấn và tái sử dụng dữ liệu}
 
-Để giải quyết vấn đề này, Yoca xây dựng lớp điều phối \texttt{ThrottledQueue} riêng cho từng nhà cung cấp nhằm giới hạn số lượng yêu cầu đồng thời, thực hiện thử lại với khoảng chờ tăng dần khi gặp lỗi tạm thời và tuân theo thời gian chờ do nhà cung cấp trả về. Bên cạnh đó, cơ chế gộp yêu cầu (request coalescing) hợp nhất các yêu cầu giống nhau phát sinh đồng thời thành một lần gọi duy nhất, giúp giảm số lượng truy vấn không cần thiết. 
+Các provider áp dụng giới hạn theo số request, credit hoặc compute unit. Server đặt yêu cầu sau lớp điều phối theo từng dịch vụ và tái sử dụng dữ liệu đã lưu trước khi gọi ra ngoài. Với dữ liệu snapshot như metadata hoặc market overview, thời điểm cập nhật xác định dữ liệu còn hiệu lực. Với lịch sử giá, số dư, swap và transfer, metadata coverage ghi nhận khoảng đã đồng bộ; khi người dùng mở rộng thời gian, hệ thống chỉ tải phần còn thiếu rồi hợp nhất với dữ liệu trước đó.
 
-Đối với các dịch vụ sử dụng nhiều khóa API, hệ thống luân phiên sử dụng các khóa để phân tán tải và hạn chế vượt quá giới hạn của từng khóa. Đồng thời, các loại lỗi như giới hạn truy vấn, lỗi mạng và lỗi dữ liệu được xử lý theo các chiến lược khác nhau nhằm duy trì khả năng cung cấp dữ liệu ngay cả khi một số nguồn gặp sự cố. 
+Cơ chế này đặc biệt quan trọng với ví có lịch sử dài. Một yêu cầu mới có thể tái sử dụng phần lớn dữ liệu đã tải và chỉ cập nhật đoạn cuối gần thời điểm truy vấn. Các yêu cầu trùng nhau phát sinh đồng thời dùng chung kết quả đang xử lý, hạn chế việc nhiều thành phần giao diện cùng truy vấn một endpoint bên ngoài cho cùng đối tượng.
 
-Nhờ đó, hệ thống duy trì được khả năng phản hồi ổn định, giảm đáng kể số lượng lỗi do vượt quá giới hạn truy vấn và tối ưu việc sử dụng tài nguyên của các nhà cung cấp dữ liệu.
+\subsection{Tổ chức dữ liệu cho phân tích ví}
 
-\subsection{Tái sử dụng bộ đệm theo khoảng thời gian}
+Phân tích ví cần kết hợp nhiều lớp dữ liệu có ý nghĩa khác nhau. Mobula cung cấp chỉ số PnL, win rate, khối lượng và lịch sử tổng tài sản; Zerion cung cấp lịch sử ở cấp token; Helius cung cấp portfolio, giao dịch chi tiết và sự kiện on-chain. Server chuyển các phản hồi này về mô hình nội bộ, lưu theo địa chỉ cùng kỳ phân tích và cung cấp một contract thống nhất cho giao diện.
 
-Dữ liệu lịch sử ví thường được truy vấn theo các khoảng thời gian chồng lấn. Nếu mỗi lần thay đổi khoảng thời gian đều tải lại toàn bộ dữ liệu, hệ thống sẽ phát sinh nhiều truy vấn lặp, làm tăng thời gian phản hồi và tiêu tốn tài nguyên. 
+PnL tổng hợp phản ánh kết quả giao dịch theo dữ liệu phân tích của provider. Đường biến động theo ngày được xây dựng từ thay đổi tổng tài sản và dòng tiền vào/ra, giúp phân biệt biến động do hiệu quả tài sản với việc người dùng nạp hoặc rút tiền. Lịch sử theo token tiếp tục giữ mức chi tiết cần thiết để giải thích đóng góp của từng vị thế vào kết quả chung.
 
-Để khắc phục vấn đề này, Yoca áp dụng cơ chế \textit{partial-range cache reuse}, trong đó dữ liệu giao dịch và phạm vi thời gian đã đồng bộ được lưu đồng thời trong bộ đệm. Khi nhận yêu cầu mới, hệ thống chỉ xác định và truy xuất phần dữ liệu còn thiếu, sau đó hợp nhất với dữ liệu hiện có dựa trên chữ ký giao dịch để loại bỏ các bản ghi trùng lặp. 
+Helius Enhanced Transactions phục vụ lớp chi tiết giao dịch. Dữ liệu token transfer, native transfer, instruction và account change giúp người dùng đối chiếu hoạt động xuất hiện trong lịch sử swap hoặc transfer. Việc phân tách kết quả tổng hợp và dữ liệu chi tiết giữ cho trang Wallet phản hồi nhanh, đồng thời vẫn cung cấp đường dẫn về giao dịch nguồn.
 
-Cơ chế này cũng được áp dụng cho dữ liệu biểu đồ token. Nhờ chỉ đồng bộ phần dữ liệu còn thiếu, hệ thống giảm đáng kể số lần gọi đến nhà cung cấp, đồng thời cải thiện tốc độ phản hồi khi người dùng chuyển đổi giữa các khoảng thời gian. 
+\subsection{Kiểm soát dữ liệu và kết quả AI}
 
-Qua đó, dữ liệu được tái sử dụng hiệu quả hơn, góp phần nâng cao hiệu năng của hệ thống và giảm tải cho các dịch vụ bên ngoài.
+Phản hồi của provider được kiểm tra bằng schema trước khi đi vào phép tính hoặc cơ sở dữ liệu. Các định danh cốt lõi như token address, wallet address và transaction signature được ràng buộc chặt; metadata bổ sung được xử lý theo khả năng hiện diện của từng nguồn. Lỗi từ dịch vụ bên ngoài được chuyển về nhóm trạng thái thống nhất để giao diện hiển thị loading, empty hoặc error phù hợp.
 
-\subsection{Định giá USD lịch sử cho danh mục ví}
-Việc xác định giá trị danh mục tại một thời điểm trong quá khứ không thể sử dụng giá hiện tại của token, vì điều này có thể tạo ra sai lệch lớn so với giá trị thực tế. 
+Đối với AI, hướng dẫn hệ thống được tách khỏi câu hỏi, lịch sử hội thoại và dữ liệu do công cụ trả về. Chỉ những công cụ đã đăng ký mới được gọi; dữ liệu đầu vào được giới hạn theo miền đang phân tích. Mô hình trả kết quả theo cấu trúc xác định, sau đó server kiểm tra nội dung và ánh xạ citation về nguồn đã truy xuất. Nhờ đó, phần diễn giải luôn gắn với token, ví hoặc tập giao dịch đang được người dùng quan sát.
 
-Để giải quyết bài toán này, Yoca trước hết dựng lại số dư của từng token tại thời điểm cần quan sát từ lịch sử các giao dịch chuyển và giao dịch swap. Sau đó, hệ thống tra cứu mức giá lịch sử gần nhất của từng token để tính giá trị quy đổi sang USD. 
-
-Trong trường hợp không có dữ liệu giá lịch sử, hệ thống sử dụng giá hiện tại khi dữ liệu thị trường vẫn đáng tin cậy. Nếu vẫn không thể xác định được mức giá phù hợp, token sẽ không được cộng vào tổng giá trị USD nhưng vẫn được giữ trong danh mục, tránh đưa ra các giá trị suy đoán có thể gây hiểu nhầm. 
-
-Cách tiếp cận này giúp kết quả định giá phản ánh sát hơn giá trị danh mục tại từng thời điểm, đồng thời đảm bảo tính nhất quán và độ tin cậy của các chỉ số tài chính trong hệ thống.
-
-\subsection{Chuẩn hóa dữ liệu từ nhiều nguồn}
-
-Các nhà cung cấp dữ liệu thường sử dụng những định dạng và cấu trúc khác nhau để biểu diễn cùng một loại thông tin. Nếu xử lý trực tiếp dữ liệu thô, các chức năng phía trên sẽ phải phụ thuộc vào từng nhà cung cấp và khó đảm bảo tính nhất quán. 
-
-Để khắc phục điều này, Yoca thực hiện chuẩn hóa dữ liệu trước khi lưu trữ và trước khi hiển thị. Các giao dịch được quy về các hành động chuẩn như swap, gửi và nhận; trong khi dữ liệu thị trường và tin tức cũng được chuyển về một mô hình thống nhất trước khi sử dụng. 
-
-Nhờ đó, toàn bộ các mô-đun trong hệ thống có thể xử lý dữ liệu theo cùng một cấu trúc, giảm sự phụ thuộc vào từng nhà cung cấp và tạo thuận lợi cho việc mở rộng hệ thống trong tương lai.
-
-\subsection{Duy trì tính giải thích của kết quả AI}
-
-Các mô hình AI khó khai thác hiệu quả dữ liệu blockchain ở dạng thô, đồng thời kết quả sinh ra cần có khả năng đối chiếu với dữ liệu nguồn để đảm bảo tính minh bạch. 
-
-Để giải quyết vấn đề này, trước khi gửi yêu cầu đến mô hình AI, Yoca xây dựng một bối cảnh có cấu trúc gồm các chỉ số tổng hợp, giao dịch tiêu biểu, khoảng thời gian phân tích và các bằng chứng liên quan. Việc này giúp mô hình tập trung vào những thông tin quan trọng thay vì xử lý toàn bộ dữ liệu blockchain.
-
-Sau khi AI tạo kết quả, phần diễn giải luôn được hiển thị cùng với bảng dữ liệu hoặc biểu đồ tương ứng để người dùng dễ dàng đối chiếu. Đối với mô-đun wash trading, kết quả được liên kết trực tiếp với các đặc trưng và các ví đáng ngờ; trong khi ở các trang phân tích ví và token, AI chỉ diễn giải dữ liệu của đối tượng đang được quan sát. 
-
-Qua đó, hệ thống vừa tận dụng được khả năng diễn giải của AI, vừa đảm bảo người dùng luôn có thể kiểm chứng các nhận định dựa trên dữ liệu gốc, giúp tăng tính minh bạch và độ tin cậy của kết quả phân tích.
-
-\section{Kết quả kiểm thử và đánh giá hệ thống}
+\section{Kết quả kiểm thử và đánh giá}
 \label{sec:kiem_thu_danh_gia}
 
-Hoạt động kiểm thử được thực hiện nhằm xác nhận các chức năng của Yoca vận hành đúng theo yêu cầu, các thành phần có thể phối hợp ổn định và dữ liệu hiển thị duy trì được tính nhất quán. Bên cạnh kiểm thử chức năng, quá trình đánh giá tập trung vào hiệu quả của cơ chế bộ đệm, khả năng xử lý lỗi từ nhà cung cấp, độ trễ cảnh báo và thời gian phân tích đồ thị giao dịch.
+Yoca sử dụng Vitest ở cả client và server. Phía client kết hợp jsdom và Testing Library để kiểm tra component, thao tác người dùng, bảng, biểu đồ, hồ sơ, cảnh báo và thanh toán. Phía server kiểm tra route, service, xác thực, entitlement, payment, webhook, provider mapper, dữ liệu Wallet và các guardrail AI. Fixture và mock tạo ra các trường hợp dữ liệu hợp lệ, dữ liệu rỗng, tham số sai, vượt giới hạn truy vấn và lỗi dịch vụ bên ngoài.
 
-\subsection{Môi trường và dữ liệu kiểm thử}
-
-\subsection{Kết quả kiểm thử chức năng}
-
-\subsection{Kết quả kiểm thử tích hợp}
-
-\subsection{Đánh giá hiệu năng và hiệu quả bộ đệm}
-
-\subsection{Kết quả chạy test và vấn đề còn tồn tại}
-
-Ngày 12/07/2026, nhóm chạy hai lệnh \texttt{npm test -w client -- --run} và \texttt{npm test -w server} trên source hiện tại. Kết quả được trình bày trong Bảng~\ref{tab:test_results}; đây là số liệu của đúng lần chạy này, không phải coverage hay tỷ lệ ổn định dài hạn.
+Các test tập trung vào hành vi có khả năng ảnh hưởng trực tiếp đến kết quả hiển thị: kiểm tra ownership của dữ liệu người dùng, chống ghi trùng sự kiện cảnh báo, kết thúc phân trang, chuyển đổi response provider, xử lý trường nullable và từ chối phản hồi AI sai cấu trúc. Zod, hợp đồng TypeScript và ràng buộc PostgreSQL hỗ trợ kiểm tra dữ liệu ở các lớp khác nhau; test xác nhận hành vi khi những lớp này phối hợp trong route hoặc service.
 
 \begin{table}[H]
 \centering
 \small
 \begin{tabularx}{\textwidth}{|L{2.5cm}|C{2.2cm}|C{2.2cm}|X|}
 \hline
-\textbf{Suite} & \textbf{Test file} & \textbf{Test case} & \textbf{Kết quả} \\
+\textbf{Suite} & \textbf{Test file} & \textbf{Test case} & \textbf{Phạm vi chính} \\
 \hline
-Client & 16/16 đạt & 178/178 đạt & Các test component, payment, profile, chart interaction, utility và Alert History API đều đạt trong lần chạy ngày 12/07/2026. \\
+Client & 16/16 đạt & 178/178 đạt & Component, bảng và biểu đồ, payment, profile, Wallet và Alert History API. \\
 \hline
-Server & 29/29 đạt & 204/204 đạt & Các test auth/entitlement, payment, alert/webhook/history, AI guardrail và prompt injection, Wallet, provider mapping, pagination cùng route/service đều đạt trong lần chạy ngày 12/07/2026. \\
+Server & 29/29 đạt & 204/204 đạt & Auth và entitlement, payment, alert/webhook, provider mapping, Wallet, phân trang và AI guardrail. \\
 \hline
 \end{tabularx}
-\caption{Kết quả chạy test trên source hiện tại}
+\caption{Kết quả kiểm thử client và server ngày 12/07/2026}
 \label{tab:test_results}
 \end{table}
 
-Kết quả cho thấy repository đã có nền tảng kiểm thử đáng kể và hai suite hiện đều ở trạng thái xanh. Trong đợt rà cuối, nhóm chúng em sửa các expectation đã lỗi thời sau thay đổi localization/theme, thống nhất contract lỗi upstream và bổ sung test cho Alert History, provider mapper cùng cursor/offset pagination. Kết quả này đủ để dùng test làm một cổng kiểm tra trong CI, nhưng chưa thay thế E2E trên môi trường triển khai hay đánh giá tải thực tế.
-
-\subsection{Đánh giá và phạm vi kiểm thử còn thiếu}
-
-Các test hiện tại chưa đo đầy đủ cache hit/miss trên môi trường có PostgreSQL thật, chưa gọi provider thật theo contract regression và chưa chạy toàn bộ user journey trong browser. Repository cũng chưa cung cấp load test, benchmark có thể lặp lại, staging ổn định hay số liệu về độ trễ cảnh báo. Vì vậy, chương này không đưa ra con số cải thiện hiệu năng hoặc khẳng định độ ổn định toàn hệ thống.
-
-Phạm vi hoàn thiện vừa đủ gồm bốn lớp: unit test cho normalizer và phép tính; provider contract test bằng response fixture đã ẩn dữ liệu nhạy cảm; route/service test cho fresh/stale/error và các status 200, 400, 429, 500, 502, invalid JSON, schema mismatch; cuối cùng là smoke test cho hành trình demo. Suite tự động hiện đã xanh; phần còn lại trước bản nộp là chạy smoke test trên database và môi trường deploy thật, đặc biệt với delivery và lịch sử cảnh báo.
+Kết quả trong Bảng~\ref{tab:test_results} cho thấy các luồng nghiệp vụ chính đều có kiểm thử hồi quy và hai suite hoàn tất toàn bộ trường hợp đã định nghĩa. Pipeline CI chạy lại các suite cùng typecheck, lint và production build trước bước triển khai, giúp mỗi revision trên nhánh chính trải qua cùng một quy trình kiểm tra.
 
 \section{Tổng kết chương}
 \label{sec:tong_ket_ch4}
 
-Chương 4 đã trình bày quá trình triển khai thực nghiệm hệ thống Yoca, bao gồm môi trường vận hành, tích hợp các nguồn dữ liệu, quy trình tích hợp và triển khai mã nguồn, cùng kết quả hiện thực các nhóm chức năng cốt lõi. Các chức năng được tổ chức thành luồng sử dụng thống nhất, từ khám phá thị trường, phân tích token và pool đến theo dõi ví, giao dịch, cảnh báo và hỗ trợ diễn giải bằng AI.
+Chương 5 đã trình bày quá trình đưa kiến trúc Yoca thành một sản phẩm vận hành trên môi trường triển khai. Các chức năng Market, Token, Pool và Wallet tạo thành luồng phân tích cốt lõi; tài khoản, watchlist và cảnh báo duy trì quá trình theo dõi; Wash Trading và AI bổ sung khả năng phát hiện, trực quan hóa và diễn giải dữ liệu. Những chức năng này được hỗ trợ bởi lớp tích hợp provider, cơ chế tái sử dụng dữ liệu và hợp đồng thống nhất giữa client với server.
 
-Chương cũng làm rõ những giải pháp được áp dụng để xử lý các thách thức của dữ liệu blockchain, gồm giới hạn truy vấn, dữ liệu lịch sử chồng lấn, định giá danh mục trong quá khứ và sự khác biệt giữa các nhà cung cấp. Trong đó, mô-đun phát hiện dấu hiệu wash trading thể hiện khả năng kết hợp phân tích đồ thị, chấm điểm rủi ro, trực quan hóa quan hệ giữa các ví và giải thích kết quả dựa trên dữ liệu nguồn.
-
-Kết quả kiểm thử cho thấy các thành phần chính phối hợp đúng theo luồng nghiệp vụ, dữ liệu được chuẩn hóa nhất quán và hệ thống duy trì khả năng vận hành trong các kịch bản được đánh giá. Những kết quả này là cơ sở để Chương 5 tổng kết các đóng góp của đề tài, phân tích những giới hạn khách quan và đề xuất các hướng phát triển tiếp theo cho Yoca.
+Kết quả kiểm thử và triển khai cho thấy hệ thống đáp ứng các nhóm chức năng đã xác định, từ xử lý dữ liệu đến tương tác người dùng. Trên cơ sở đó, Chương 6 tổng kết đóng góp của đề tài và trình bày các hướng mở rộng cho dữ liệu, mô-đun Wash Trading và trải nghiệm phân tích.

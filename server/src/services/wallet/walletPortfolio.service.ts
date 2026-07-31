@@ -16,6 +16,8 @@ import { excludedAutoNonNullFromInsert } from "@sv/util/orm-sql.js";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { fetchHeliusSolanaPortfolio } from "./fetchers/walletDataFetcher.service.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
+import { singleFlight } from "@sv/services/util/single-flight.js";
 
 const walletPortfolioCacheSchema = z.array(
   z.object({
@@ -69,48 +71,10 @@ async function syncPortfolioTokenMeta(portfolio: WalletPortfolioItem[]) {
     });
 }
 
-export async function getWalletPortfolio(
+async function refreshWalletPortfolio(
   address: string,
-  options?: { force?: boolean },
+  cachedData: WalletPortfolioItem[],
 ): Promise<WalletPortfolioItem[]> {
-  // 0) DB-first: use cached portfolio if fresh
-  const portfolioThreshold = new Date(Date.now() - WALLET_PORTFOLIO_TTL_MS);
-  const cachedPortfolio = await db
-    .select()
-    .from(walletPortfolioCache)
-    .where(and(eq(walletPortfolioCache.address, address)))
-    .limit(1);
-  const cachedDataResult = walletPortfolioCacheSchema.safeParse(
-    cachedPortfolio[0]?.data,
-  );
-  const cachedData: WalletPortfolioItem[] = cachedDataResult.success
-    ? cachedDataResult.data
-    : [];
-  if (
-    !options?.force &&
-    cachedPortfolio.length > 0 &&
-    cachedDataResult.success &&
-    cachedPortfolio[0].fetchedAt >= portfolioThreshold
-  ) {
-    await syncPortfolioTokenMeta(cachedData);
-    const enrichedCached = await enrichWalletPortfolioMetadata(cachedData, {
-      address,
-      source: "cache-hit",
-    });
-
-    if (enrichedCached.changed) {
-      await db
-        .insert(walletPortfolioCache)
-        .values({ address, data: enrichedCached.portfolio })
-        .onConflictDoUpdate({
-          target: [walletPortfolioCache.address],
-          set: { data: enrichedCached.portfolio, fetchedAt: new Date() },
-        });
-    }
-
-    return enrichedCached.portfolio;
-  }
-
   let selectedPortfolio: WalletPortfolioItem[] = [];
   try {
     selectedPortfolio = await fetchHeliusSolanaPortfolio(address);
@@ -118,8 +82,9 @@ export async function getWalletPortfolio(
     console.error("Failed to fetch Solana portfolio from Helius", err);
   }
 
-  if (selectedPortfolio.length === 0) {
+  if (selectedPortfolio.length == 0) {
     if (cachedData.length > 0) {
+      dataUsage.record("db_result", "stale_fallback");
       await syncPortfolioTokenMeta(cachedData);
       const enrichedStale = await enrichWalletPortfolioMetadata(cachedData, {
         address,
@@ -148,4 +113,58 @@ export async function getWalletPortfolio(
       set: { data: enrichedPortfolio.portfolio, fetchedAt: new Date() },
     });
   return enrichedPortfolio.portfolio;
+}
+
+const walletPortfolioFlight = singleFlight(refreshWalletPortfolio);
+
+export async function getWalletPortfolio(
+  address: string,
+  options?: { force?: boolean },
+): Promise<WalletPortfolioItem[]> {
+  if (options?.force) {
+    dataUsage.record("forced_refresh");
+  }
+
+  // 0) DB-first: use cached portfolio if fresh
+  const portfolioThreshold = new Date(Date.now() - WALLET_PORTFOLIO_TTL_MS);
+  const cachedPortfolio = await db
+    .select()
+    .from(walletPortfolioCache)
+    .where(and(eq(walletPortfolioCache.address, address)))
+    .limit(1);
+  const cachedDataResult = walletPortfolioCacheSchema.safeParse(
+    cachedPortfolio[0]?.data,
+  );
+  const cachedData: WalletPortfolioItem[] = cachedDataResult.success
+    ? cachedDataResult.data
+    : [];
+  if (
+    !options?.force &&
+    cachedPortfolio.length > 0 &&
+    cachedDataResult.success &&
+    cachedPortfolio[0].fetchedAt >= portfolioThreshold
+  ) {
+    dataUsage.record("db_result");
+    await syncPortfolioTokenMeta(cachedData);
+    const enrichedCached = await enrichWalletPortfolioMetadata(cachedData, {
+      address,
+      source: "cache-hit",
+    });
+
+    if (enrichedCached.changed) {
+      await db
+        .insert(walletPortfolioCache)
+        .values({ address, data: enrichedCached.portfolio })
+        .onConflictDoUpdate({
+          target: [walletPortfolioCache.address],
+          set: { data: enrichedCached.portfolio, fetchedAt: new Date() },
+        });
+    }
+
+    return enrichedCached.portfolio;
+  }
+
+  return walletPortfolioFlight
+    .key(`wallet_portfolio:${address}`)
+    .run(address, cachedData);
 }

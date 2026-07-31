@@ -3,9 +3,9 @@ import client from "@/api/main";
 
 export interface WalletWinrateStats {
   winRate: number;
-  winCount: number;
-  lossCount: number;
-  totalTraded: number;
+  profitableTokenCount: number;
+  unprofitableTokenCount: number;
+  totalTokenCount: number;
   avgWinUsd: number;
   avgLossUsd: number;
 }
@@ -40,9 +40,9 @@ export function useWalletWinrate(
         if (walletStats) {
           setStats({
             winRate: Number(walletStats.winrate ?? 0),
-            winCount: Number(walletStats.winningTrades ?? 0),
-            lossCount: Number(walletStats.losingTrades ?? 0),
-            totalTraded: Number(walletStats.totalTrades ?? 0),
+            profitableTokenCount: Number(walletStats.profitableTokens ?? 0),
+            unprofitableTokenCount: Number(walletStats.unprofitableTokens ?? 0),
+            totalTokenCount: Number(walletStats.totalTokens ?? 0),
             avgWinUsd: Number(walletStats.avgWinUsd ?? 0),
             avgLossUsd: Number(walletStats.avgLossUsd ?? 0),
           });

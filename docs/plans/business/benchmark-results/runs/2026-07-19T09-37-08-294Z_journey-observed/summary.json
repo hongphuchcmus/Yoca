@@ -1,0 +1,188 @@
+{
+  "runId": "2026-07-19T09-37-08-294Z_journey-observed",
+  "journeys": [
+    {
+      "journey": "wallet_activity",
+      "pass": "observed_first",
+      "resourceId": "wallet_001",
+      "durationMs": 2153,
+      "endpointCount": 2,
+      "successfulEndpoints": 2,
+      "providerAttemptCount": 0,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_001-observed_first-1",
+          "route": "/api/wallets/swaps/history/:address",
+          "status": 200,
+          "durationMs": 1853,
+          "payloadBytes": 2127,
+          "classification": "data"
+        },
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_001-observed_first-2",
+          "route": "/api/wallets/transfers/history/:address",
+          "status": 200,
+          "durationMs": 1973,
+          "payloadBytes": 240166,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [],
+      "dataUsage": [
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/swaps/history/:address",
+            "status_class": "2xx",
+            "source": "db",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/transfers/history/:address",
+            "status_class": "2xx",
+            "source": "db",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        }
+      ]
+    },
+    {
+      "journey": "wallet_activity",
+      "pass": "observed_first",
+      "resourceId": "wallet_002",
+      "durationMs": 4603,
+      "endpointCount": 2,
+      "successfulEndpoints": 2,
+      "providerAttemptCount": 2,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_002-observed_first-1",
+          "route": "/api/wallets/swaps/history/:address",
+          "status": 200,
+          "durationMs": 3939,
+          "payloadBytes": 2004,
+          "classification": "data"
+        },
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_002-observed_first-2",
+          "route": "/api/wallets/transfers/history/:address",
+          "status": 200,
+          "durationMs": 4551,
+          "payloadBytes": 51748,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_activity",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 2
+        }
+      ],
+      "dataUsage": [
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/transfers/history/:address",
+            "status_class": "2xx",
+            "source": "db_provider",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/swaps/history/:address",
+            "status_class": "2xx",
+            "source": "db_provider",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        }
+      ]
+    },
+    {
+      "journey": "wallet_activity",
+      "pass": "observed_first",
+      "resourceId": "wallet_003",
+      "durationMs": 5537,
+      "endpointCount": 2,
+      "successfulEndpoints": 2,
+      "providerAttemptCount": 2,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_003-observed_first-1",
+          "route": "/api/wallets/swaps/history/:address",
+          "status": 200,
+          "durationMs": 3979,
+          "payloadBytes": 1344,
+          "classification": "data"
+        },
+        {
+          "requestId": "2026-07-19T09-37-08-294Z_journey-observed-wallet_003-observed_first-2",
+          "route": "/api/wallets/transfers/history/:address",
+          "status": 200,
+          "durationMs": 5473,
+          "payloadBytes": 194709,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_activity",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 2
+        }
+      ],
+      "dataUsage": [
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/transfers/history/:address",
+            "status_class": "2xx",
+            "source": "db_provider",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_request_data_source_total",
+          "labels": {
+            "route": "/api/wallets/swaps/history/:address",
+            "status_class": "2xx",
+            "source": "db_provider",
+            "forced_refresh": "false",
+            "stale_fallback": "false"
+          },
+          "value": 1
+        }
+      ]
+    }
+  ]
+}

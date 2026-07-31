@@ -1,6 +1,7 @@
 ﻿import { useMemo, type MouseEvent } from "react";
 import { useNavigate } from "react-router";
 import { Star } from "lucide-react";
+import { SkeletonPlaceholder, SkeletonText } from "@carbon/react";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
@@ -18,8 +19,8 @@ import { TokenIdentityCell } from "@/components/token/TokenIdentityCell.tsx";
 import { locale } from "@/config/localization/index.ts";
 import {
   buildPortfolioMetaMap,
-  isNativeSolToken,
   mapPortfolioItems,
+  resolveNativeSolTokenAddress,
 } from "@/util/wallet-portfolio-mapper.ts";
 import type { WalletPortfolioItem } from "@/services/wallet/walletApi";
 import styles from "./WalletHoldingsPanel.module.scss";
@@ -136,6 +137,7 @@ export function WalletHoldingsPanel({
           imageUrl={portfolioTokenMeta?.logoUri}
           imageSize={30}
           tooltipAlign="right"
+          fullNameMaxLength={50}
         />
       );
     },
@@ -168,44 +170,69 @@ export function WalletHoldingsPanel({
         minHeight={340}
       />
 
-      <Tble
-        title={tr("walletPage.portfolio")}
-        rows={holdingsRows}
-        headers={portfolioHeaders}
-        filterSchema={{
-          token: { type: TbleFilterType.Select, field: "tokenLabel" },
-          price: { type: TbleFilterType.Range, field: "priceUsd", min: 0, max: 500, step: 0.01 },
-          holdingValue: {
-            type: TbleFilterType.Composite,
-            filters: {
-              amount: { type: TbleFilterType.Range, field: "amount", min: 0, max: 1_000_000, step: 0.01 },
-              value: { type: TbleFilterType.Range, field: "valueUsd", min: 0, max: 100_000, step: 0.01 },
+      {loading && holdingsRows.length == 0 ? (
+        <section
+          className={styles.portfolioSkeleton}
+          aria-label={tr("common.loading")}
+          aria-busy="true"
+          data-testid="portfolio-skeleton"
+        >
+          <div className={styles.portfolioSkeletonHeader}>
+            <SkeletonText heading width="7rem" />
+            <SkeletonPlaceholder className={styles.portfolioSkeletonSearch} />
+          </div>
+          <div className={styles.portfolioSkeletonColumns}>
+            {portfolioHeaders.map((header) => (
+              <SkeletonText key={header.key} width="70%" />
+            ))}
+          </div>
+          <div className={styles.portfolioSkeletonRows}>
+            {Array.from({ length: 5 }).map((_, rowIndex) => (
+              <div key={rowIndex} className={styles.portfolioSkeletonRow}>
+                <SkeletonPlaceholder className={styles.portfolioSkeletonIcon} />
+                <SkeletonText width="75%" />
+                <SkeletonText width="65%" />
+                <SkeletonText width="80%" />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <Tble
+          title={tr("walletPage.portfolio")}
+          rows={holdingsRows}
+          headers={portfolioHeaders}
+          filterSchema={{
+            token: { type: TbleFilterType.Select, field: "tokenLabel" },
+            price: { type: TbleFilterType.Range, field: "priceUsd", min: 0, max: 500, step: 0.01 },
+            holdingValue: {
+              type: TbleFilterType.Composite,
+              filters: {
+                amount: { type: TbleFilterType.Range, field: "amount", min: 0, max: 1_000_000, step: 0.01 },
+                value: { type: TbleFilterType.Range, field: "valueUsd", min: 0, max: 100_000, step: 0.01 },
+              },
             },
-          },
-        }}
-        sortConfigs={{
-          price: { type: TbleSortType.Number, field: "priceUsd" },
-          holdingValue: { type: TbleSortType.Number, field: "valueUsd" },
-        }}
-        cellRenderers={cellRenderers}
-        enableSearch
-        searchFields={["tokenLabel", "tokenName", "tokenAddress"]}
-        onRowClick={(row) => {
-          const tokenAddress = String(row.tokenAddress ?? "");
-          if (tokenAddress && !isNativeSolToken(tokenAddress)) {
-            navigate(`/tokens/${tokenAddress}`);
-          }
-        }}
-        enablePagination
-        pageSize={16}
-        boxed
-        loading={loading && holdingsRows.length === 0}
-      />
+          }}
+          sortConfigs={{
+            price: { type: TbleSortType.Number, field: "priceUsd" },
+            holdingValue: { type: TbleSortType.Number, field: "valueUsd" },
+          }}
+          cellRenderers={cellRenderers}
+          enableSearch
+          searchFields={["tokenLabel", "tokenName", "tokenAddress"]}
+          onRowClick={(row) => {
+            const tokenAddress = String(row.tokenAddress ?? "");
+            if (tokenAddress) {
+              navigate(`/tokens/${resolveNativeSolTokenAddress(tokenAddress)}`);
+            }
+          }}
+          enablePagination
+          pageSize={16}
+          boxed
+        />
+      )}
     </div>
   );
 }
 
 export default WalletHoldingsPanel;
-
-
-

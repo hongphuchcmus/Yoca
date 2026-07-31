@@ -14,6 +14,7 @@ import { db } from "@sv/db/index.js";
 import { walletAiSwapSummaryCache } from "@sv/db/schema.js";
 import { getWalletSwaps } from "@sv/services/wallet/walletTransfersSwaps.service.js";
 import { isValidSolanaAddress } from "@sv/services/wallet/walletIdentity.service.js";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 
 import type { WalletSwap } from "./dtos/walletDataObjects.js";
 import {
@@ -365,7 +366,7 @@ async function callGemini(
 
   let response;
   try {
-    response = await client.models.generateContent({
+    response = await trackGemini("gemini.svc.wallet_swap_summary", GEMINI_MODEL, () => client.models.generateContent({
       model: GEMINI_MODEL,
       contents: JSON.stringify(userPayload, null, 2),
       config: {
@@ -384,7 +385,7 @@ async function callGemini(
           required: ["summary", "riskNotes"],
         },
       },
-    });
+    }));
   } catch (err) {
     throw new WalletAiSwapSummaryServiceError(
       `Gemini call failed: ${err instanceof Error ? err.message : String(err)}`,

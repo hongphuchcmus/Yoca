@@ -89,10 +89,10 @@ export function WalletHero({
           {winRateLoading || !winRateStats
             ? "\u2014"
             : tr("walletPage.tokenWinRate.summaryShort", {
-                win: fmt.num.compact.decimal(winRateStats.winCount),
-                tradedCount: fmt.num.compact.decimal(
-                  winRateStats.totalTraded,
+                profitableCount: fmt.num.compact.decimal(
+                  winRateStats.profitableTokenCount,
                 ),
+                totalCount: fmt.num.compact.decimal(winRateStats.totalTokenCount),
               })}
         </span>
 
@@ -241,4 +241,3 @@ export function WalletHero({
 }
 
 export default WalletHero;
-

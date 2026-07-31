@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
+    "dev:webhook": "tsx src/scripts/start-webhook-dev.ts",
     "build": "npm run clean && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node build/main.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -18,9 +19,12 @@
     "db:push": "drizzle-kit push --verbose",
     "db:push-force": "drizzle-kit push --verbose --force",
     "alerts:replay": "tsx src/scripts/replay-wallet-alert-webhook.ts",
-    "alerts:sync-helius": "tsx src/scripts/sync-helius-webhook-shards.ts",
-    "alerts:verify-helius-cutover": "tsx src/scripts/verify-helius-cutover.ts",
-    "alerts:disable-legacy-helius": "tsx src/scripts/disable-legacy-helius.ts",
+    "alerts:sync-helius": "tsx src/scripts/sync-helius-webhook.ts",
+    "business:discover-tokens": "tsx src/scripts/business-model/discover-token-dataset.ts",
+    "business:discover-wallets": "tsx src/scripts/business-model/discover-wallet-dataset.ts",
+    "business:benchmark-journeys": "tsx src/scripts/business-model/benchmark-journeys.ts",
+    "business:calculate-scenarios": "tsx src/scripts/business-model/calculate-business-scenarios.ts",
+    "business:setup-benchmark-user": "tsx src/scripts/business-model/setup-benchmark-user.ts",
     "db:studio": "drizzle-kit studio",
     "db:clear": "drizzle-kit push --force --config drizzle-empty.config.ts",
     "db:reset": "npm run db:clear && npm run db:push"
@@ -40,12 +44,14 @@
     "hono": "^4.10.4",
     "nodemailer": "^8.0.10",
     "postgres": "^3.4.7",
+    "prom-client": "^15.1.3",
     "redis": "^5.11.0",
     "resend": "^6.12.2",
     "rss-parser": "^3.13.0",
     "stripe": "^22.1.1"
   },
   "devDependencies": {
+    "@ngrok/ngrok": "^1.7.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.0",
     "drizzle-kit": "^0.31.7",

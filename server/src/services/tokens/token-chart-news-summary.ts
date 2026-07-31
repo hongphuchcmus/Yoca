@@ -2,6 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { WALLET_AUDIT_MODEL } from "@sv/config/constants.js";
 import type { TokenNewsArticle } from "@sv/services/rss-news.service.js";
 import env from "@sv/util/load-env";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 import { z } from "zod";
 
 export interface TokenChartNewsEventSummary {
@@ -552,7 +553,7 @@ export async function summarizeTokenChartNewsEvent(
     await beforeGenerate?.();
 
     const client = new GoogleGenAI({ apiKey });
-    const response = await client.models.generateContent({
+    const response = await trackGemini("gemini.svc.token_chart_news_summary", TOKEN_CHART_NEWS_SUMMARY_MODEL, () => client.models.generateContent({
       model: TOKEN_CHART_NEWS_SUMMARY_MODEL,
       contents: buildSummaryPrompt(input, promptArticles),
       config: {
@@ -586,7 +587,7 @@ export async function summarizeTokenChartNewsEvent(
           ],
         },
       },
-    });
+    }));
 
     const parsed = summarySchema.safeParse(JSON.parse(response.text ?? "{}"));
     if (!parsed.success) {

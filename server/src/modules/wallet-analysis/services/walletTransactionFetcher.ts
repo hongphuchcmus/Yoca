@@ -3,9 +3,9 @@ import { helius_EnhancedTransactionsSchema } from "../../../services/_types/toke
 import {
     getEndpoint,
     getRequiredHeaders,
-    limiter as heliusLimiter,
+    spec as heliusSpec,
 } from "../../../util/util-helius.js";
-import { rlFetch } from "../../../util/rate-limit.js";
+import { pFetch } from "../../../util/rate-limit.js";
 import type { HeliusEnhancedTransactionLike } from "../types/normalizedWalletEvent.js";
 
 const HELIUS_PAGE_SIZE = 100;
@@ -35,10 +35,9 @@ export async function fetchWalletTransactions(params: {
             endpoint.searchParams.set("before", before);
         }
 
-        const response = await rlFetch(endpoint, {
+        const response = await pFetch(heliusSpec, "helius.svc.wallet_transactions", endpoint, {
             method: "GET",
             headers: getRequiredHeaders(),
-            rlLimiter: heliusLimiter,
         });
 
         if (!response.ok) {

@@ -17,10 +17,11 @@ import {
     type TokenMarketChartHourlyInsert,
 } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import { excluded } from "@sv/util/orm-sql.js";
 import * as bds from "@sv/util/util-birdeye.js";
 import * as cg from "@sv/util/util-coingecko.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import dayjs from "dayjs";
 import { and, eq, gte, lte } from "drizzle-orm";
 import {
@@ -95,10 +96,9 @@ export async function fetch24hTokenMarketChart(
     to: toUnixSecondsString(to),
   }).toString();
 
-  const resp = await rlFetch(cgEndpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.token_price_chart", cgEndpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   if (!resp.ok) {
@@ -160,8 +160,14 @@ export async function get24hTokenMarketChart(tokenAddress: string) {
     .orderBy(tokenMarketChart24h.unixTimestampMs);
 
   if (chartData.length == 0) {
-    return fetch24hTokenMarketChart(tokenAddress);
+    const freshChartData = await fetch24hTokenMarketChart(tokenAddress);
+    if (freshChartData.length > 0) {
+      dataUsage.record("provider_result");
+    }
+    return freshChartData;
   }
+
+  dataUsage.record("db_result");
 
   const latestUpdate = chartData[chartData.length - 1].unixTimestampMs;
   const isStale =
@@ -173,7 +179,8 @@ export async function get24hTokenMarketChart(tokenAddress: string) {
       latestUpdate,
     );
 
-    if (newerChartData) {
+    if (newerChartData.length > 0) {
+      dataUsage.record("provider_result");
       return [...chartData, ...newerChartData];
     }
   }
@@ -198,10 +205,9 @@ async function fetchAndCacheChartRange(
     vs_currency: "usd",
   }).toString();
 
-  const resp = await rlFetch(cgEndpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.pool_price_chart", cgEndpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   if (!resp.ok) {
@@ -392,10 +398,9 @@ async function fetchHistoricalRange(
     ui_amount_mode: "raw",
   }).toString();
 
-  const resp = await rlFetch(url, {
+  const resp = await pFetch(bds.spec, "birdeye.svc.token_history_price", url, {
     method: "GET",
     headers: bds.getRequiredHeaders(),
-    rlLimiter: bds.limiter,
   });
 
   const res = await validateApiResult(bds_HistoryPriceSchema, resp);

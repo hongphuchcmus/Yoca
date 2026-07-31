@@ -2,7 +2,7 @@ import { db } from "@sv/db/index.js";
 import { tokenMeta } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
 import { getAddressesByCoinGeckoIds } from "@sv/services/tokens/token-list.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import { and, gte, or, sql } from "drizzle-orm";
 import { TOKEN_DETAILS_TTL_MS } from "@sv/config/constants.js";
@@ -51,10 +51,9 @@ async function searchCoinGecko(query: string): Promise<TokenSearchResult[]> {
     const endpoint = cg.getEndpoint("/search");
     endpoint.search = new URLSearchParams({ query }).toString();
 
-    const resp = await rlFetch(endpoint, {
+    const resp = await pFetch(cg.spec, "coingecko.svc.chat_token_search", endpoint, {
       method: "GET",
       headers: cg.getRequiredHeaders(),
-      rlLimiter: cg.limiter,
     });
 
     const res = await validateApiResult(cg_SearchSchema, resp);

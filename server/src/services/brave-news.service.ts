@@ -1,4 +1,6 @@
 import type { RawNewsArticle, TokenNewsIdentity } from "./rss-news.service.js";
+import { pFetch, type ServiceOperationId } from "@sv/util/rate-limit.js";
+import * as brave from "@sv/util/util-brave.js";
 
 interface BraveNewsSearchOptions {
   identity: TokenNewsIdentity;
@@ -35,6 +37,13 @@ interface BraveSearchItem {
   meta_url?: {
     hostname?: string;
     favicon?: string;
+  };
+}
+
+interface BraveSearchPayload {
+  results?: BraveSearchItem[];
+  web?: {
+    results?: BraveSearchItem[];
   };
 }
 
@@ -359,7 +368,11 @@ function normalizeBraveItem(item: BraveSearchItem): RawNewsArticle | null {
   };
 }
 
-async function fetchBraveEndpoint(endpoint: string, query: string) {
+async function fetchBraveEndpoint(
+  endpoint: string,
+  operation: ServiceOperationId<"brave">,
+  query: string,
+): Promise<BraveSearchPayload> {
   const apiKey = process.env.BRAVE_SEARCH_API_KEY?.trim();
   if (!apiKey) {
     throw new Error("BRAVE_SEARCH_API_KEY is not set");
@@ -374,36 +387,25 @@ async function fetchBraveEndpoint(endpoint: string, query: string) {
   url.searchParams.set("country", "US");
   url.searchParams.set("search_lang", "en");
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), BRAVE_SEARCH_TIMEOUT_MS);
+  braveRequestsThisProcess += 1;
 
-  try {
-    braveRequestsThisProcess += 1;
+  const response = await pFetch(brave.spec, operation, url, {
+    headers: {
+      Accept: "application/json",
+      "X-Subscription-Token": apiKey,
+    },
+    rlRetries: 0,
+    rlTimeoutMs: BRAVE_SEARCH_TIMEOUT_MS,
+  });
 
-    const response = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "X-Subscription-Token": apiKey,
-      },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new BraveSearchError(
-        `Brave responded ${response.status}`,
-        response.status,
-      );
-    }
-
-    return (await response.json()) as {
-      results?: BraveSearchItem[];
-      web?: {
-        results?: BraveSearchItem[];
-      };
-    };
-  } finally {
-    clearTimeout(timeout);
+  if (!response.ok) {
+    throw new BraveSearchError(
+      `Brave responded ${response.status}`,
+      response.status,
+    );
   }
+
+  return JSON.parse(await response.text());
 }
 
 export async function fetchBraveTokenNews(options: BraveNewsSearchOptions) {
@@ -423,6 +425,7 @@ export async function fetchBraveTokenNews(options: BraveNewsSearchOptions) {
       requestCount += 1;
       const payload = await fetchBraveEndpoint(
         BRAVE_NEWS_SEARCH_ENDPOINT,
+        "brave.svc.token_news_search",
         query,
       );
       endpointUsed.add(BRAVE_NEWS_SEARCH_ENDPOINT);
@@ -486,7 +489,11 @@ export async function fetchBraveTokenWebMentions(
 
     try {
       requestCount += 1;
-      const payload = await fetchBraveEndpoint(BRAVE_WEB_SEARCH_ENDPOINT, query);
+      const payload = await fetchBraveEndpoint(
+        BRAVE_WEB_SEARCH_ENDPOINT,
+        "brave.svc.token_web_search",
+        query,
+      );
       endpointUsed.add(BRAVE_WEB_SEARCH_ENDPOINT);
       const results = payload.web?.results ?? [];
       rawResultCount += results.length;

@@ -1,16 +1,14 @@
 \subsection{Mục tiêu và đặc điểm dữ liệu}
 \label{subsec:db_muc_tieu}
 
-Cơ sở dữ liệu PostgreSQL phục vụ ba mục tiêu chính. Thứ nhất, hệ thống lưu dữ liệu có tính sở hữu như tài khoản, phương thức xác thực, watchlist, nhãn ví, cảnh báo và gói dịch vụ. Thứ hai, hệ thống lưu các read model đã chuẩn hóa cho token, ví, giao dịch và kết quả phân tích. Thứ ba, các bảng metadata ghi nhận thời điểm cập nhật hoặc khoảng dữ liệu đã đồng bộ để backend quyết định khi nào có thể dùng cache.
+Cơ sở dữ liệu PostgreSQL của Yoca phục vụ đồng thời dữ liệu nghiệp vụ và dữ liệu phân tích. Tài khoản, phương thức xác thực, watchlist, nhãn ví, cảnh báo, gói dịch vụ và thanh toán được tổ chức theo mô hình quan hệ, trong đó quyền sở hữu và quy tắc xóa được thể hiện bằng khóa ngoại. Dữ liệu token, pool, ví, giao dịch và kết quả phân tích được lưu dưới dạng read model theo miền, giúp giao diện truy xuất nhanh và tái sử dụng dữ liệu đã lấy từ provider.
 
-Dữ liệu trong Yoca có hai đặc điểm. Dữ liệu tài khoản và thanh toán cần quan hệ rõ ràng, ràng buộc khóa ngoại và quy tắc xóa nhất quán. Ngược lại, phần lớn dữ liệu blockchain là dữ liệu công khai được định danh bằng token address, wallet address hoặc transaction signature. Các bảng này thường không phụ thuộc vào một bảng gốc duy nhất mà được liên kết theo khóa nghiệp vụ.
-
-Schema được định nghĩa bằng Drizzle ORM. Kiểu dữ liệu, primary key, unique constraint và foreign key được đặt trong mã TypeScript. Cách này giúp truy vấn backend và cấu trúc PostgreSQL dùng chung một định nghĩa.
+Hai nhóm dữ liệu sử dụng cách liên kết khác nhau. Dữ liệu thuộc người dùng dựa trên định danh nội bộ; dữ liệu blockchain dựa trên token address, wallet address và transaction signature. Các định danh blockchain có thể xuất hiện trước metadata tương ứng, vì vậy chúng được xem là khóa nghiệp vụ và được chuẩn hóa tại service. Drizzle ORM khai báo kiểu dữ liệu, primary key, unique constraint và foreign key trong cùng lớp schema mà backend sử dụng để truy vấn PostgreSQL.
 
 \subsection{Phân nhóm dữ liệu theo miền nghiệp vụ}
 \label{subsec:db_phan_nhom}
 
-Cấu trúc lưu trữ được chia theo các miền sau:
+Cấu trúc lưu trữ được quy về ba miền chính: tài khoản--cảnh báo, token--thị trường và ví--giao dịch--phân tích. Nội dung AI nằm cạnh token hoặc ví theo ngữ cảnh mà nó sử dụng. Hình~\ref{fig:db_overview} trình bày quan hệ khái niệm giữa các miền; các ERD phía sau chỉ giữ những bảng và cột cần thiết để giải thích quyết định thiết kế.
 
 \begin{itemize}
     \item \textbf{Identity and profile}: tài khoản, phương thức đăng nhập, ví liên kết, watchlist và nhãn ví.
@@ -22,4 +20,4 @@ Cấu trúc lưu trữ được chia theo các miền sau:
     \item \textbf{AI, chat and content}: phiên chat, prompt, kết quả AI cache và nội dung tin tức.
 \end{itemize}
 
-Các nhóm trên là các read model phục vụ nhu cầu truy vấn khác nhau. Vì vậy, dữ liệu có thể giao nhau về wallet address, token address hoặc transaction signature nhưng không đồng nghĩa các bảng có thể thay thế trực tiếp cho nhau.
+Đường liên kết giữa các miền biểu diễn luồng sử dụng dữ liệu: tài khoản sở hữu watchlist và cảnh báo; token cung cấp ngữ cảnh thị trường; ví kết nối tài sản với lịch sử giao dịch; AI diễn giải dữ liệu đã được chuẩn hóa. Việc tách theo miền giúp mỗi nhóm có nhịp cập nhật và quy tắc toàn vẹn phù hợp với nguồn dữ liệu của mình.

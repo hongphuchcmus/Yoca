@@ -50,7 +50,7 @@ describe("balanceHistoryTransformer", () => {
 });
 
 describe("pnlChartTransformer", () => {
-  const t = DATA_TRANSFORMERS.get_pnl_chart;
+  const t = DATA_TRANSFORMERS.get_wallet_pnl_history;
 
   it("returns empty datasets for null input", () => {
     const r = t(null) as { labels: string[]; datasets: { name: string; values: unknown[] }[] };
@@ -114,6 +114,68 @@ describe("pnlChartTransformer", () => {
     const r = t({ dailyPnL: [], cumulativePnL: [] }) as { datasets: { values: unknown[] }[] };
     expect(r.datasets[0].values).toEqual([]);
     expect(r.datasets[1].values).toEqual([]);
+  });
+});
+
+describe("realizedPnlBreakdownTransformer", () => {
+  const t = DATA_TRANSFORMERS.get_wallet_realized_pnl_desc_breakdown;
+
+  it("maps stored PnL fields to the names exposed to the chat model", () => {
+    const r = t([
+      {
+        tokenAddress: "AnsemTokenAddress",
+        symbol: "ANSEM",
+        realizedProfitUsd: 668847,
+        unrealizedProfitUsd: 142901,
+        totalTradeCount: 37,
+        totalBoughtUsd: 250000,
+        totalSoldUsd: 918847,
+      },
+    ]);
+
+    expect(r).toEqual([
+      {
+        tokenAddress: "AnsemTokenAddress",
+        token: "ANSEM",
+        symbol: "ANSEM",
+        realizedPnlUsd: 668847,
+        realizedProfitUsd: 668847,
+        pnlUsd: 668847,
+        unrealizedPnlUsd: 142901,
+        totalPnlUsd: 811748,
+        trades: 37,
+        tradeCount: 37,
+        totalTradeCount: 37,
+        totalBoughtUsd: 250000,
+        totalSoldUsd: 918847,
+      },
+    ]);
+  });
+
+  it("uses the token address when the provider has no symbol", () => {
+    const r = t([
+      {
+        tokenAddress: "UnknownTokenAddress",
+        symbol: null,
+        realizedProfitUsd: 100,
+        unrealizedProfitUsd: 25,
+        totalTradeCount: 2,
+        totalBoughtUsd: 50,
+        totalSoldUsd: 150,
+      },
+    ]);
+
+    expect(r).toEqual([
+      expect.objectContaining({
+        tokenAddress: "UnknownTokenAddress",
+        token: "UnknownTokenAddress",
+        symbol: null,
+      }),
+    ]);
+  });
+
+  it("rejects malformed non-tabular data", () => {
+    expect(t({ token: "ANSEM" })).toEqual([]);
   });
 });
 

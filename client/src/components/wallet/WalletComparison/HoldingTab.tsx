@@ -8,8 +8,8 @@ import { TknImg } from "@/components/TknImg";
 import { TrendNum } from "@/components/TrendNum";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { fetchAssetDistribution } from "@/services/chart/chartApi";
-import { fetchWalletTokenDetails } from "@/services/wallet/walletApi";
-import type { WalletTokenDetails } from "@/services/wallet/walletApi";
+import { fetchWalletRecentTradedDescBreakdown } from "@/services/wallet/walletApi";
+import type { WalletRecentTradedDescBreakdown } from "@/services/wallet/walletApi";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./GeneralTab.module.scss";
 import type WalletComparisonProp from "./WalletComparisonProp";
@@ -224,7 +224,7 @@ function HoldingsComparisonTable({
   const [tokenRows, setTokenRows] = useState<TokenRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [tokenDetailsMap, setTokenDetailsMap] = useState<Record<string, Record<string, WalletTokenDetails>>>({});
+  const [tokenDetailsMap, setTokenDetailsMap] = useState<Record<string, Record<string, WalletRecentTradedDescBreakdown>>>({});
   const [popupData, setPopupData] = useState<{
     tokenAddress: string;
     walletAddress: string;
@@ -378,16 +378,16 @@ function HoldingsComparisonTable({
     Promise.all(
       walletAddresses.map(async (addr) => {
         try {
-          const details = await fetchWalletTokenDetails(addr);
+          const details = await fetchWalletRecentTradedDescBreakdown(addr);
           return { addr, details };
         } catch {
-          return { addr, details: [] as WalletTokenDetails[] };
+          return { addr, details: [] };
         }
       }),
     )
       .then((results) => {
         if (cancelled) return;
-        const map: Record<string, Record<string, WalletTokenDetails>> = {};
+        const map: Record<string, Record<string, WalletRecentTradedDescBreakdown>> = {};
         for (const { addr, details } of results) {
           map[addr] = {};
           for (const d of details) {

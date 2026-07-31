@@ -1,54 +1,28 @@
 \subsection{Các bảng trọng tâm}
 \label{subsec:db_bang_trong_tam}
 
-Bảng~\ref{tab:db_core_tables} tóm tắt các bảng đại diện cho từng miền. Các bảng cache phụ có cùng cách tổ chức không được liệt kê lại để tránh lặp nội dung.
+Bảng~\ref{tab:db_core_tables} chỉ nêu các nhóm bảng cần thiết để hiểu cách hệ thống lưu dữ liệu; chi tiết cột đã được lược bớt trong ERD.
 
-\begingroup
+\begin{table}[H]
+\centering
 \small
-\begin{longtable}{|L{0.27\textwidth}|L{0.25\textwidth}|L{0.38\textwidth}|}
-\caption{Các bảng dữ liệu trọng tâm của Yoca}
-\label{tab:db_core_tables}\\
+\begin{tabularx}{\textwidth}{|L{3.2cm}|L{4.1cm}|X|}
 \hline
-\textbf{Bảng} & \textbf{Khóa chính} & \textbf{Vai trò} \\
+\textbf{Miền} & \textbf{Bảng đại diện} & \textbf{Vai trò} \\
 \hline
-\endfirsthead
+Tài khoản và cảnh báo & \code{users}, \code{alerts}, \code{alert\_history} & Quản lý quyền sở hữu, cấu hình theo dõi và lịch sử thông báo. \\
 \hline
-\textbf{Bảng} & \textbf{Khóa chính} & \textbf{Vai trò} \\
+Token và thị trường & \code{token\_meta}, \code{token\_market\_data}, các bảng chart/pool/holder & Lưu metadata, snapshot và chuỗi thời gian có nhịp cập nhật riêng. \\
 \hline
-\endhead
-\code{users} & \code{id} & Thông tin tài khoản, cấu hình nhận cảnh báo và Stripe customer. \\
+Phân tích ví & \code{wallet\_overview\_cache}, \code{wallet\_analyses}, \code{wallet\_balance\_history} & Cung cấp tổng quan, PnL, win rate và biến động tài sản theo kỳ. \\
 \hline
-\code{auth\_accounts} & \code{provider, provider\_user\_id} & Danh tính đăng nhập bằng password, OAuth hoặc ví Solana. \\
+Hoạt động ví & Các bảng transfer/swap và \code{wallet\_enhanced\_*} & Phục vụ danh sách hoạt động, phân trang và chi tiết giao dịch on-chain. \\
 \hline
-\code{subscriptions} & \code{id} & Trạng thái gói dịch vụ và chu kỳ thanh toán. \\
-\hline
-\code{alerts} & \code{id} & Định nghĩa cảnh báo, loại cảnh báo, chế độ kích hoạt và thời hạn. \\
-\hline
-\code{alert\_history} & \code{id} & Lịch sử cảnh báo đã phát sinh và trạng thái đã đọc. \\
-\hline
-\code{token\_meta} & \code{address} & Tên, symbol và hình ảnh cơ bản của token. \\
-\hline
-\code{token\_market\_data} & \code{address} & Market snapshot gần nhất, gồm giá, vốn hóa và volume. \\
-\hline
-\code{token\_market\_chart\_*} & \code{address, timestamp} & Chuỗi giá 24 giờ, hourly và daily cho biểu đồ. \\
-\hline
-\code{wallet\_overview\_cache} & \code{address} & Read model tổng hợp tài sản, volume, PnL và hoạt động của ví. \\
-\hline
-\code{wallet\_analyses} & \code{wallet\_address, period} & Kết quả Mobula gồm win rate, PnL, phân phối giao dịch và calendar breakdown. \\
-\hline
-\code{wallet\_transfer\_history} & \code{address, transaction\_hash, act\_id} & Lịch sử chuyển token đã chuẩn hóa và hỗ trợ phân trang. \\
-\hline
-\code{wallet\_swap\_history} & \code{address, transaction\_hash, act\_id} & Lịch sử swap đã chuẩn hóa theo ví. \\
-\hline
-\code{wallet\_enhanced\_transactions} & \code{address, signature} & Transaction cha cho dữ liệu chi tiết từ Helius. \\
-\hline
-\code{chat\_sessions} & \code{id} & Phiên chat, context ví và danh sách message. \\
-\hline
-\code{news\_batches} & \code{id} & Nhóm bài viết thu thập theo token và thời điểm. \\
-\hline
-\end{longtable}
-\endgroup
+\end{tabularx}
+\caption{Các nhóm bảng trọng tâm của Yoca}
+\label{tab:db_core_tables}
+\end{table}
 
-\code{wallet\_analyses} là read model có kích thước tương đối lớn do lưu cả chỉ số tổng hợp và hai cấu trúc JSONB là \code{period\_timeframes} và \code{calendar\_breakdown}. Mỗi ví chỉ có một bản ghi cho mỗi kỳ phân tích, nhờ đó dữ liệu Mobula có thể được dùng lại trong thời gian TTL mà không cần gọi provider cho mọi request.
+\code{wallet\_analyses} là read model chính của phần phân tích ví. Khóa \code{wallet\_address, period} cho phép lưu riêng kết quả theo từng kỳ; các chỉ số tổng hợp và phân rã theo ngày được giữ cùng một bản phân tích để giao diện nhận được dữ liệu nhất quán trong một lần đọc. Chi tiết ở cấp token và chuỗi số dư được lưu riêng vì có nguồn dữ liệu và nhịp cập nhật khác.
 
-Các bảng \code{wallet\_enhanced\_*} lưu chi tiết giao dịch ở mức thấp hơn transfer/swap history. Instruction, inner instruction, fee payer, program ID và native transfer cần thiết cho transaction detail và phân tích hành vi, trong khi history tables ưu tiên danh sách đã chuẩn hóa và phân trang.
+Index được đặt theo mẫu truy vấn. Lịch sử swap và transfer dùng address cùng timestamp để lấy hoạt động của một ví theo thứ tự thời gian. Các bảng enhanced transaction dùng address, signature và vị trí phần tử để chống ghi trùng khi đồng bộ lại. Dữ liệu thuộc người dùng được index theo user ID để mọi truy vấn profile, cảnh báo, chat và thanh toán luôn bắt đầu từ chủ sở hữu đã xác thực.

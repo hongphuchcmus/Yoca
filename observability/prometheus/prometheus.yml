@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: yoca-server
+    metrics_path: /metrics
+    authorization:
+      type: Bearer
+      credentials: yoca-local-prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:4000
+        labels:
+          environment: local

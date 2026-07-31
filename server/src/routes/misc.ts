@@ -1,8 +1,9 @@
 import * as cg from "@sv/util/util-coingecko.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import { Hono } from "hono";
 import { z } from "zod";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 
 type ExchangeRateEntry = {
   name: string;
@@ -68,24 +69,30 @@ const app = new Hono()
     const now = Date.now();
 
     if (cachedRates && now - cachedAt < CACHE_TTL_MS) {
+      dataUsage.record("memory_result");
       return c.json(cachedRates);
     }
 
     try {
       const endpoint = cg.getEndpoint("/exchange_rates");
-      const resp = await rlFetch(endpoint, {
+      const resp = await pFetch(cg.spec, "coingecko.svc.exchange_rates", endpoint, {
         method: "GET",
         headers: cg.getRequiredHeaders(),
-        rlLimiter: cg.limiter,
       });
       if (!resp.ok) {
-        if (cachedRates) return c.json(cachedRates); // serve stale on error
+        if (cachedRates) {
+          dataUsage.record("memory_result", "stale_fallback");
+          return c.json(cachedRates); // serve stale on error
+        }
         return c.json({ error: "Failed to fetch exchange rates" }, 502);
       }
 
       const payload = await validateApiResult(exchangeRatesResponseSchema, resp);
       if (!payload) {
-        if (cachedRates) return c.json(cachedRates);
+        if (cachedRates) {
+          dataUsage.record("memory_result", "stale_fallback");
+          return c.json(cachedRates);
+        }
         return c.json({ error: "Failed to validate exchange rates" }, 502);
       }
 
@@ -94,7 +101,10 @@ const app = new Hono()
       return c.json(cachedRates);
     } catch (err) {
       console.error(err);
-      if (cachedRates) return c.json(cachedRates);
+      if (cachedRates) {
+        dataUsage.record("memory_result", "stale_fallback");
+        return c.json(cachedRates);
+      }
       return c.json({ error: "Internal server error" }, 500);
     }
   })

@@ -26,3 +26,4 @@ export { getTopTokensByMarketCap } from "./token-top-marketcap.js";
 export { getPoolTrades24h } from "./token-trades.js";
 export { getTrendingTokens } from "./token-trending.js";
 export { getTokenHistoricalData } from "./token-history.js";
+export { getTokenFundamentals } from "./token-fundamentals.js";

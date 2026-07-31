@@ -1,0 +1,30 @@
+---
+config:
+  layout: elk
+---
+erDiagram
+    direction TB
+
+    TOKEN_META {
+        varchar address PK
+    }
+    NEWS_BATCHES {
+        serial id PK
+        varchar address
+        timestamp created_at
+    }
+    NEWS_ARTICLES {
+        serial id PK
+        integer batch_id FK
+        varchar content_hash
+    }
+    TOKEN_AI_CACHE {
+        serial id PK
+        varchar token_address
+        varchar context_hash
+        timestamp expires_at
+    }
+
+    TOKEN_META ||..o{ NEWS_BATCHES : contextualizes
+    NEWS_BATCHES ||--o{ NEWS_ARTICLES : contains
+    TOKEN_META ||..o{ TOKEN_AI_CACHE : explains

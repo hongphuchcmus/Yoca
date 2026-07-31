@@ -1,8 +1,12 @@
 import { getWalletOverview } from "@sv/services/wallet/walletOverview.service.js";
 import { getWalletSwaps, getWalletTransfers } from "@sv/services/wallet/walletTransfersSwaps.service.js";
 import { getWalletBalanceHistory } from "@sv/services/wallet/walletCharts.service.js";
-import { getWalletPnLData } from "@sv/services/wallet/wallet-analysis/wallet-pnl.js";
+import {
+    getWalletPnlHistory,
+    type WalletPnlHistoryData,
+} from "@sv/services/wallet/wallet-analysis/wallet-pnl-history.js";
 import { getWalletPortfolio } from "@sv/services/wallet/walletPortfolio.service.js";
+import { getWalletRealizedPnlDescBreakdown } from "@sv/services/wallet/wallet-realized-pnl-desc-breakdown.js";
 import { getWinrateData } from "@sv/services/wallet/wallet-analysis.js";
 import { getTokenMarketData } from "@sv/services/tokens/token-market-data.js";
 import { getTokenMeta, getTokenDetails } from "@sv/services/tokens/token-info.js";
@@ -36,7 +40,7 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
   {
     name: "get_wallet_overview",
     description:
-      "Fetch wallet overview snapshot: current total balance in USD, 24h change, trading volume, token holdings count, activity metrics, and PnL snapshots across fixed periods (24H, 7D, 30D, 90D). Use with get_wallet_pnl to cross-check realized trade-derived PnL, and with get_wallet_portfolio to explain current exposure.",
+      "Fetch wallet overview snapshot: current total balance in USD, 24h change, trading volume, token holdings count, activity metrics, and PnL snapshots across fixed periods (24H, 7D, 30D, 90D). Use with get_wallet_realized_pnl_desc_breakdown to identify provider-reported per-token realized PnL drivers, and with get_wallet_portfolio to explain current exposure.",
     input_schema: {
       type: "object",
       properties: {
@@ -86,7 +90,7 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
   {
     name: "get_wallet_swaps_compact",
     description:
-      "Fetch up to 500 wallet swaps and return a compact aggregate overview by token and buy/sell action. Prefer this for broad trading activity analysis, behavior summaries, and token activity instead of raw trade rows. Pair with get_wallet_pnl when the user asks whether trading behavior produced gains or losses.",
+      "Fetch up to 500 wallet swaps and return a compact aggregate overview by token and buy/sell action. Prefer this for broad trading activity analysis, behavior summaries, and token activity instead of raw trade rows. Pair with get_wallet_realized_pnl_desc_breakdown when the user asks whether trading behavior produced gains or losses.",
     input_schema: {
       type: "object",
       properties: {
@@ -160,7 +164,7 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
   {
     name: "get_drawdown_chart",
     description:
-      "Fetch drawdown (peak-to-trough decline) chart data for a wallet over time. Returns daily drawdown percentages showing how far the balance has fallen from its most recent peak. Use for risk/stability context, not as a replacement for overview or PnL driver tools. Pair with get_wallet_overview and get_wallet_pnl for risk questions.",
+      "Fetch drawdown (peak-to-trough decline) chart data for a wallet over time. Returns daily drawdown percentages showing how far the balance has fallen from its most recent peak. Use for risk/stability context, not as a replacement for overview or PnL driver tools. Pair with get_wallet_overview and get_wallet_realized_pnl_desc_breakdown for risk questions.",
     input_schema: {
       type: "object",
       properties: {
@@ -177,19 +181,15 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
     },
   },
   {
-    name: "get_wallet_pnl",
+    name: "get_wallet_realized_pnl_desc_breakdown",
     description:
-      "Fetch profit & loss breakdown for a wallet. Returns per-token realized PnL, trade counts, win rates, and top profitable/losing tokens. Supports filtering by time range, specific token, and USD value thresholds.",
+      "Fetch Mobula per-token positions ordered by realized PnL descending. Use this to identify the most profitable realized-PnL tokens. This dataset is not period-bounded and does not provide ascending/loss ranking.",
     input_schema: {
       type: "object",
       properties: {
         address: { type: "string", description: "Solana wallet address (base58)" },
-        limit: { type: "number", description: "Max number of swaps to analyze for PnL (default 500, max 500)" },
-        fromMs: { type: "number", description: "Start time (epoch ms) — only swaps after this time are included in PnL computation" },
-        toMs: { type: "number", description: "End time (epoch ms) — only swaps before this time are included in PnL computation" },
-        tokenAddress: { type: "string", description: "Token mint address (base58) to filter PnL. NOT the symbol/name. Example: 'So11111111111111111111111111111111111111112' for SOL. Call search_token first if you only have a symbol." },
-        minAmountUsd: { type: "number", description: "Minimum USD value per swap to include in PnL analysis" },
-        maxAmountUsd: { type: "number", description: "Maximum USD value per swap to include in PnL analysis" },
+        limit: { type: "number", description: "Number of top realized-PnL token positions to return (default 20, max 500)" },
+        tokenAddress: { type: "string", description: "Optional token mint address to select from the realized-PnL breakdown" },
       },
       required: ["address"],
     },
@@ -208,9 +208,9 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
     },
   },
   {
-    name: "get_pnl_chart",
+    name: "get_wallet_pnl_history",
     description:
-      "Fetch daily PnL time series for a wallet over a fixed period. Returns daily and cumulative PnL points for trend, consistency, and chart context. Periods: 7D, 30D. Compare with get_wallet_pnl for token-level realized PnL drivers.",
+      "Fetch daily PnL time series for a wallet over a fixed period. Returns daily and cumulative PnL plus daily buy/sell swap counts and USD volumes when Mobula provides calendar breakdown data. Periods: 7D, 30D. Compare with get_wallet_realized_pnl_desc_breakdown for token-level realized PnL drivers.",
     input_schema: {
       type: "object",
       properties: {
@@ -227,7 +227,7 @@ export const TOOL_DEFINITIONS: ChatToolDefinition[] = [
   {
     name: "get_wallet_portfolio",
     description:
-      "Fetch current token holdings for a wallet. Returns tokens with amount, USD value, and metadata. Use for current exposure, concentration, and unrealized portfolio context. Pair with get_wallet_overview for balance/activity summary and with get_wallet_pnl when holdings may explain gains or losses.",
+      "Fetch current token holdings for a wallet. Returns tokens with amount, USD value, and metadata. Use for current exposure, concentration, and unrealized portfolio context. Pair with get_wallet_overview for balance/activity summary and with get_wallet_realized_pnl_desc_breakdown when holdings may explain gains or losses.",
     input_schema: {
       type: "object",
       properties: {
@@ -414,7 +414,7 @@ const MULTI_ADDRESS_TOOLS = new Set([
   "get_wallet_swaps", "get_wallet_transfers",
   "get_wallet_swaps_compact", "get_wallet_transfers_compact",
   "get_balance_history", "get_drawdown_chart",
-  "get_wallet_pnl", "get_wallet_winrate", "get_pnl_chart",
+  "get_wallet_realized_pnl_desc_breakdown", "get_wallet_winrate", "get_wallet_pnl_history",
   "get_wallet_portfolio",
   "get_wallet_intelligence",
 ]);
@@ -535,6 +535,13 @@ function extractPortfolioForLLM(
     });
   }
 
+  filtered = [...filtered].sort((left, right) => {
+    const leftValue = Number(left.valueUsd);
+    const rightValue = Number(right.valueUsd);
+    return (Number.isFinite(rightValue) ? rightValue : 0) -
+      (Number.isFinite(leftValue) ? leftValue : 0);
+  });
+
   return filtered.slice(0, 20).map((item) => ({
     token: item.symbol,
     name: item.name,
@@ -589,66 +596,26 @@ function extractDrawdownForLLM(data: unknown): unknown {
   };
 }
 
-function extractPnLForLLM(data: unknown): unknown {
-  if (!data || typeof data !== "object") return null;
-  const p = data as Record<string, unknown>;
+function extractPnlHistoryForLLM(data: WalletPnlHistoryData): unknown {
   return {
-    dailyPnL: Array.isArray(p.dailyPnL)
-      ? (p.dailyPnL as Array<Record<string, unknown>>).map((d) => ({
-        date: new Date(d.timestamp as number).toISOString().slice(0, 10),
-        pnl: d.value,
-      }))
-      : [],
-    cumulativePnL: Array.isArray(p.cumulativePnL)
-      ? (p.cumulativePnL as Array<Record<string, unknown>>).map((d) => ({
-        date: new Date(d.timestamp as number).toISOString().slice(0, 10),
-        pnl: d.value,
-      }))
-      : [],
-    startBalance: p.startBalance ?? 0,
-    endBalance: p.endBalance ?? 0,
-  };
-}
-
-function extractPnLComputedForLLM(data: unknown): unknown {
-  if (!data || typeof data !== "object") return null;
-  const s = data as Record<string, unknown>;
-  const breakdowns = Array.isArray(s.allTokenBreakdowns)
-    ? (s.allTokenBreakdowns as Array<Record<string, unknown>>).map((b) => ({
-      token: b.symbol,
-      name: b.name,
-      pnlUsd: b.pnlUsd,
-      trades: b.trades,
-      wins: b.wins,
-      totalEntered: b.totalEntered,
-      totalExited: b.totalExited,
-    }))
-    : [];
-  const coverage = s.coverage as Record<string, unknown> | undefined;
-  const analyzedTrades = coverage?.analyzedCount as number ?? (s.tradeCount as number);
-  const availableTrades = coverage?.availableCount as number ?? (s.tradeCount as number);
-  const isCapped = coverage?.isCapped as boolean ?? false;
-  const hasMore = coverage?.hasMore as boolean ?? false;
-  const coveragePercent = availableTrades > 0 ? Math.round((analyzedTrades / availableTrades) * 100) : 100;
-  const coverageSummary = isCapped || hasMore
-    ? `${analyzedTrades} of \u2265${availableTrades} swaps analyzed (\u2264${Math.min(coveragePercent, 100)}% coverage)`
-    : `All ${analyzedTrades} swaps analyzed`;
-  return {
-    coverageSummary,
-    coveragePercent: Math.min(coveragePercent, 100),
-    analyzedTrades,
-    availableTrades,
-    isCapped,
-    hasMore,
-    tradeCount: s.tradeCount,
-    realizedPnlUsd: s.realizedPnlUsd,
-    winRate: s.winningPercentage,
-    totalBoughtUsd: s.totalBoughtUsd,
-    totalSoldUsd: s.totalSoldUsd,
-    topProfitable: s.topProfitable,
-    topLoser: s.topLoser,
-    coverage,
-    tokenBreakdowns: breakdowns,
+    walletAddress: data.walletAddress,
+    totalPnlUsd: data.totalPnL,
+    realizedPnlUsd: data.realizedPnL,
+    unrealizedPnlUsd: data.unrealizedPnL,
+    dailyPnL: data.dailyPnL.map((point) => ({
+      date: new Date(point.timestamp).toISOString().slice(0, 10),
+      pnl: point.value,
+      buyCount: point.buyCount,
+      sellCount: point.sellCount,
+      swapCount: point.swapCount,
+      buyVolumeUsd: point.buyVolumeUsd,
+      sellVolumeUsd: point.sellVolumeUsd,
+      totalVolumeUsd: point.totalVolumeUsd,
+    })),
+    cumulativePnL: data.cumulativePnL.map((point) => ({
+      date: new Date(point.timestamp).toISOString().slice(0, 10),
+      pnl: point.value,
+    })),
   };
 }
 
@@ -981,39 +948,64 @@ export const TOOL_HANDLERS: Record<
     return { data, llmData: extractDrawdownForLLM(data) };
   },
 
-  get_wallet_pnl: async (input) => {
-    const { address, limit, fromMs, toMs, tokenAddress, minAmountUsd, maxAmountUsd } = z.object({
+  get_wallet_realized_pnl_desc_breakdown: async (input) => {
+    const { address, limit, tokenAddress } = z.object({
       address: z.string().min(1),
-      limit: z.number().int().positive().max(500).optional(),
-      fromMs: z.number().optional(),
-      toMs: z.number().optional(),
+      limit: z.number().int().positive().max(500).optional().default(20),
       tokenAddress: z.string().regex(BASE58_REGEX, "Must be a valid base58 token mint address").optional(),
-      minAmountUsd: z.number().optional(),
-      maxAmountUsd: z.number().optional(),
-    }).refine(fromToMsRefinement, { message: "fromMs must be less than toMs" }).parse(input);
-    const { getWalletPnLComputed } = await import(
-      "@sv/services/wallet/walletAiSwapSummary.service.js"
+    }).parse(input);
+    const stored = await getWalletRealizedPnlDescBreakdown(address) ?? [];
+    const data = (tokenAddress
+      ? stored.filter((row) => row.tokenAddress == tokenAddress)
+      : stored
+    ).slice(0, limit);
+    const realizedPnlUsd = data.reduce(
+      (total, row) => total + row.realizedProfitUsd,
+      0,
     );
-    const data = await getWalletPnLComputed(address, { fromMs, toMs, tokenAddress, limit, minAmountUsd, maxAmountUsd });
-    return { data, llmData: extractPnLComputedForLLM(data) };
+    const tradeCount = data.reduce(
+      (total, row) => total + row.totalTradeCount,
+      0,
+    );
+    const totalBoughtUsd = data.reduce(
+      (total, row) => total + row.totalBoughtUsd,
+      0,
+    );
+    const totalSoldUsd = data.reduce(
+      (total, row) => total + row.totalSoldUsd,
+      0,
+    );
+    const top = data[0];
+    return {
+      data,
+      llmData: {
+        source: "mobula_wallet_positions",
+        ordering: "realized_pnl_desc",
+        aggregateScope: `top_${data.length}_returned_tokens`,
+        realizedPnlUsd,
+        tradeCount,
+        totalBoughtUsd,
+        totalSoldUsd,
+        topProfitable: top
+          ? {
+              tokenAddress: top.tokenAddress,
+              token: top.symbol,
+              pnlUsd: top.realizedProfitUsd,
+            }
+          : null,
+        tokenBreakdowns: data.map((row) => ({
+          tokenAddress: row.tokenAddress,
+          token: row.symbol,
+          realizedPnlUsd: row.realizedProfitUsd,
+          unrealizedPnlUsd: row.unrealizedProfitUsd,
+          totalPnlUsd: row.realizedProfitUsd + row.unrealizedProfitUsd,
+          trades: row.totalTradeCount,
+          totalBoughtUsd: row.totalBoughtUsd,
+          totalSoldUsd: row.totalSoldUsd,
+        })),
+      },
+    };
   },
-  // get_wallet_pnl_compact: async (input) => {
-  //   const { address, limit, fromMs, toMs, tokenAddress, minAmountUsd, maxAmountUsd } = z.object({
-  //     address: z.string().min(1),
-  //     limit: z.number().int().positive().max(500).optional(),
-  //     fromMs: z.number().optional(),
-  //     toMs: z.number().optional(),
-  //     tokenAddress: z.string().regex(BASE58_REGEX, "Must be a valid base58 token mint address").optional(),
-  //     minAmountUsd: z.number().optional(),
-  //     maxAmountUsd: z.number().optional(),
-  //   }).refine(fromToMsRefinement, { message: "fromMs must be less than toMs" }).parse(input);
-  //   const { getWalletPnLComputed } = await import(
-  //     "@sv/services/wallet/walletAiSwapSummary.service.js"
-  //   );
-  //   const data = await getWalletPnLComputed(address, { fromMs, toMs, tokenAddress, limit, minAmountUsd, maxAmountUsd });
-  //   const compact = compactWalletPnL(data);
-  //   return { data: { ...data, compact }, llmData: compact };
-  // },
 
   get_wallet_winrate: async (input) => {
     const { address, period } = z.object({
@@ -1024,13 +1016,13 @@ export const TOOL_HANDLERS: Record<
     return { data, llmData: extractWinrateForLLM(data) };
   },
 
-  get_pnl_chart: async (input) => {
+  get_wallet_pnl_history: async (input) => {
     const { address, timePeriod } = z.object({
       address: z.string().min(1),
       timePeriod: z.enum(["7D", "30D"]).optional().default("30D"),
     }).parse(input);
-    const data = await getWalletPnLData(address, timePeriod);
-    return { data, llmData: extractPnLForLLM(data) };
+    const data = await getWalletPnlHistory(address, timePeriod);
+    return { data, llmData: extractPnlHistoryForLLM(data) };
   },
 
   // get_top_tokens: async (input) => {
@@ -1156,10 +1148,9 @@ export const TOOL_CACHE_POLICY: Record<string, ToolCachePolicy> = {
   get_wallet_transfers: { ttlMs: 300_000, cacheable: true },
   get_wallet_swaps_compact: { ttlMs: 300_000, cacheable: true },
   get_wallet_transfers_compact: { ttlMs: 300_000, cacheable: true },
-  get_wallet_pnl: { ttlMs: 300_000, cacheable: true },
-  // get_wallet_pnl_compact: { ttlMs: 300_000, cacheable: true },
+  get_wallet_realized_pnl_desc_breakdown: { ttlMs: 300_000, cacheable: true },
   get_wallet_winrate: { ttlMs: 300_000, cacheable: true },
-  get_pnl_chart: { ttlMs: 300_000, cacheable: true },
+  get_wallet_pnl_history: { ttlMs: 300_000, cacheable: true },
   get_wallet_audit: { ttlMs: 300_000, cacheable: true },
   // Wallet data — short TTL
   get_wallet_overview: { ttlMs: 60_000, cacheable: true },
@@ -1220,10 +1211,9 @@ const WALLET_SCOPED_TOOLS = new Set([
   "get_wallet_transfers_compact",
   "get_balance_history",
   "get_drawdown_chart",
-  "get_wallet_pnl",
-  // "get_wallet_pnl_compact",
+  "get_wallet_realized_pnl_desc_breakdown",
   "get_wallet_winrate",
-  "get_pnl_chart",
+  "get_wallet_pnl_history",
   "get_wallet_portfolio",
   "get_wallet_audit",
   "get_wallet_intelligence",

@@ -61,7 +61,7 @@ function useTokenPageData(address: string, poolAddress: string) {
 
   const poolData = useGet(client.api.tokens.pools[":addresses"], 200, {
     param: { addresses: poolAddress },
-    query: { refresh: "true" },
+    query: { refresh: "false" },
   });
 
   const isLoading =

@@ -1,5 +1,6 @@
 import env from "./load-env";
 import Bottleneck from "bottleneck";
+import { defineProvider } from "./rate-limit.js";
 
 // For when u want a quick api test:
 // delete this when you want to be proffesional
@@ -35,6 +36,11 @@ export const limiter = new Bottleneck({
   maxConcurrent: 1, // only one at a time
   minTime: 1100, // 1.1 seconds → safe margin
   waitForReservoir: true, // wait if daily limit is exhausted
+});
+
+export const spec = defineProvider({
+  id: "zerion",
+  limiter,
 });
 
 export type ZRN_ChartPeriod =

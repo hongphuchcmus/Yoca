@@ -695,14 +695,14 @@ export interface WinrateResponse extends ChartResponseBase {
     /** Overall winrate percentage (0-100) */
     winrate: number;
 
-    /** Total number of trades */
-    totalTrades: number;
+    /** Total number of active tokens analyzed */
+    totalTokens: number;
 
-    /** Number of winning trades */
-    winningTrades: number;
+    /** Number of tokens with positive PnL */
+    profitableTokens: number;
 
-    /** Number of losing trades */
-    losingTrades: number;
+    /** Number of tokens without positive PnL */
+    unprofitableTokens: number;
 
     /** Winning magnitude distribution (bins) */
     winningDistribution: {

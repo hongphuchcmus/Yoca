@@ -2,7 +2,8 @@ import { POOL_TRADES_TTL_MS } from "@sv/config/constants.js";
 import { db } from "@sv/db/index.js";
 import { poolTrades24h, type PoolTrade24hInsert } from "@sv/db/schema.js";
 import { validateApiResult } from "@sv/middlewares/validation.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { cg_24hPoolTradesSchema } from "../_types/token-raw-responses.js";
@@ -18,10 +19,9 @@ async function fetchPoolTrades(
     token: "base",
   }).toString();
 
-  const resp = await rlFetch(cgEndpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.token_trades", cgEndpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   if (!resp.ok) {
@@ -99,8 +99,12 @@ export async function getPoolTrades24h(poolAddress: string) {
 
   if (stale) {
     const fresh = await fetchPoolTrades(poolAddress);
+    if (fresh.length > 0) {
+      dataUsage.record("provider_result");
+    }
     // fresh is already sorted descending by GeckoTerminal usually, limit to 100
     return fresh.slice(0, 100);
   }
+  dataUsage.record("db_result");
   return res;
 }

@@ -2,6 +2,7 @@ import env from "@sv/util/load-env.js";
 
 export const CG_TOKEN_LIST_TTL_MS = 30 * 24 * 60 * 1000; // 1 month
 export const TOKEN_DETAILS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
+export const TOKEN_FUNDAMENTALS_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 export const TOKEN_MARKET_DATA_TTL_MS = 5 * 60 * 1000; // 5 minutes
 export const WALLET_BALANCES_TTL_MS = 5 * 60 * 1000; // 5 minutes
 export const TOKEN_CHART_24H_UPDATE_THRESHOLD = 7 * 60 * 1000; // 7 minutes
@@ -68,8 +69,8 @@ export const WALLET_WINRATE_24H_TTL_MS = 6 * 60 * 60 * 1000;
 export const WALLET_WINRATE_7D_TTL_MS = 12 * 60 * 60 * 1000;
 export const WALLET_WINRATE_30D_TTL_MS = 24 * 60 * 60 * 1000;
 export const WALLET_WINRATE_90D_TTL_MS = 48 * 60 * 60 * 1000;
-export const WALLET_TOKEN_DETAILS_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-export const WALLET_TOKEN_DETAILS_FETCH_LIMIT = 500;
+export const WALLET_POSITION_BREAKDOWN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+export const WALLET_POSITION_BREAKDOWN_FETCH_LIMIT = 500;
 export const WALLET_BALANCE_HISTORY_STORED_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 export const WALLET_BALANCE_HISTORY_FETCH_TIMEOUT_MS = 120 * 1000;
 export const WALLET_TRANSACTION_HISTORY_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -84,7 +85,7 @@ export const TOKEN_ANALYSIS_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 export const WALLET_AUDIT_TX_SAMPLE_SIZE = 30;
 /** Gemini model id used by the AI Wallet Forensic Auditor. Override with GEMINI_AUDIT_MODEL. */
 export const WALLET_AUDIT_MODEL =
-  process.env.GEMINI_AUDIT_MODEL?.trim() || "gemini-2.5-flash";
+  process.env.GEMINI_AUDIT_MODEL?.trim() || "gemini-3.1-flash-lite";
 
 // AI Wash-Trading verdict cache — shorter than wallet audit's 24h since
 // wash-trading signal should reflect recent transfer activity, not stale data.
@@ -137,6 +138,15 @@ export const API_CALL_TRACKER_ENABLED = readBooleanEnv(
   "API_CALL_TRACKER_ENABLED",
   false,
 );
+export const API_METRICS_ENABLED = env.API_METRICS_ENABLED == "true";
+export const API_METRICS_BEARER_TOKEN = env.API_METRICS_BEARER_TOKEN;
+export const API_OBSERVABILITY_ROUTE_PREFIXES = [
+  "/api/charts/",
+  "/api/tokens/",
+  "/api/token-chart-news-events",
+  "/api/token-volatility-news",
+  "/api/wallets/",
+];
 export const API_CALL_TRACKER_EXPORT_DIR =
   process.env.API_CALL_TRACKER_EXPORT_DIR?.trim() ||
   "server/src/logs/api-tracker";

@@ -1,0 +1,132 @@
+{
+  "observedAt": "2026-07-19",
+  "environment": "local_with_current_provider_keys",
+  "secretsIncluded": false,
+  "providers": {
+    "coingecko": {
+      "keyType": "demo",
+      "priceUsdPerMonth": 0,
+      "usageEndpoint": {
+        "path": "/key",
+        "status": 401,
+        "available": false
+      },
+      "probe": {
+        "path": "/ping",
+        "status": 200,
+        "rateLimitHeaders": {}
+      },
+      "monthlyCredit": 10000,
+      "rateLimitPerMinute": 100,
+      "usedCredit": 3162,
+      "remainingCredit": 6838,
+      "replenishesAt": "2026-08-01",
+      "lastUsedAt": "2026-07-19"
+    },
+    "birdeye": {
+      "plan": "standard",
+      "priceUsdPerMonth": 0,
+      "usageEndpoint": {
+        "path": "/utils/v1/credits",
+        "status": 200,
+        "periodCu": 30000,
+        "usedCu": 1945,
+        "remainingCu": 28055,
+        "usageEndpointCostCu": 1
+      },
+      "rateLimitProbe": {
+        "path": "/defi/v3/txs/recent",
+        "limit": 100,
+        "remaining": 99
+      },
+      "usageEndpointRateLimit": 1,
+      "dynamicCostExperiment": {
+        "status": "confirmed",
+        "operation": "birdeye.svc.token_trades",
+        "costCu": 25,
+        "testedPageLimits": [1, 10, 50],
+        "usageReadCostCu": 1,
+        "counterBehavior": "Target cost becomes visible on the following usage read; each usage read adds 1 CU."
+      },
+      "packageName": "standard"
+    },
+    "mobula": {
+      "plan": "free",
+      "priceUsdPerMonth": 0,
+      "creditLimit": 10000,
+      "usedCreditApprox": 10100,
+      "overageUsd": 0.06,
+      "requestsPerSecond": 1,
+      "resetsAt": "2026-08-01",
+      "costSource": "Mobula Pricing and endpoint documentation, cross-checked with x-ratelimit-cost response headers",
+      "operations": {
+        "mobula.svc.token_fundamentals": 1,
+        "mobula.svc.token_holders": 1,
+        "mobula.svc.token_price_chart": 2,
+        "mobula.svc.wallet_token_details": 1,
+        "mobula.svc.wallet_analysis": 5,
+        "mobula.svc.wallet_activity": 1,
+        "mobula.svc.wallet_balance_chart": 1
+      },
+      "rateLimit": {
+        "general": null,
+        "walletAnalysisRequestsPerMinute": 5
+      }
+    },
+    "zerion": {
+      "tier": "developer",
+      "priceUsdPerMonth": 0,
+      "secondLimit": 10,
+      "dayLimit": 2000,
+      "monthLimit": null,
+      "successfulRequestDailyCost": 1,
+      "http400DailyCost": 1,
+      "operationsVerified": [
+        "zerion.svc.wallet_token_balances",
+        "zerion.svc.wallet_token_chart"
+      ]
+    },
+    "moralis": {
+      "plan": "free",
+      "priceUsdPerMonth": 0,
+      "probe": {
+        "operation": "moralis.svc.token_metadata",
+        "status": 200,
+        "rateLimitHeaders": {}
+      },
+      "documentedOperationCu": {
+        "moralis.svc.token_metadata": 10,
+        "moralis.svc.wallet_swaps": 50
+      },
+      "dailyCu": 40000,
+      "dailyCuUsed": 290,
+      "quotaResetPeriod": "daily",
+      "throughputRequestsPerSecond": 40,
+      "manualSourceRequired": "Current usage from Moralis Dashboard"
+    },
+    "helius": {
+      "plan": "free",
+      "priceUsdPerMonth": 0,
+      "monthlyCredits": 1000000,
+      "rpcRequestsPerSecond": 10,
+      "enhancedRequestsPerSecond": 2,
+      "documentedOperationCredits": {
+        "standardRpc": 1,
+        "das": 10,
+        "enhancedTransactions": 100,
+        "walletApi": 100,
+        "webhookManagement": 100,
+        "webhookEvent": 1
+      },
+      "projectId": null,
+      "currentPlan": "free",
+      "usage": null,
+      "adminUsageProbe": {
+        "status": 500,
+        "error": "Found project without billing period start"
+      },
+      "webhookUsageScope": "Separate owner and project; excluded from this API key usage",
+      "manualSourceRequired": "Helius Dashboard if exact current usage is needed"
+    }
+  }
+}

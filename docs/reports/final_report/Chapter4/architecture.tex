@@ -1,7 +1,7 @@
 \chapter{Kiến trúc và thiết kế hệ thống}
 \label{Chapter4}
 
-Chương này trình bày cách nhóm chúng em tổ chức Yoca từ giao diện, máy chủ API đến cơ sở dữ liệu và các nhà cung cấp bên ngoài. Kiến trúc hiện tại không phải là kết quả của một bản thiết kế cố định ngay từ đầu. Nó được điều chỉnh nhiều lần khi nhóm hiểu rõ hơn dữ liệu Solana, giới hạn của các gói API và chi phí duy trì những phép phân tích ví. Vì vậy, nội dung chương tập trung vào những nguyên tắc đang thực sự chi phối mã nguồn, đồng thời chỉ rõ các điểm mà hệ thống vẫn mang dấu vết của quá trình phát triển tăng dần.
+Chương này trình bày cách nhóm chúng em tổ chức Yoca từ giao diện, máy chủ API đến cơ sở dữ liệu và các nhà cung cấp bên ngoài. Nội dung tập trung vào ranh giới giữa các lớp, hợp đồng dữ liệu, cơ chế lưu đệm và những quyết định giúp hệ thống vận hành ổn định trong giới hạn của các API bên ngoài.
 
 \section{Kiến trúc tổng thể}
 
@@ -10,78 +10,33 @@ Yoca là một ứng dụng web full-stack được quản lý trong cùng một
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/arch.png}
-    \caption{Kiến trúc tổng thể của hệ thống Yoca: backend là điểm trung chuyển duy nhất giữa client và sáu nhóm phụ thuộc ngoài, cùng DevOps là quan hệ triển khai chứ không phải một lệnh gọi runtime}
+    \caption{Kiến trúc tổng thể và các phụ thuộc bên ngoài của hệ thống Yoca}
     \label{fig:system-architecture}
 \end{figure}
 
-Backend đóng vai trò trung chuyển duy nhất: giao diện không gọi trực tiếp API của bất kỳ nhà cung cấp nào. Sáu nhóm phụ thuộc ngoài được backend gọi tới khi cần gồm dữ liệu blockchain/thị trường (CoinGecko, Birdeye, Mobula, Zerion, Helius và Moralis, mỗi provider phụ trách một tập miền như đã trình bày ở phần tích hợp nguồn dữ liệu), AI (Gemini), lớp dữ liệu (PostgreSQL qua Drizzle), thanh toán (Stripe), cảnh báo/thông báo (Helius webhook làm nguồn sự kiện, gửi qua Resend và Discord) và tin tức/enrichment (RSS tổng hợp và Brave News). Khối DevOps ở ngoài ranh giới \emph{Application} thể hiện quan hệ build/deploy (GitHub Actions và Render) chứ không phải một cuộc gọi runtime từ backend, khác về bản chất so với sáu nhóm còn lại.
+Backend đóng vai trò trung chuyển duy nhất; giao diện chỉ trao đổi với API của Yoca. Các phụ thuộc bên ngoài gồm dữ liệu blockchain/thị trường (CoinGecko, Birdeye, Mobula, Zerion, Helius và Moralis), AI (Gemini), PostgreSQL, thanh toán (Stripe), cảnh báo/thông báo (Helius webhook, Resend và Discord) cùng tin tức/enrichment (RSS và Brave News). Khối DevOps nằm ngoài ranh giới \emph{Application} và thể hiện quan hệ build/deploy qua GitHub Actions và Render.
 
-Ranh giới trung chuyển này đặc biệt quan trọng vì các provider không chỉ khác tên trường mà còn khác cách biểu diễn token, thời gian, giá trị rỗng và phạm vi lịch sử. Nếu để từng màn hình tự xử lý những khác biệt đó, thay đổi từ một provider sẽ lan sang nhiều thành phần giao diện.
+Ranh giới trung chuyển này đặc biệt quan trọng vì mỗi provider có cách biểu diễn token, thời gian, giá trị rỗng và phạm vi lịch sử riêng. Việc chuẩn hóa tại backend giữ những khác biệt đó khỏi các thành phần giao diện.
 
-Đây là kiến trúc phân lớp theo trách nhiệm, không phải sự phân tách tuyệt đối. Trong mã nguồn còn tồn tại cả cấu trúc \texttt{routes/services} cũ và một số module mới được gom theo miền. Nhóm chúng em xem đây là kết quả của cách nâng cấp tăng dần: chức năng mới được hoàn thiện và thay thế luồng cũ, sau đó phần không còn được sử dụng mới được loại bỏ. Cách làm này giúp hệ thống tiếp tục hoạt động trong lúc dữ liệu và yêu cầu thay đổi, nhưng cũng tạo ra khoản nợ cần tiếp tục đồng nhất hóa sau đồ án.
+Các lớp được phân tách theo trách nhiệm nhưng vẫn nằm trong cùng một tiến trình backend. Route tiếp nhận và kiểm tra yêu cầu; service điều phối nghiệp vụ, provider và cache; lớp schema cùng repository quản lý dữ liệu bền vững. Cấu trúc theo miền giúp token, wallet, alert, payment và AI có thể phát triển độc lập về nghiệp vụ mà vẫn dùng chung hợp đồng và hạ tầng vận hành.
 
 \section{Hợp đồng dữ liệu từ giao diện đến nhà cung cấp}
 
-Ứng dụng dùng TypeScript ở cả client và server. Backend xuất kiểu của toàn bộ cây route Hono, còn client khởi tạo RPC client từ chính kiểu đó. Nhờ vậy, đường dẫn, tham số và kiểu phản hồi được kiểm tra ngay trong quá trình phát triển thay vì phải duy trì thêm một bộ khai báo API viết tay. Đây là lý do nhóm chọn Hono: với quy mô hiện tại, Hono RPC tạo được hợp đồng end-to-end mà không cần sinh mã từ một đặc tả trung gian \cite{hono}.
+Ứng dụng dùng TypeScript ở cả client và server. Backend xuất kiểu của cây route Hono để client khởi tạo RPC client từ cùng một định nghĩa. Đường dẫn, tham số và kiểu phản hồi nhờ đó được kiểm tra xuyên suốt mà không cần sinh thêm mã từ một đặc tả trung gian. Hono phù hợp với quy mô của Yoca vì kết hợp định tuyến nhẹ với hợp đồng end-to-end trong cùng hệ sinh thái TypeScript \cite{hono}.
 
-Kiểu TypeScript chỉ tồn tại trong lúc phát triển nên không thể bảo đảm dữ liệu trả về từ Internet là đúng. Trước khi đưa phản hồi của provider vào nghiệp vụ hoặc cơ sở dữ liệu, các service quan trọng sử dụng Zod để kiểm tra cấu trúc ở runtime. Khi một trường sai kiểu, thiếu ngoài dự kiến hoặc mang hình dạng khác tài liệu, hệ thống dừng tại biên tích hợp và trả lỗi thay vì tiếp tục tính toán bằng dữ liệu mơ hồ. Nhóm chúng em chủ ý chọn cách \textit{fail-fast} này vì một kết quả PnL trông hợp lý nhưng được tính từ dữ liệu sai nguy hiểm hơn một yêu cầu thất bại có thể truy vết.
+Hợp đồng kiểu ở thời điểm phát triển được bổ sung bằng validation runtime tại các biên hệ thống. Tham số từ người dùng và phản hồi của provider được kiểm tra bằng Zod trước khi đi vào phép tính hoặc cơ sở dữ liệu \cite{zod}. Các định danh như token address, wallet address và transaction signature được ràng buộc chặt; metadata hoặc chỉ số biến động được phép thiếu khi nguồn dữ liệu không bảo đảm giá trị. Cách xử lý fail-fast giúp hệ thống từ chối dữ liệu sai cấu trúc trước khi nó ảnh hưởng đến PnL, biểu đồ hoặc kết quả AI.
 
-Zod cho phép định nghĩa schema và kiểm tra dữ liệu không đáng tin cậy ngay khi chương trình đang chạy, phù hợp với vai trò bảo vệ biên tích hợp của Yoca \cite{zod}.
+Lỗi được chuẩn hóa thành một response envelope gồm thông báo, mã lỗi và HTTP status phù hợp. Chi tiết nội bộ của provider không được chuyển nguyên văn ra giao diện; client chỉ cần ánh xạ các nhóm validation, authentication, entitlement, upstream và internal error sang trạng thái hiển thị tương ứng. Với dữ liệu cá nhân, user ID luôn lấy từ phiên xác thực và trở thành điều kiện của truy vấn. Chẳng hạn, thao tác đọc hoặc cập nhật Alert History đồng thời dùng định danh bản ghi và user ID, nhờ đó một tài khoản không thể truy cập lịch sử của tài khoản khác.
 
-Khi một service phát hiện lỗi ở biên tích hợp, nó không ném một \texttt{Error} chung mà trả về một lớp lỗi có kiểu riêng, mang theo mã lỗi, HTTP status và chi tiết bổ sung, ví dụ \texttt{WalletAnalysisServiceError}. Route bắt lớp lỗi này và chuyển thành một envelope JSON thống nhất dạng \texttt{\{ error, code \}} kèm status code tương ứng, thay vì để lỗi provider rò rỉ nguyên văn ra ngoài. Bảng~\ref{tab:api_contract_example} minh họa contract này cho một endpoint phân tích ví tiêu biểu.
-
-\begin{table}[H]
-\centering
-\caption{Ví dụ hợp đồng request/response cho endpoint phân tích ví}
-\label{tab:api_contract_example}
-\small
-\begin{tabularx}{\textwidth}{|p{2.6cm}|X|}
-\hline
-\textbf{Trường hợp} & \textbf{Hình dạng phản hồi} \\
-\hline
-Thành công (200) & \texttt{\{ address, period, pnl, winRate, volumeBreakdown, ... \}} theo đúng kiểu \texttt{WalletAnalysisResult} đã được Zod kiểm tra \\
-\hline
-Địa chỉ không hợp lệ (400) & \texttt{\{ error: "Invalid wallet address", code: "INVALID\_ADDRESS" \}} \\
-\hline
-Upstream lỗi/hết hạn mức (502/429) & \texttt{\{ error: "Provider request failed", code: "UPSTREAM\_ERROR" \}}, sinh ra khi \texttt{WalletAnalysisServiceError} bọc lỗi từ Mobula \\
-\hline
-Vượt giới hạn AI theo gói (429) & \texttt{\{ errorCode, message, limit, used, remaining, resetsAt, tier, upgradePath \}} từ \texttt{WalletAiDailyLimitError}, giúp client hiển thị đúng trạng thái thay vì lỗi chung \\
-\hline
-\end{tabularx}
-\end{table}
-
-Việc kiểm tra chặt cũng làm lộ ra một khó khăn thực tế: tài liệu của provider không phải lúc nào cũng nói rõ trường nào có thể rỗng. Chẳng hạn, địa chỉ token là định danh chắc chắn hơn tên hoặc ký hiệu; các chỉ số biến động giá cũng có thể không tồn tại với token mới hay ít thanh khoản. Lược đồ nội bộ vì vậy không sao chép nguyên xi một phản hồi mẫu, mà chấp nhận giá trị thiếu ở nơi dữ liệu thực tế đòi hỏi và giữ ràng buộc chặt cho các định danh cốt lõi.
-
-Một contract đại diện là API lịch sử cảnh báo. Client gọi \texttt{GET /api/alerts/history} với \texttt{page} và \texttt{limit}; server lấy \texttt{userId} từ phiên xác thực thay vì nhận từ query, nhờ đó người dùng không thể yêu cầu lịch sử của tài khoản khác. Phản hồi gồm danh sách theo thứ tự mới nhất, tổng số bản ghi và số chưa đọc. Mỗi item giữ nguồn cảnh báo, message, severity, trạng thái email/Discord, thời điểm gửi và \texttt{readAt}. Khi cập nhật \texttt{PATCH /api/alerts/history/:id/read}, điều kiện truy vấn đồng thời dùng history ID và user ID; bản ghi không thuộc tài khoản được trả như không tồn tại.
-
-\begin{table}[H]
-\centering
-\caption{Contract đại diện của API Alert History}
-\label{tab:alert-history-contract}
-\renewcommand{\arraystretch}{1.15}
-\small
-\begin{tabularx}{\textwidth}{|p{3.2cm}|X|X|}
-\hline
-\textbf{Thành phần} & \textbf{Dữ liệu hợp lệ} & \textbf{Hành vi khi không hợp lệ/không đầy đủ} \\
-\hline
-List history & \texttt{page >= 1}, \texttt{1 <= limit <= 100}; user lấy từ JWT & Query sai trả lỗi validation; lỗi database trả 500; không có dữ liệu trả danh sách rỗng cùng tổng bằng 0 \\
-\hline
-Read state & UUID history và boolean \texttt{read}; update được scope bởi user & UUID sai trả 400; ID không tồn tại hoặc thuộc user khác trả 404 \\
-\hline
-Delivery snapshot & Ít nhất một kênh gửi thành công; lưu attempted/succeeded riêng cho email và Discord & Partial delivery vẫn được lưu đúng trạng thái từng kênh; không kênh nào thành công thì không tạo history \\
-\hline
-Idempotency & Khóa logic từ user, transaction signature, scope và rule/ví & Webhook retry cùng sự kiện không tạo bản ghi thứ hai \\
-\hline
-\end{tabularx}
-\end{table}
+Hợp đồng này được áp dụng thống nhất từ route đến service và lớp lưu trữ: route xác nhận request, service trả dữ liệu nội bộ đã chuẩn hóa, còn database bảo vệ ownership cùng các khóa duy nhất. Thay đổi hình dạng response của provider vì vậy được giới hạn tại biên tích hợp.
 
 \section{Luồng truy xuất, chuẩn hóa và lưu đệm}
 
-Mẫu truy xuất phổ biến trong backend gồm hai lớp hàm. Hàm \texttt{get*} là điểm vào của route: nó tìm dữ liệu trong cơ sở dữ liệu và đánh giá độ mới. Nếu dữ liệu còn hợp lệ, kết quả được trả ngay; nếu thiếu hoặc đã cũ, hàm gọi luồng \texttt{fetch*}. Luồng thứ hai chịu trách nhiệm truy cập provider, kiểm tra phản hồi, cập nhật cơ sở dữ liệu rồi trả về cùng kiểu dữ liệu nội bộ. Không phải mọi service đều tuân theo đúng tên gọi này, nhưng đây là nguyên tắc chủ đạo đối với dữ liệu thị trường và dữ liệu ví.
+Luồng truy xuất dữ liệu trước hết kiểm tra bản ghi đã lưu và thời điểm cập nhật. Dữ liệu còn hiệu lực được trả trực tiếp; dữ liệu thiếu hoặc hết hạn được lấy lại từ provider, kiểm tra cấu trúc, chuẩn hóa và ghi vào cơ sở dữ liệu trước khi phản hồi. Cùng một kiểu dữ liệu nội bộ vì vậy được duy trì ở cả hai nhánh, giúp route và giao diện không phụ thuộc vào hình dạng phản hồi của từng nguồn.
 
-Nhóm chúng em không áp dụng fallback nhiều provider một cách mặc định. Mỗi provider được chọn theo phần dữ liệu mà họ có thế mạnh và theo hạn mức còn khả dụng. Token metadata là một trong những nơi cần nhiều nguồn bổ sung, trong khi PnL và lịch sử giao dịch ví hiện dựa chủ yếu vào Mobula; lịch sử tổng tài sản ưu tiên Mobula, còn chuỗi số dư theo từng token tiếp tục dùng Zerion. Helius vẫn giữ vai trò đối với giao dịch on-chain và webhook. Sự phân công theo miền làm giảm số nhánh khó kiểm soát, dù đồng nghĩa hệ thống vẫn phụ thuộc đáng kể vào chất lượng của từng nguồn.
+Mỗi provider được phân công theo miền dữ liệu phù hợp với thế mạnh và hạn mức sử dụng. CoinGecko và GeckoTerminal cung cấp dữ liệu thị trường, token và pool; Mobula đảm nhiệm PnL, lịch sử hoạt động và tổng giá trị tài sản của ví; Zerion cung cấp chuỗi số dư theo từng token; Helius bổ sung chi tiết giao dịch on-chain và sự kiện webhook. Birdeye và Moralis phục vụ một số tập dữ liệu chuyên biệt. Token metadata có thể được bổ sung từ nhiều nguồn khi cần, còn các phép phân tích chính sử dụng một nguồn ưu tiên để giữ kết quả nhất quán và dễ truy vết.
 
-Cơ sở dữ liệu vừa lưu dữ liệu nghiệp vụ, vừa là lớp cache bền vững. Thiết kế bảng không chỉ theo mục tiêu chuẩn hóa mà còn cân nhắc số lần gọi API để hoàn thiện một bản ghi. Nếu một hàng yêu cầu hai hoặc ba endpoint khác nhau nhưng các phần dữ liệu có chu kỳ cập nhật khác nhau, việc tách chúng thành các bảng nhỏ giúp chỉ làm mới phần đã cũ. Khi provider trả kèm thông tin hữu ích, service có thể cập nhật thêm bảng liên quan để tận dụng dữ liệu đã trả phí truy vấn, song việc cập nhật chéo phải đi qua khóa và ràng buộc nhất quán.
+Cơ sở dữ liệu vừa lưu dữ liệu nghiệp vụ, vừa là lớp cache bền vững. Thiết kế bảng cân bằng mục tiêu chuẩn hóa với số lần gọi API cần thiết để hoàn thiện một bản ghi. Khi các phần dữ liệu có chu kỳ cập nhật khác nhau, chúng được tách thành bảng riêng để chỉ làm mới phần đã cũ. Thông tin hữu ích đi kèm response có thể bổ sung bảng liên quan sau khi đi qua khóa và ràng buộc nhất quán.
 
 \input{Chapter3/database/database}
 
@@ -89,20 +44,20 @@ Cơ sở dữ liệu vừa lưu dữ liệu nghiệp vụ, vừa là lớp cache
 
 React được chọn vì mô hình thành phần phù hợp với giao diện có nhiều bảng, biểu đồ và trạng thái tương tác dùng lại; Vite cung cấp máy chủ phát triển và cơ chế cập nhật mô-đun nhanh \cite{react,vite}. ECharts đảm nhiệm phần lớn biểu đồ tài chính \cite{echarts}, trong khi các cấu trúc quan hệ giao dịch cần một thành phần đồ thị tương tác riêng. Ở backend, Drizzle được chọn vì cách khai báo lược đồ gần với SQL và cho phép nhóm kiểm soát trực tiếp truy vấn, điều quan trọng khi cache và dữ liệu lịch sử cần các thao tác upsert hoặc truy vấn theo khoảng \cite{drizzle}.
 
-Những lựa chọn trên ưu tiên tốc độ phát triển và khả năng nhìn thấy lỗi sớm, nhưng không tự động tạo ra một hệ thống hoàn toàn nhất quán. Hono RPC chỉ bảo vệ hợp đồng giữa client và server; Zod bảo vệ dữ liệu ở runtime; ràng buộc cơ sở dữ liệu bảo vệ trạng thái đã lưu; còn kiểm thử vẫn cần thiết để xác nhận hành vi kết hợp giữa các lớp. Việc phân biệt các lớp bảo vệ này giúp nhóm không xem ``strongly typed'' như một sự thay thế cho kiểm thử.
+Các lớp kiểm soát được bố trí theo từng ranh giới của hệ thống. Hono RPC duy trì hợp đồng giữa client và server; Zod kiểm tra dữ liệu ở runtime; các ràng buộc cơ sở dữ liệu bảo vệ trạng thái đã lưu; kiểm thử xác nhận hành vi kết hợp giữa các lớp. Cách tổ chức này giúp lỗi về đường dẫn, kiểu dữ liệu và phản hồi bên ngoài được phát hiện gần nơi phát sinh.
 
-Ở phía giao diện, Carbon Design System từng được chọn làm nền tảng chung, nhưng việc hiện thực không được duy trì đồng đều trong suốt quá trình phát triển. Một số màn hình mới kết hợp thành phần tự xây dựng, SCSS và utility class, trong khi một số bảng cũ vẫn giữ cấu trúc Carbon. Nhóm chúng em chấp nhận trình bày đây là hạn chế về tính nhất quán và khả năng bảo trì, thay vì mô tả giao diện như một design system đã hoàn thiện. Trong đợt hoàn thiện cuối, nhóm ưu tiên đồng nhất các luồng chính; những bảng cũ chưa chuyển đổi hoàn toàn được ghi nhận rõ như một giới hạn của phiên bản hiện tại.
+Ở phía giao diện, các trang được cấu thành từ lớp truy xuất dữ liệu, trạng thái tương tác và các thành phần trình bày dùng chung. Bảng, biểu đồ và đồ thị giao dịch nhận dữ liệu đã chuẩn hóa từ lớp nghiệp vụ, nhờ đó cùng một chỉ số có thể được sử dụng nhất quán ở Market, Token, Pool và Wallet. Trạng thái tải, dữ liệu rỗng và lỗi được biểu diễn theo cùng quy ước để người dùng luôn nhận biết được kết quả của thao tác.
 
-Localization được tổ chức thành một lớp dùng chung độc lập với từng trang. Locale tiếng Anh đóng vai trò cấu trúc gốc; locale tiếng Việt phải giữ cùng hệ thống key và biến nội suy. Kiểu TypeScript được dùng để phát hiện key thiếu, key sai và biến interpolation không tương thích trong lúc phát triển. Hook \texttt{useLocalization} cung cấp đồng thời hàm dịch và formatter cho số, phần trăm, token unit, ngày giờ và tiền tệ. Các formatter nhận giá trị tài chính gốc bằng USD; với locale Việt Nam, lớp hiển thị áp dụng tỷ giá USD--VND rồi định dạng theo quy ước VND. Cách tách này giữ phép tính và API ở một đơn vị thống nhất, đồng thời tránh mỗi component tự quy đổi theo một công thức khác nhau.
+Localization được tổ chức thành một lớp dùng chung cho nội dung và định dạng. Tiếng Anh và tiếng Việt sử dụng cùng hệ thống khóa; các formatter xử lý thống nhất số, phần trăm, đơn vị token, ngày giờ và tiền tệ. Dữ liệu tài chính được giữ ở đơn vị chuẩn trong API, sau đó lớp hiển thị mới áp dụng locale và quy đổi USD--VND. Thiết kế này hỗ trợ người dùng Việt Nam mà không làm thay đổi các phép tính nghiệp vụ.
 
 \section{Ranh giới tin cậy và các điểm cần bảo vệ}
 
-Yoca tiếp nhận dữ liệu và yêu cầu từ nhiều phía không đáng tin cậy như nhau: người dùng, ví Solana, webhook của provider và mô hình AI. Đăng nhập bằng ví không ký giao dịch trên chuỗi mà yêu cầu người dùng ký một thông điệp chứa nonce dùng một lần; server xác minh chữ ký ed25519 khớp với public key trước khi cấp phiên đăng nhập, sau đó xóa nonce để tránh dùng lại. Với thanh toán, webhook Stripe được xác thực bằng chữ ký ký số của Stripe trước khi xử lý sự kiện, còn giao dịch thanh toán bằng Solana được backend tự truy vấn qua RPC để đối chiếu địa chỉ nhận, số lượng và trạng thái xác nhận, thay vì tin vào thông tin do client gửi lên.
+Yoca tiếp nhận dữ liệu và yêu cầu từ nhiều phía không đáng tin cậy như nhau: người dùng, ví Solana, webhook của provider và mô hình AI. Đăng nhập bằng ví yêu cầu người dùng ký một thông điệp chứa nonce dùng một lần; server xác minh chữ ký ed25519 khớp với public key trước khi cấp phiên đăng nhập, sau đó xóa nonce để tránh dùng lại. Với thanh toán, webhook Stripe được xác thực bằng chữ ký số của Stripe trước khi xử lý sự kiện, còn giao dịch thanh toán bằng Solana được backend truy vấn và đối chiếu địa chỉ nhận, số lượng cùng trạng thái xác nhận trước khi cấp quyền dịch vụ.
 
-Webhook nhận sự kiện ví từ Helius hiện được bảo vệ bằng một secret cố định so sánh trên header \texttt{Authorization}, chưa phải xác minh chữ ký trên toàn bộ payload. Đây là một giới hạn bảo mật nhóm chúng em ghi nhận rõ thay vì trình bày như một cơ chế đã hoàn thiện; hướng nâng cấp hợp lý là chuyển sang xác minh chữ ký payload nếu Helius hỗ trợ hoặc bổ sung kiểm tra IP/replay.
+Webhook nhận sự kiện ví từ Helius được bảo vệ bằng thông tin xác thực trong header \texttt{Authorization}. Máy chủ kiểm tra thông tin này trước khi xử lý payload, đồng thời sử dụng khóa sự kiện để ngăn một lần gửi lại tạo ra cảnh báo hoặc bản ghi lịch sử trùng lặp.
 
-Đối với AI, ngữ cảnh gửi đến mô hình được xây dựng thành các kiểu dữ liệu riêng cho từng miền (ví dụ \texttt{TokenAiContext}), và phần nội dung không đáng tin cậy như lịch sử hội thoại hay dữ liệu tool được bọc trong dấu phân định rõ ràng kèm chỉ dẫn chỉ tuân theo hướng dẫn hệ thống, không thực thi chỉ dẫn nằm trong phần dữ liệu đó. Phản hồi của mô hình sau đó được kiểm tra và chuẩn hóa lại cấu trúc trước khi trả về client. Đây là các lớp giảm thiểu rủi ro prompt injection ở mức thực dụng, không phải một cơ chế phòng thủ đã được kiểm chứng độc lập. Dữ liệu cá nhân như watchlist, nhãn ví, cảnh báo và lịch sử thanh toán tiếp tục được giới hạn theo user ID đã xác thực như đã trình bày ở phần cơ sở dữ liệu.
+Đối với AI, ngữ cảnh được xây dựng theo từng miền phân tích và tách khỏi lịch sử hội thoại cùng dữ liệu do công cụ trả về. Nội dung bên ngoài được đặt trong ranh giới rõ ràng để mô hình chỉ tuân theo hướng dẫn hệ thống; phản hồi sau đó được kiểm tra và chuẩn hóa cấu trúc trước khi trả về client. Dữ liệu cá nhân như watchlist, nhãn ví, cảnh báo và lịch sử thanh toán được giới hạn theo user ID đã xác thực như đã trình bày ở phần cơ sở dữ liệu.
 
 \section{Kết chương}
 
-Chương 4 đã xác định Yoca là một monolith phân lớp theo miền, có hợp đồng kiểu xuyên suốt giữa client và server, biên kiểm tra runtime cho dữ liệu bên ngoài, cùng cơ chế lưu trữ ưu tiên tái sử dụng dữ liệu đã đồng bộ. Kiến trúc này phản ánh sự cân bằng giữa lược đồ chuẩn hóa, hạn mức API và khả năng phát triển của nhóm. Chương cũng chỉ rõ những ranh giới tin cậy đã được kiểm chứng trong mã nguồn cùng các điểm còn là giới hạn, thay vì trình bày hệ thống như đã phòng thủ toàn diện. Trên nền thiết kế đó, Chương 5 trình bày kết quả triển khai, những khó khăn đã gặp và mức độ đáp ứng của hệ thống.
+Chương 4 đã xác định Yoca là một monolith phân lớp theo miền, có hợp đồng kiểu xuyên suốt giữa client và server, biên kiểm tra runtime cho dữ liệu bên ngoài và cơ chế lưu trữ ưu tiên tái sử dụng dữ liệu đã đồng bộ. Kiến trúc cân bằng giữa lược đồ chuẩn hóa, hạn mức API, tính nhất quán của dữ liệu và khả năng mở rộng theo miền nghiệp vụ. Trên nền thiết kế đó, Chương 5 trình bày cách hệ thống được triển khai, các chức năng chính và kết quả kiểm thử.

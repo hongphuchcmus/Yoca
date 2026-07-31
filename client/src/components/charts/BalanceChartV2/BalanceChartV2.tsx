@@ -97,7 +97,7 @@ export function BalanceChartV2({
 
   const [pendingToken, setPendingToken] = useState<PortfolioToken>(null);
 
-  const portfolio: UseGetResp<TokenPortpofilo[]> = useGet(
+  const portfolioRequest: UseGetResp<TokenPortpofilo[]> = useGet(
     client.api.wallets.portfolio,
     200,
     {
@@ -105,29 +105,27 @@ export function BalanceChartV2({
         address,
       },
     },
-    {
-      // sort by value usd then amount -> to show valuable token balances up top
-      select: (data): TokenPortpofilo[] => {
-        const forSort = [...data];
-        forSort.sort((a, b) => {
-          if (a.valueUsd > b.valueUsd) {
-            return -1;
-          }
-          if (a.valueUsd < b.valueUsd) {
-            return 1;
-          }
-          if (a.amount > b.amount) {
-            return -1;
-          }
-          if (a.amount < b.amount) {
-            return 1;
-          }
-          return 0;
-        });
-        return forSort;
-      },
-    },
   );
+
+  const portfolio = useMemo(() => {
+    const sorted = [...(portfolioRequest.data ?? [])];
+    sorted.sort((a, b) => {
+      if (a.valueUsd > b.valueUsd) {
+        return -1;
+      }
+      if (a.valueUsd < b.valueUsd) {
+        return 1;
+      }
+      if (a.amount > b.amount) {
+        return -1;
+      }
+      if (a.amount < b.amount) {
+        return 1;
+      }
+      return 0;
+    });
+    return sorted;
+  }, [portfolioRequest.data]);
 
   const totalBalance: UseGetResp<BalanceSeries> = useGet(
     client.api.charts.balance,
@@ -164,12 +162,12 @@ export function BalanceChartV2({
     },
     {
       enabled:
-        !!portfolio.data && selectedTokens != null && selectedTokens.size > 0,
+        portfolio.length > 0 && selectedTokens != null && selectedTokens.size > 0,
       select: (data) =>
         Object.entries(data).map(([tokenAddress, points]) => ({
           key: tokenAddress,
           label:
-            portfolio.data?.find((token) => token.tokenAddress == tokenAddress)
+            portfolio.find((token) => token.tokenAddress == tokenAddress)
               ?.symbol || tokenAddress,
           data:
             points?.map((p) => ({
@@ -212,7 +210,7 @@ export function BalanceChartV2({
     );
   }, [balanceSeries]);
 
-  type PortfolioToken = NonNullable<typeof portfolio.data>[number] | null;
+  type PortfolioToken = TokenPortpofilo | null;
 
   const timePeriodOptions = [
     { value: "7D", label: tr("charts.balanceChart.window7d") },
@@ -226,7 +224,7 @@ export function BalanceChartV2({
         label={tr("charts.balanceChart.selectTokenLabel")}
         placeholder={tr("charts.balanceChart.searchTokenPlaceholder")}
         value={pendingToken}
-        items={portfolio.data ?? []}
+        items={portfolio}
         onChange={setPendingToken}
         getKey={(token) => token.tokenAddress}
         getSearchText={(token) =>
@@ -274,7 +272,7 @@ export function BalanceChartV2({
           });
           setPendingToken(null);
         }}
-        disabled={portfolio.isLoading}
+        disabled={portfolioRequest.isLoading}
       />
 
       <SegmentedControl
@@ -371,7 +369,7 @@ export function BalanceChartV2({
           loading={
             totalBalance.isLoading ||
             tokenBalances.isLoading ||
-            portfolio.isLoading
+            portfolioRequest.isLoading
           }
           valueFormatter={fmt.num.compact.currency}
           onClickDay={onClickDay}

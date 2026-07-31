@@ -8,13 +8,13 @@ import {
 } from "../../src/services/chat/chat.orchestrator.js";
 
 const pnlResult: ChatToolResult = {
-  name: "get_wallet_pnl_compact",
+  name: "get_wallet_realized_pnl_desc_breakdown",
   input: { address: "wallet-1" },
   data: {
-    totalPnlUsd: 2708.4,
-    tokens: [
-      { symbol: "CHEETAH", pnlUsd: 2849.07, winRate: 95.83 },
-      { symbol: "COOKED", pnlUsd: -235.65, winRate: 12.5 },
+    realizedPnlUsd: 2613.42,
+    tokenBreakdowns: [
+      { token: "CHEETAH", realizedPnlUsd: 2849.07 },
+      { token: "COOKED", realizedPnlUsd: -235.65 },
     ],
     coverage: { isCapped: false, scope: "complete_filtered_result" },
   },

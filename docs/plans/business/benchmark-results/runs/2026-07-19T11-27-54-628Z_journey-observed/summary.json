@@ -1,0 +1,482 @@
+{
+  "runId": "2026-07-19T11-27-54-628Z_journey-observed",
+  "journeys": [
+    {
+      "journey": "token_ai",
+      "pass": "observed_first",
+      "resourceId": "token_ai",
+      "durationMs": 46251,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 14,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T11-27-54-628Z_journey-observed-token_ai-observed_first-1",
+          "route": "/api/token-ai-chat",
+          "status": 200,
+          "durationMs": 46055,
+          "payloadBytes": 10063,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_list",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "birdeye",
+            "operation": "token_price_chart",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "token_holders",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_metadata",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_market_data",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 2
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "brave",
+            "operation": "token_news_search",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_price_chart",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_top_pools",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "exchange_list",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 4
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "token_trades",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        }
+      ],
+      "dataUsage": [],
+      "aiRequests": [
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.token_ai_chat",
+            "model": "gemini-2.5-flash",
+            "outcome": "success"
+          },
+          "value": 1
+        }
+      ],
+      "aiTokens": [
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.token_ai_chat",
+            "model": "gemini-2.5-flash",
+            "token_type": "prompt"
+          },
+          "value": 17303
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.token_ai_chat",
+            "model": "gemini-2.5-flash",
+            "token_type": "output"
+          },
+          "value": 832
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.token_ai_chat",
+            "model": "gemini-2.5-flash",
+            "token_type": "thinking"
+          },
+          "value": 1916
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.token_ai_chat",
+            "model": "gemini-2.5-flash",
+            "token_type": "total"
+          },
+          "value": 20051
+        }
+      ]
+    },
+    {
+      "journey": "general_ai_chat",
+      "pass": "observed_first",
+      "resourceId": "general_ai_chat",
+      "durationMs": 116943,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 19,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T11-27-54-628Z_journey-observed-general_ai_chat-observed_first-1",
+          "route": "/api/chat",
+          "status": 200,
+          "durationMs": 116910,
+          "payloadBytes": 12942,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "coingecko",
+            "operation": "chat_token_search",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wallet_balances",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wallet_identity",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wallet_first_fund",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_balance_chart",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_activity",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 10
+        },
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "mobula",
+            "operation": "wallet_analysis",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 4
+        }
+      ],
+      "dataUsage": [],
+      "aiRequests": [
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.chat_tool_selection",
+            "model": "gemini-3.1-flash-lite",
+            "outcome": "success"
+          },
+          "value": 2
+        },
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.chat_response",
+            "model": "gemini-3.1-flash-lite",
+            "outcome": "success"
+          },
+          "value": 1
+        }
+      ],
+      "aiTokens": [
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_tool_selection",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "prompt"
+          },
+          "value": 14080
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_tool_selection",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "output"
+          },
+          "value": 511
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_tool_selection",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "total"
+          },
+          "value": 14591
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_response",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "prompt"
+          },
+          "value": 7902
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_response",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "output"
+          },
+          "value": 856
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.chat_response",
+            "model": "gemini-3.1-flash-lite",
+            "token_type": "total"
+          },
+          "value": 8758
+        }
+      ]
+    },
+    {
+      "journey": "wallet_ai",
+      "pass": "observed_first",
+      "resourceId": "wallet_ai",
+      "durationMs": 3136,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 2,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T11-27-54-628Z_journey-observed-wallet_ai-observed_first-1",
+          "route": "/api/wallet-analysis/analyze",
+          "status": 200,
+          "durationMs": 3103,
+          "payloadBytes": 6763,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wallet_transactions",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 2
+        }
+      ],
+      "dataUsage": [],
+      "aiRequests": [],
+      "aiTokens": []
+    },
+    {
+      "journey": "wash_trading_ai",
+      "pass": "observed_first",
+      "resourceId": "wash_trading_ai",
+      "durationMs": 11657,
+      "endpointCount": 1,
+      "successfulEndpoints": 1,
+      "providerAttemptCount": 1,
+      "providerRetryCount": 0,
+      "endpoints": [
+        {
+          "requestId": "2026-07-19T11-27-54-628Z_journey-observed-wash_trading_ai-observed_first-1",
+          "route": "/api/v1/wash-trading/ai-analyze",
+          "status": 200,
+          "durationMs": 11621,
+          "payloadBytes": 7885,
+          "classification": "data"
+        }
+      ],
+      "providerAttempts": [
+        {
+          "metric": "yoca_provider_requests_total",
+          "labels": {
+            "provider": "helius",
+            "operation": "wash_trading_enhanced_transactions",
+            "status_class": "2xx",
+            "outcome": "success",
+            "attempt_kind": "initial"
+          },
+          "value": 1
+        }
+      ],
+      "dataUsage": [],
+      "aiRequests": [
+        {
+          "metric": "yoca_ai_requests_total",
+          "labels": {
+            "operation": "gemini.svc.wash_trading_analysis",
+            "model": "gemini-2.5-flash",
+            "outcome": "success"
+          },
+          "value": 1
+        }
+      ],
+      "aiTokens": [
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wash_trading_analysis",
+            "model": "gemini-2.5-flash",
+            "token_type": "prompt"
+          },
+          "value": 688
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wash_trading_analysis",
+            "model": "gemini-2.5-flash",
+            "token_type": "output"
+          },
+          "value": 682
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wash_trading_analysis",
+            "model": "gemini-2.5-flash",
+            "token_type": "thinking"
+          },
+          "value": 1394
+        },
+        {
+          "metric": "yoca_ai_tokens_total",
+          "labels": {
+            "operation": "gemini.svc.wash_trading_analysis",
+            "model": "gemini-2.5-flash",
+            "token_type": "total"
+          },
+          "value": 2764
+        }
+      ]
+    }
+  ]
+}

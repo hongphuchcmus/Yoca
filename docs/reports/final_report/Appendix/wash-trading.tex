@@ -1,0 +1,111 @@
+\appendix
+
+\chapter{Phương pháp tính điểm Wash Trading}
+\label{appendix:wash-trading-scoring}
+
+Phụ lục này trình bày cách mô-đun Wash Trading chuyển dữ liệu giao dịch thành các đặc trưng trên đồ thị và tổng hợp chúng thành điểm rủi ro. Mục đích của phần trình bày là làm rõ ý nghĩa của kết quả trên giao diện và cho phép người đọc lần theo các thành phần tạo nên điểm số. Các cấu hình GCN, GAT và GraphSAGE trong Yoca là ba bộ trọng số heuristic lấy cảm hứng từ cách quan sát cấu trúc lân cận của mạng nơ-ron đồ thị; hệ thống không sử dụng một mô hình GNN đã huấn luyện.
+
+\section{Dữ liệu đầu vào và biểu diễn đồ thị}
+
+Mỗi bản ghi đầu vào gồm địa chỉ ví gửi, địa chỉ ví nhận, lượng token đã quy đổi theo số chữ số thập phân, thời điểm giao dịch, địa chỉ mint và chữ ký giao dịch. Với một token và khoảng thời gian được chọn, Yoca chuẩn hóa các bản ghi thành đồ thị có hướng $G=(V,E)$. Mỗi đỉnh $v\in V$ biểu diễn một ví, còn mỗi cạnh $e=(u,v)\in E$ biểu diễn một lần chuyển token từ ví $u$ đến ví $v$. Lượng token và thời điểm được giữ như thuộc tính của cạnh.
+
+Cách biểu diễn này cho phép hệ thống xem xét đồng thời hành vi của từng ví và quan hệ giữa nhiều ví. Một chu trình được tìm bằng phép duyệt theo chiều sâu trên các ví có hoạt động nổi bật. Đường đi hợp lệ gồm từ ba đến sáu bước, lượng token của từng cạnh lệch không quá 12\% so với cạnh khởi đầu và khoảng thời gian giữa các bước liên tiếp không vượt quá hai giờ. Gọi $\delta$ là tỷ lệ chênh lệch lượng token khi đóng vòng và $\overline{\Delta t}_{cycle}$ là khoảng thời gian trung bình giữa các bước, độ tin cậy của chu trình được tính bởi
+
+\begin{equation}
+p_{cycle}=\min\left(0{,}98,\max\left(0{,}45,
+1-3{,}2\delta-\frac{\max(0,\overline{\Delta t}_{cycle}-90000)}{900000}\right)\right).
+\end{equation}
+
+Các chu trình trùng tập ví được hợp nhất, sau đó hệ thống giữ tối đa 20 chu trình có độ tin cậy cao nhất để trình bày.
+
+\section{Các đặc trưng của ví}
+
+Với mỗi ví $v$, hệ thống tính sáu đặc trưng đã chuẩn hóa về đoạn $[0,1]$. Ký hiệu $\operatorname{clip}(x)=\min(1,\max(0,x))$.
+
+\textbf{Mức tham gia chu trình.} Nếu ví xuất hiện trong ít nhất một chu trình, đặc trưng $c_v$ nhận giá trị $0{,}94$; các trường hợp còn lại nhận giá trị 0. Giá trị nhỏ hơn 1 dành khoảng cho những tín hiệu bổ sung trong phép tổng hợp.
+
+\textbf{Khoảng cách thời gian.} Các thời điểm liên quan đến ví được sắp xếp tăng dần. Với khoảng cách trung bình $\overline{\Delta t}$ tính bằng mili giây, đặc trưng thời gian được xác định bởi
+
+\begin{equation}
+t_v=\operatorname{clip}\left(1-\frac{\overline{\Delta t}}{900000}\right).
+\end{equation}
+
+Đặc trưng này được sử dụng khi có ít nhất ba khoảng thời gian liên tiếp. Giao dịch càng gần nhau thì $t_v$ càng lớn.
+
+\textbf{Độ tương đồng lượng token.} Gọi $\mu_v$ và $\sigma_v$ lần lượt là trung bình và độ lệch chuẩn của lượng token trong các giao dịch liên quan đến ví. Khi có ít nhất ba quan sát và $\mu_v>0$, hệ thống tính
+
+\begin{equation}
+a_v=\operatorname{clip}\left(1-\frac{\sigma_v}{\mu_v}\right).
+\end{equation}
+
+Giá trị gần 1 cho biết lượng token giữa các giao dịch tương đối giống nhau.
+
+\textbf{Self-loop.} Đặc trưng $s_v$ nhận giá trị $0{,}85$ khi tồn tại cạnh từ ví về chính nó và nhận giá trị 0 trong trường hợp còn lại.
+
+\textbf{Hubness.} Gọi $d_v=d_v^{in}+d_v^{out}$ là tổng bậc vào và bậc ra, còn $d_{max}$ là bậc lớn nhất trong đồ thị đang xét. Mức độ kết nối tương đối của ví được tính bằng
+
+\begin{equation}
+h_v=\min\left(1,\frac{d_v}{\max(1,d_{max})}\right).
+\end{equation}
+
+\textbf{Khối lượng tương đối.} Với $q_v$ là tổng lượng token đi qua ví và $q_{max}$ là giá trị lớn nhất trong tập đang phân tích, đặc trưng khối lượng là
+
+\begin{equation}
+q'_v=\min\left(1,\frac{q_v}{\max(1,q_{max})}\right).
+\end{equation}
+
+Hai đặc trưng cuối mang ý nghĩa tương đối trong tập giao dịch được chọn. Chúng giúp nhận biết ví có vai trò nổi bật trong cấu trúc đang phân tích mà không quy đổi lượng token sang giá trị tiền tệ.
+
+\section{Điểm rủi ro của ví}
+
+Điểm của một ví là tổng có trọng số của sáu đặc trưng:
+
+\begin{equation}
+r_v=\min\left(0{,}97,
+w_c c_v+w_t t_v+w_a a_v+w_s s_v+w_h h_v+w_q q'_v\right).
+\end{equation}
+
+Ba cấu hình trên giao diện khác nhau ở mức độ ưu tiên dành cho từng đặc trưng. Bảng~\ref{tab:wash-trading-weights} trình bày các trọng số đang được sử dụng.
+
+\begin{table}[H]
+    \centering
+    \caption{Trọng số của ba cấu hình tính điểm Wash Trading}
+    \label{tab:wash-trading-weights}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Đặc trưng} & \textbf{GCN} & \textbf{GAT} & \textbf{GraphSAGE} \\
+        \hline
+        Tham gia chu trình & 0,32 & 0,36 & 0,24 \\
+        Khoảng cách thời gian & 0,21 & 0,17 & 0,18 \\
+        Độ tương đồng lượng token & 0,21 & 0,27 & 0,17 \\
+        Self-loop & 0,06 & 0,05 & 0,06 \\
+        Hubness & 0,14 & 0,10 & 0,25 \\
+        Khối lượng tương đối & 0,06 & 0,05 & 0,10 \\
+        \hline
+        \textbf{Tổng} & \textbf{1,00} & \textbf{1,00} & \textbf{1,00} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Cấu hình GCN phân bổ trọng số tương đối cân bằng và ưu tiên chu trình. GAT tăng ảnh hưởng của chu trình cùng độ tương đồng lượng token. GraphSAGE dành trọng số lớn hơn cho hubness và khối lượng, phù hợp khi cần quan sát vai trò của một ví trong vùng lân cận. Ví có điểm dưới $0{,}22$ và không tham gia chu trình được lược khỏi danh sách cần chú ý. Các mức Low, Medium và High lần lượt tương ứng với $r_v<0{,}45$, $0{,}45\leq r_v<0{,}72$ và $r_v\geq0{,}72$.
+
+\section{Điểm tổng hợp của tập giao dịch}
+
+Điểm rủi ro chung kết hợp năm tín hiệu: độ tin cậy của các chu trình ($C$), điểm trung bình của các ví được giữ lại ($R$), tỷ lệ khối lượng liên quan đến ví nằm trong chu trình ($W$), tỷ lệ ví mức High trong danh sách nghi vấn ($H$) và mật độ ví nghi vấn so với toàn bộ đồ thị ($D$). Với $P$ là tập chu trình, $S$ là danh sách ví nghi vấn, $V$ là tập ví và $S_H$ là tập ví mức High, các tín hiệu được tính như sau:
+
+\begin{align}
+C &= \min\left(1,\frac{\sum_{p\in P}p_{cycle}}{4}\right),
+& R &= \frac{\sum_{v\in S}r_v}{|S|}, \\
+W &= \min\left(1,\frac{\text{tỷ lệ khối lượng liên quan chu trình}}{75\%}\right),
+& H &= \frac{|S_H|}{|S|}, \\
+D &= \min\left(1,\frac{2|S|}{|V|}\right). &&
+\end{align}
+
+Khi mẫu số của một tỷ lệ bằng 0, tín hiệu tương ứng nhận giá trị 0. Các đại lượng được giới hạn trong đoạn $[0,1]$ trước khi tổng hợp:
+
+\begin{align}
+Z &= 0{,}30C+0{,}25R+0{,}20W+0{,}15H+0{,}10D, \\
+R_{overall} &= \min\left(98,\operatorname{round}(100Z)\right).
+\end{align}
+
+Kết quả được hiển thị trên thang 100 điểm. Các khoảng dưới 20, từ 20 đến 44, từ 45 đến 74 và từ 75 trở lên lần lượt tạo các nhãn Clean, Low Risk, Medium Risk và High Risk. Bên cạnh điểm tổng, giao diện giữ lại đồ thị, chu trình, ví liên quan và mức đóng góp của từng đặc trưng. Nhờ đó, điểm số đóng vai trò định hướng vùng dữ liệu cần xem xét và luôn đi kèm thông tin giúp người dùng kiểm tra giao dịch nguồn.

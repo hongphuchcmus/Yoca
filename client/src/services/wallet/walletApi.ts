@@ -797,7 +797,7 @@ export type WalletAuditPersona =
   | "Retail"
   | "Unknown";
 
-export interface WalletTokenDetails {
+export interface WalletRecentTradedDescBreakdown {
   symbol: string | null;
   address: string;
   tokenAddress: string;
@@ -852,8 +852,8 @@ export function fetchWalletAudit(
   });
 }
 
-export async function fetchWalletTokenDetails(address: string): Promise<WalletTokenDetails[]> {
-  return client.api.wallets[":address"].tokens.$get({
+export async function fetchWalletRecentTradedDescBreakdown(address: string): Promise<WalletRecentTradedDescBreakdown[]> {
+  return client.api.wallets[":address"]["recent-traded-desc-breakdown"].$get({
     param: { address }
   }).then(resp => {
     if (resp.ok) return resp.json();

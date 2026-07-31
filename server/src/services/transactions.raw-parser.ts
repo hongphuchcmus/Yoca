@@ -10,7 +10,8 @@
  */
 
 import { getTokenMeta } from "@sv/services/tokens/token-info.js";
-import { getNextkey } from "@sv/util/util-helius.js";
+import { pFetch } from "@sv/util/rate-limit.js";
+import { getNextkey, spec as heliusSpec } from "@sv/util/util-helius.js";
 
 // ─── Types for Solana jsonParsed RPC response ─────────────────────────────────
 
@@ -326,7 +327,8 @@ async function fetchRawTransaction(
   signature: string,
 ): Promise<RpcTransactionResult | null> {
   const apiKey = getNextkey();
-  const rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${encodeURIComponent(apiKey)}`;
+  const rpcUrl = new URL("https://mainnet.helius-rpc.com/");
+  rpcUrl.searchParams.set("api-key", apiKey);
 
   const body = {
     jsonrpc: "2.0",
@@ -342,7 +344,7 @@ async function fetchRawTransaction(
     ],
   };
 
-  const response = await fetch(rpcUrl, {
+  const response = await pFetch(heliusSpec, "helius.svc.raw_transaction", rpcUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

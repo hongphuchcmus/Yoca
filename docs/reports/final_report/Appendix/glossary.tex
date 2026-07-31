@@ -34,9 +34,6 @@ AI Assistant (Trợ lý AI) & Thành phần sử dụng mô hình ngôn ngữ l�
 API (Application Programming Interface) & Giao diện lập trình ứng dụng, tập hợp quy tắc để các thành phần phần mềm giao tiếp và trao đổi dữ liệu với nhau. \\
 \hline
 
-ATH / ATL (All-Time High / All-Time Low) & Mức giá cao nhất và thấp nhất mà một token từng đạt được tính đến thời điểm hiện tại. \\
-\hline
-
 Backend & Phần máy chủ của ứng dụng, đảm nhiệm xác thực, xử lý nghiệp vụ, truy cập cơ sở dữ liệu và tích hợp với các nhà cung cấp dữ liệu bên ngoài. \\
 \hline
 
@@ -52,19 +49,10 @@ DeFi (Decentralized Finance) & Tài chính phi tập trung, các dịch vụ tà
 DEX (Decentralized Exchange) & Sàn giao dịch phi tập trung, nơi người dùng hoán đổi token trực tiếp thông qua hợp đồng thông minh thay vì thông qua một đơn vị trung gian. \\
 \hline
 
-Drawdown & Mức suy giảm giá trị tài sản của một ví so với đỉnh giá trị gần nhất, dùng để đánh giá mức độ rủi ro. \\
-\hline
-
-DTO (Data Transfer Object) & Đối tượng dữ liệu được định nghĩa để truyền dữ liệu giữa các lớp của hệ thống theo một cấu trúc thống nhất. \\
-\hline
-
 Endpoint & Một địa chỉ cụ thể trong API mà frontend hoặc dịch vụ khác gửi yêu cầu đến để lấy hoặc gửi dữ liệu. \\
 \hline
 
 ERD (Entity Relationship Diagram) & Sơ đồ thực thể mối quan hệ, mô tả các nhóm bảng chính và mối liên hệ giữa chúng trong cơ sở dữ liệu. \\
-\hline
-
-FDV (Fully Diluted Valuation) & Định giá pha loãng hoàn toàn, giá trị vốn hóa ước tính của một token nếu toàn bộ nguồn cung tối đa được lưu hành. \\
 \hline
 
 Frontend & Phần giao diện người dùng của ứng dụng, đảm nhiệm hiển thị dữ liệu, tiếp nhận thao tác và trực quan hóa thông tin. \\
@@ -73,13 +61,16 @@ Frontend & Phần giao diện người dùng của ứng dụng, đảm nhiệm 
 Full-stack & Kiến trúc ứng dụng bao gồm cả phần giao diện (frontend) và phần máy chủ (backend) được phát triển trong cùng một hệ thống. \\
 \hline
 
-GCN / GAT / GraphSAGE & Các kiến trúc mạng nơ-ron đồ thị (Graph Neural Network) dùng để học đặc trưng và phát hiện quan hệ bất thường trên dữ liệu dạng đồ thị ví--giao dịch. \\
+GCN / GAT / GraphSAGE & Tên ba kiến trúc mạng nơ-ron đồ thị. Trong Yoca, các tên này được dùng cho ba cấu hình trọng số heuristic lấy cảm hứng từ GNN; hệ thống không sử dụng mô hình GNN đã huấn luyện. \\
 \hline
 
 Holder & Địa chỉ ví đang nắm giữ một loại token nhất định. \\
 \hline
 
-Lazy Loading (Tải dữ liệu động) & Kỹ thuật chỉ tải dữ liệu khi thực sự có nhu cầu sử dụng, thay vì tải toàn bộ dữ liệu ngay từ đầu. \\
+Heuristic & Quy tắc suy luận thực nghiệm dùng để đưa ra kết quả gần đúng khi dữ liệu không cung cấp trực tiếp thông tin cần thiết; kết quả cần được đối chiếu và không bảo đảm đúng cho mọi trường hợp. \\
+\hline
+
+Localization (Bản địa hóa) & Việc điều chỉnh chuỗi giao diện, số, ngày giờ, tiền tệ và cách trình bày cho một ngôn ngữ hoặc khu vực cụ thể; Yoca hiện hỗ trợ locale tiếng Anh và tiếng Việt. \\
 \hline
 
 LLM (Large Language Model) & Mô hình ngôn ngữ lớn, được sử dụng để diễn giải các chỉ số đã tính toán thành nội dung bằng ngôn ngữ tự nhiên. \\
@@ -91,16 +82,10 @@ Monolith & Kiến trúc backend được triển khai như một ứng dụng th
 Monorepo & Cách tổ chức mã nguồn trong đó nhiều thành phần của dự án như frontend, backend và tài liệu kỹ thuật cùng nằm trong một kho mã nguồn duy nhất. \\
 \hline
 
-NFT (Non-Fungible Token) & Token không thể thay thế, đại diện cho một tài sản số có tính duy nhất trên blockchain. \\
-\hline
-
-On-chain / Off-chain & On-chain là dữ liệu được ghi nhận trực tiếp trên blockchain; off-chain là dữ liệu nằm ngoài blockchain, không được ghi nhận trực tiếp trên chuỗi. \\
+On-chain & Dữ liệu hoặc hoạt động được ghi nhận trực tiếp trên blockchain và có thể kiểm tra từ lịch sử của mạng lưới. \\
 \hline
 
 ORM (Object-Relational Mapping) & Công cụ ánh xạ giữa cấu trúc bảng trong cơ sở dữ liệu quan hệ với các đối tượng trong mã nguồn, giúp truy vấn dữ liệu an toàn hơn về kiểu dữ liệu. \\
-\hline
-
-Partial-range cache reuse & Kỹ thuật tái sử dụng phần dữ liệu đã đồng bộ trong một khoảng thời gian, chỉ truy xuất bổ sung phần dữ liệu còn thiếu khi người dùng thay đổi khoảng thời gian phân tích. \\
 \hline
 
 PnL (Profit and Loss) & Lãi/lỗ, chỉ số phản ánh kết quả tăng hoặc giảm giá trị tài sản của một ví theo thời gian. \\
@@ -118,22 +103,10 @@ Rate limit (Giới hạn truy vấn) & Giới hạn về số lượng hoặc t�
 Request coalescing & Cơ chế gộp nhiều yêu cầu dữ liệu giống nhau phát sinh đồng thời thành một lần gọi duy nhất đến nhà cung cấp. \\
 \hline
 
-RPC (Remote Procedure Call) & Giao thức gọi hàm từ xa, được dùng để tương tác trực tiếp với node của mạng lưới Solana. \\
-\hline
-
 Schema (Lược đồ dữ liệu) & Mô tả cấu trúc các bảng, cột và mối quan hệ trong cơ sở dữ liệu. \\
 \hline
 
-Sequence Diagram (Sơ đồ tuần tự) & Sơ đồ mô tả trình tự tương tác giữa các thành phần của hệ thống theo thời gian. \\
-\hline
-
-Shard / Sharding & Kỹ thuật phân chia dữ liệu hoặc cấu hình, ví dụ danh sách địa chỉ theo dõi, thành nhiều nhóm nhỏ hơn để dễ quản lý và tránh vượt giới hạn của nhà cung cấp. \\
-\hline
-
-Sparkline & Biểu đồ nhỏ, đơn giản, dùng để thể hiện nhanh xu hướng biến động của một chỉ số theo thời gian. \\
-\hline
-
-Stablecoin & Loại token có giá trị được neo theo một tài sản ổn định, phổ biến nhất là đồng USD. \\
+Tiêu chí chấp nhận (Acceptance Criteria) & Điều kiện cụ thể dùng để xác định một chức năng hoặc luồng sử dụng đã đáp ứng yêu cầu đặt ra hay chưa. \\
 \hline
 
 Swap & Giao dịch hoán đổi trực tiếp giữa hai loại token thông qua giao thức phi tập trung. \\
@@ -155,9 +128,6 @@ Wash trading & Hành vi giao dịch được phối hợp thực hiện nhằm t
 \hline
 
 Watchlist (Danh sách theo dõi) & Danh sách token hoặc ví được người dùng lưu lại để tiện theo dõi. \\
-\hline
-
-Web3 & Thế hệ ứng dụng web được xây dựng trên nền tảng blockchain, hướng đến việc phi tập trung hóa dữ liệu và quyền kiểm soát. \\
 \hline
 
 Webhook & Cơ chế cho phép một dịch vụ tự động gửi dữ liệu đến một địa chỉ đã đăng ký ngay khi có sự kiện xảy ra, thay vì phải chủ động truy vấn liên tục. \\

@@ -12,8 +12,8 @@
  */
 
 import type { WalletPortfolioItem } from '@/services/wallet/walletApi';
+import { WRAPPED_SOL_MINT_ADDRESS } from '@/config/constants';
 
-const WSOL_MINT = 'So11111111111111111111111111111111111111112';
 const SOL_ALIAS_MINT = 'So11111111111111111111111111111111111111111';
 const SOL_SYSTEM_PROGRAM_ADDRESS = '11111111111111111111111111111111';
 
@@ -22,7 +22,7 @@ function normalizeAddress(address: string | undefined): string {
 }
 
 function isWrappedSolToken(tokenAddress: string | undefined): boolean {
-    return normalizeAddress(tokenAddress) === WSOL_MINT.toLowerCase();
+    return normalizeAddress(tokenAddress) === WRAPPED_SOL_MINT_ADDRESS.toLowerCase();
 }
 
 export function isNativeSolToken(tokenAddress: string | undefined): boolean {
@@ -31,6 +31,12 @@ export function isNativeSolToken(tokenAddress: string | undefined): boolean {
         || normalized === 'sol'
         || normalized === SOL_ALIAS_MINT.toLowerCase()
         || normalized === SOL_SYSTEM_PROGRAM_ADDRESS.toLowerCase();
+}
+
+export function resolveNativeSolTokenAddress(tokenAddress: string): string {
+    return isNativeSolToken(tokenAddress)
+        ? WRAPPED_SOL_MINT_ADDRESS
+        : tokenAddress;
 }
 
 /**

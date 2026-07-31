@@ -1,7 +1,7 @@
 import { validateApiResult, solanaBase58Schema } from "@sv/middlewares/validation";
 import { getAddressesByCoinGeckoIds } from "@sv/services/tokens/token-list.js";
 import { getTokenMarketData } from "@sv/services/tokens/token-market-data.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import * as cg from "@sv/util/util-coingecko.js";
 import {
     cg_OnchainPoolSearchSchema,
@@ -50,10 +50,9 @@ async function getSearchPoolsResult(q: string): Promise<PoolSearchResult[]> {
     include: "base_token,quote_token",
   }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.search_tokens", endpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   const res = await validateApiResult(cg_OnchainPoolSearchSchema, resp);
@@ -107,10 +106,9 @@ async function getSearchQueriesResult(q: string) {
   const endpoint = cg.getEndpoint("/search");
   endpoint.search = new URLSearchParams({ query: q }).toString();
 
-  const resp = await rlFetch(endpoint, {
+  const resp = await pFetch(cg.spec, "coingecko.svc.search_pools", endpoint, {
     method: "GET",
     headers: cg.getRequiredHeaders(),
-    rlLimiter: cg.limiter,
   });
 
   const res = await validateApiResult(cg_SearchSchema, resp);

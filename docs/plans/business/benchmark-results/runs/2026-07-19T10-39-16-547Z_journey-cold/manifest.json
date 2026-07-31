@@ -1,0 +1,12 @@
+{
+  "runId": "2026-07-19T10-39-16-547Z_journey-cold",
+  "commit": "8f6bbf6d",
+  "environment": "local_benchmark",
+  "database": "configured_server_database",
+  "startedAt": "2026-07-19T10:39:16.559Z",
+  "phase": "cold_first_and_warm_repeat",
+  "datasetVersion": "2026-07-19",
+  "sampleCount": 3,
+  "providerMode": "real",
+  "notes": "Database schema was reset immediately before this run; first pass is cold and the second is its warm repeat."
+}

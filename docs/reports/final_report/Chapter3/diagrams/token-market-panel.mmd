@@ -1,0 +1,42 @@
+---
+config:
+  layout: elk
+---
+erDiagram
+    direction TB
+
+    TOKEN_META {
+        varchar address PK
+        varchar name
+        varchar symbol
+        timestamp updated_at
+    }
+    TOKEN_MARKET_DATA {
+        varchar address PK
+        decimal price_usd
+        decimal market_cap
+        decimal volume_24h
+    }
+    TOKEN_MARKET_CHART {
+        varchar address PK
+        bigint timestamp_ms PK
+        decimal price
+        varchar timeframe
+    }
+    TOKEN_POOL_DATA {
+        varchar address PK
+        varchar base_address
+        varchar quote_address
+        decimal liquidity_usd
+    }
+    TOKEN_HOLDER_DATA {
+        varchar token_address PK
+        integer rank PK
+        varchar holder_address
+        decimal percentage
+    }
+
+    TOKEN_META ||..o| TOKEN_MARKET_DATA : prices
+    TOKEN_META ||..o{ TOKEN_MARKET_CHART : charts
+    TOKEN_META ||..o{ TOKEN_POOL_DATA : participates
+    TOKEN_META ||..o{ TOKEN_HOLDER_DATA : holds

@@ -1,0 +1,63 @@
+---
+config:
+  layout: elk
+---
+erDiagram
+    direction TB
+
+    USERS {
+        uuid id PK
+        varchar email
+        varchar display_name
+    }
+    AUTH_ACCOUNTS {
+        uuid user_id FK
+        enum provider PK
+        varchar provider_user_id PK
+    }
+    USER_WALLET_DATA {
+        uuid user_id PK, FK
+        varchar wallet_address PK
+        varchar label
+    }
+    SUBSCRIPTIONS {
+        uuid id PK
+        uuid user_id FK
+        enum plan_tier
+        enum status
+    }
+    PAYMENT_HISTORY {
+        uuid id PK
+        uuid user_id FK
+        uuid subscription_id FK
+        enum status
+    }
+    ALERTS {
+        uuid id PK
+        uuid user_id FK
+        enum alert_type
+        enum trigger_mode
+    }
+    ALERT_RULE_DATA {
+        uuid alert_id PK, FK
+        varchar target
+        decimal threshold
+        varchar delivery
+    }
+    ALERT_HISTORY {
+        uuid id PK
+        uuid alert_id FK
+        uuid user_id FK
+        timestamp sent_at
+        timestamp read_at
+    }
+
+    USERS ||--o{ AUTH_ACCOUNTS : authenticates
+    USERS ||--o{ USER_WALLET_DATA : personalizes
+    USERS ||--o{ SUBSCRIPTIONS : subscribes
+    USERS ||--o{ PAYMENT_HISTORY : pays
+    SUBSCRIPTIONS o|--o{ PAYMENT_HISTORY : records
+    USERS ||--o{ ALERTS : configures
+    ALERTS ||--o{ ALERT_RULE_DATA : defines
+    ALERTS o|--o{ ALERT_HISTORY : produces
+    USERS ||--o{ ALERT_HISTORY : receives

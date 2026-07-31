@@ -1,0 +1,343 @@
+{
+  "artifactKind": "wallet_mixed_refresh_benchmark",
+  "methodology": {
+    "overview": "force=1 provider refresh",
+    "portfolio": "force=1 provider refresh",
+    "transfers": "stored range or provider according to service coverage",
+    "swaps": "stored range or provider according to service coverage",
+    "identity": "normal TTL path",
+    "databaseReset": false
+  },
+  "sampleSize": 8,
+  "successfulCount": 8,
+  "results": [
+    {
+      "address": "5GH9XeyjHjakgDmr4BQAr3FJ3rXsBwG1DVa7tSDjYyh3",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 23,
+          "durationMs": 3079
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 23,
+          "durationMs": 1628
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 835
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 818
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 305
+        }
+      }
+    },
+    {
+      "address": "HGLsFsHy9NxuYWJe88Lyyrxvw95rDkHfPvid3AUPMbpj",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 22,
+          "durationMs": 1844
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 22,
+          "durationMs": 1548
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 764
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 15,
+          "durationMs": 1079
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 276
+        }
+      }
+    },
+    {
+      "address": "AAgeUpYYFfDQ42wZLFdejMfdssf9rVCVMeZfWzceGA2w",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 41,
+          "durationMs": 1881
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 41,
+          "durationMs": 1723
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 766
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 789
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 456
+        }
+      }
+    },
+    {
+      "address": "CLM6E4zpTviEC77nWKogpVLQoXx9tgoQCYJ8NibxKg1Q",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 384,
+          "durationMs": 4685
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 384,
+          "durationMs": 5164
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3924
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 12,
+          "durationMs": 3135
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 270
+        }
+      }
+    },
+    {
+      "address": "CxCTVjvgK3bWcgavMKo8PushR8ycw1atrWiSTruZrdtT",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 343,
+          "durationMs": 4536
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 343,
+          "durationMs": 5402
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 873
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 772
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 270
+        }
+      }
+    },
+    {
+      "address": "J6TDXvarvpBdPXTaTU8eJbtso1PUCYKGkVtMKUUY8iEa",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 980,
+          "durationMs": 7648
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 980,
+          "durationMs": 10588
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 775
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 4,
+          "durationMs": 997
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 261
+        }
+      }
+    },
+    {
+      "address": "H7PKyDYaESrpuZEMcPv7wjCnSjYA5R3n4i11bRKZFB2E",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 65,
+          "durationMs": 2147
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 65,
+          "durationMs": 2004
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 843
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 762
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 260
+        }
+      }
+    },
+    {
+      "address": "CBDswNVZFCaRvdeLZUSrM5ScDRWthUN5ubxrM5zd4Z8b",
+      "successful": true,
+      "coverage": {
+        "overview": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 1589
+        },
+        "portfolio": {
+          "mode": "forced_refresh",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 1197
+        },
+        "transfers": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 782
+        },
+        "swaps": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 20,
+          "durationMs": 927
+        },
+        "identity": {
+          "mode": "stored_or_provider",
+          "status": 200,
+          "classification": "data",
+          "count": 0,
+          "durationMs": 266
+        }
+      }
+    }
+  ]
+}

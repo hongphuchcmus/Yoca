@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { GOOGLE_AI_KEY, WALLET_AUDIT_MODEL } from "@sv/config/constants.js";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 import {
   analyzeWashTradingWithAI,
   type GnnAlgorithm,
@@ -235,15 +236,16 @@ export async function answerWashTradingChatQuery(params: WashTradingChatRequest)
   ].join("\n");
 
   try {
-    const response = await ai.models.generateContent({
-      model: WALLET_AUDIT_MODEL || "gemini-2.5-flash",
+    const model = WALLET_AUDIT_MODEL || "gemini-3.1-flash-lite";
+    const response = await trackGemini("gemini.svc.wash_trading_chat", model, () => ai.models.generateContent({
+      model,
       contents: prompt,
       config: {
         temperature: 0.2,
         responseMimeType: "application/json",
         systemInstruction: buildSystemInstruction(params.language, analysis.mint),
       },
-    });
+    }));
 
     const parsed = parseJsonObject(response.text ?? "");
     const answer = cleanAnswerText(parsed?.answer, 2400);

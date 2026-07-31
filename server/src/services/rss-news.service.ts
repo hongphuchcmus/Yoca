@@ -1,4 +1,5 @@
 import Parser from "rss-parser";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 import {
     fetchBraveTokenNews,
     fetchBraveTokenWebMentions,
@@ -588,6 +589,7 @@ async function fetchOpenGraphImage(articleUrl: string) {
 
   const cached = openGraphImageCache.get(articleUrl);
   if (cached && cached.expiresAt > Date.now()) {
+    dataUsage.record("memory_result");
     return cached.imageUrl;
   }
 

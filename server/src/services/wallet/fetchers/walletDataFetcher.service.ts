@@ -36,17 +36,17 @@ import {
     helius_WalletHistorySchema,
     helius_WalletTransfersSchema,
 } from "@sv/services/_types/token-raw-responses.js";
-import { rlFetch } from "@sv/util/rate-limit.js";
+import { pFetch } from "@sv/util/rate-limit.js";
 import {
     getEndpoint as getBirdeyeEndpoint,
     getRequiredHeaders as getBirdeyeHeaders,
-    limiter as birdeyeLimiter,
+    spec as birdeyeSpec,
     normalizeBirdeyeTimeParam,
 } from "@sv/util/util-birdeye.js";
 import {
     getEndpoint,
     getRequiredHeaders,
-    limiter as heliusLimiter,
+    spec as heliusSpec,
 } from "@sv/util/util-helius.js";
 import * as moralis from "@sv/util/util-moralis.js";
 
@@ -171,10 +171,9 @@ export async function fetchAllTransactionHistoryChunk(
         endpoint.searchParams.set("before", cursor);
       }
 
-      const response = await rlFetch(endpoint, {
+      const response = await pFetch(heliusSpec, "helius.svc.wallet_history", endpoint, {
         method: "GET",
         headers: getRequiredHeaders(),
-        rlLimiter: heliusLimiter,
       });
 
       if (!response.ok) {
@@ -339,10 +338,9 @@ export async function fetchHeliusSolanaPortfolio(
 
     try {
       const headers = getRequiredHeaders();
-      const resp = await rlFetch(url, {
+      const resp = await pFetch(heliusSpec, "helius.svc.wallet_balances", url, {
         method: "GET",
         headers,
-        rlLimiter: heliusLimiter,
       });
 
       if (!resp.ok) {
@@ -486,10 +484,9 @@ export async function fetchHeliusSolanaTransfers(
           endpoint.searchParams.set("cursor", cursor);
         }
 
-        const response = await rlFetch(endpoint, {
+        const response = await pFetch(heliusSpec, "helius.svc.wallet_transfers", endpoint, {
           method: "GET",
           headers: getRequiredHeaders(),
-          rlLimiter: heliusLimiter,
         });
 
         if (!response.ok) {
@@ -599,10 +596,9 @@ export async function fetchMoralisSolanaSwap(
 
       let json: MRL_WalletTokenSwaps;
       try {
-        const response = await rlFetch(url, {
+        const response = await pFetch(moralis.spec, "moralis.svc.wallet_swaps", url, {
           method: "GET",
           headers: moralis.getRequiredHeaders(),
-          rlLimiter: moralis.limiter,
         });
 
         if (!response.ok) {
@@ -738,10 +734,9 @@ export async function fetchAllTransactionHistory(
           endpoint.searchParams.set("before", cursor);
         }
 
-        const response = await rlFetch(endpoint, {
+        const response = await pFetch(heliusSpec, "helius.svc.wallet_history", endpoint, {
           method: "GET",
           headers: getRequiredHeaders(),
-          rlLimiter: heliusLimiter,
         });
 
         if (!response.ok) {
@@ -882,10 +877,9 @@ export async function fetchBirdeyeNetworthHistory(
       endpoint.searchParams.set("time", time);
     }
 
-    const response = await rlFetch(endpoint, {
+    const response = await pFetch(birdeyeSpec, "birdeye.svc.wallet_networth_history", endpoint, {
       method: "GET",
       headers: getBirdeyeHeaders(),
-      rlLimiter: birdeyeLimiter,
     });
 
     if (!response.ok) {
@@ -995,10 +989,9 @@ export async function fetchBirdeyePortfolioSnapshot(
       endpoint.searchParams.set("time", time);
     }
 
-    const response = await rlFetch(endpoint, {
+    const response = await pFetch(birdeyeSpec, "birdeye.svc.wallet_portfolio", endpoint, {
       method: "GET",
       headers: getBirdeyeHeaders(),
-      rlLimiter: birdeyeLimiter,
     });
 
     if (!response.ok) {
@@ -1062,10 +1055,9 @@ export async function fetchHeliusWalletFirstFund(
   address: string,
 ): Promise<HeliusWalletFirstFund> {
   const endpoint = getEndpoint(`/v1/wallet/${address}/funded-by`);
-  const response = await rlFetch(endpoint, {
+  const response = await pFetch(heliusSpec, "helius.svc.wallet_first_fund", endpoint, {
     method: "GET",
     headers: getRequiredHeaders(),
-    rlLimiter: heliusLimiter,
   });
 
   if (!response.ok) {

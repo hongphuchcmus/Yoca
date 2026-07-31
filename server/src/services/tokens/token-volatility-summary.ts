@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { WALLET_AUDIT_MODEL } from "@sv/config/constants.js";
 import env from "@sv/util/load-env";
+import { trackGemini } from "@sv/services/tracking/gemini-metrics.js";
 
 export interface TokenVolatilityNewsSummary {
   headline: string;
@@ -204,7 +205,7 @@ export async function summarizeTokenVolatilityNews(
 
   try {
     const client = new GoogleGenAI({ apiKey });
-    const response = await client.models.generateContent({
+    const response = await trackGemini("gemini.svc.token_volatility_summary", TOKEN_VOLATILITY_SUMMARY_MODEL, () => client.models.generateContent({
       model: TOKEN_VOLATILITY_SUMMARY_MODEL,
       contents: buildSummaryPrompt(input),
       config: {
@@ -229,7 +230,7 @@ export async function summarizeTokenVolatilityNews(
           required: ["headline", "bullets", "riskNote"],
         },
       },
-    });
+    }));
 
     const parsed = summarySchema.safeParse(JSON.parse(response.text ?? "{}"));
     if (!parsed.success) {

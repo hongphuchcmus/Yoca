@@ -69,6 +69,31 @@ const app = new Hono()
     }
   })
   .get(
+    "/fundamentals/:address",
+    validate("param", addressSchema),
+    async (c) => {
+      try {
+        const { address } = c.req.valid("param");
+        const fundamentals = await tokenService.getTokenFundamentals(address);
+
+        if (fundamentals) {
+          return c.json(fundamentals, statusCode.Ok);
+        }
+
+        return c.json(
+          setErr("FAILED_TO_FETCH_REQUESTED_DATA"),
+          statusCode.BadGateway,
+        );
+      } catch (error) {
+        console.error(error);
+        return c.json(
+          setErr("INTERNAL_SERVER_ERR"),
+          statusCode.InternalServerError,
+        );
+      }
+    },
+  )
+  .get(
     "/markets/:addresses",
     validate("param", addressListSchema),
     async (c) => {

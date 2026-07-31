@@ -1,5 +1,7 @@
 # Pricing & Cost Model — kế hoạch bàn giao
 
+> **ĐÃ ĐƯỢC THAY THẾ:** File này là kế hoạch cũ và không còn là nguồn số liệu. Mô hình hiện hành chỉ dùng conversion 4% tại `BUSINESS_SCENARIOS_2026-07-19.md` và `reports/YOCA_BUSINESS_MODEL_DEV_HANDBOOK.md`.
+
 Ngày: 2026-07-13
 
 File nội bộ để bàn giao task "xây pricing/business model có căn cứ chi phí thật" cho một thành viên khác + AI agent của bạn ấy. Không phải nội dung nộp báo cáo — nếu nội dung cuối cần đưa vào báo cáo/slide, viết lại theo văn phong báo cáo riêng. Bản nháp hội thoại gốc (yêu cầu của thầy, câu hỏi mở) nằm ở `pricing_model.md` tại root repo — giữ nguyên làm nhật ký, không sửa.

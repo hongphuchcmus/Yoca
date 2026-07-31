@@ -2,6 +2,7 @@ import { saveWalletFirstFundCache } from "@sv/services/wallet/db/walletDataCache
 import { getCachedWalletFirstFund } from "@sv/services/wallet/db/walletDataRetriever.js";
 import { HeliusWalletFirstFund } from "@sv/services/wallet/dtos/walletDataObjects.js";
 import { fetchHeliusWalletFirstFund } from "@sv/services/wallet/fetchers/walletDataFetcher.service.js";
+import { dataUsage } from "@sv/middlewares/request-context.js";
 
 export async function getWalletFirstFund(
   address: string,
@@ -12,6 +13,7 @@ export async function getWalletFirstFund(
   const cached = await getCachedWalletFirstFund(normalizedAddress);
   // const cached = null; // TODO: re-enable cache once we have some data and can verify cache correctness
   if (cached) {
+    dataUsage.record("db_result");
     console.log("[wallet-first-fund] cache hit", normalizedAddress);
     return cached as HeliusWalletFirstFund;
   } else {

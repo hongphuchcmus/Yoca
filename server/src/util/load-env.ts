@@ -1,4 +1,4 @@
-import { envSchema } from "@sv/middlewares/validation.js";
+import { envSchema } from "@sv/config/env-schema.js";
 import { config } from "dotenv";
 import { existsSync } from "node:fs";
 import path from "node:path";

@@ -333,10 +333,7 @@ export function PageWrapper({
                   onClick={() => handleLanguageSelect("vi")}
                 >
                   <span className={styles.languageMenuLocale}>
-                    {"Ti\u1ebfng Vi\u1ec7t"}
-                  </span>
-                  <span className={styles.languageMenuLabel}>
-                    {"Ti\u1ebfng Vi\u1ec7t (Vietnamese)"}
+                    {tr("lang.vi")}
                   </span>
                   {lang == "vi" && <Checkmark size={16} />}
                 </button>
@@ -349,8 +346,7 @@ export function PageWrapper({
                     }`}
                   onClick={() => handleLanguageSelect("en")}
                 >
-                  <span className={styles.languageMenuLocale}>{"M\u1ef9"}</span>
-                  <span className={styles.languageMenuLabel}>English</span>
+                  <span className={styles.languageMenuLocale}>{tr("lang.en")}</span>
                   {lang == "en" && <Checkmark size={16} />}
                 </button>
               </div>
@@ -455,7 +451,7 @@ export function PageWrapper({
           >
             <div className={styles.languagePanelHeader}>
               <strong>{tr("nav.language")}</strong>
-              <span>{lang === "en" ? "English" : "Tiếng Việt"}</span>
+              <span>{tr(lang == "en" ? "lang.en" : "lang.vi")}</span>
             </div>
 
             <div
@@ -471,15 +467,15 @@ export function PageWrapper({
                   }`}
                 onClick={() => handleLanguageSelect("en")}
               >
-                <span className={styles.languageOptionLabel}>English</span>
+                <span className={styles.languageOptionLabel}>{tr("lang.en")}</span>
                 <span className={styles.languageOptionMeta}>
                   {lang == "en" ? (
                     <>
                       <Checkmark size={16} />
-                      <span>Current</span>
+                      <span>{tr("nav.currentLanguage")}</span>
                     </>
                   ) : (
-                    <span>Switch</span>
+                    <span>{tr("nav.switchLanguage")}</span>
                   )}
                 </span>
               </button>
@@ -492,15 +488,15 @@ export function PageWrapper({
                   }`}
                 onClick={() => handleLanguageSelect("vi")}
               >
-                <span className={styles.languageOptionLabel}>Tiếng Việt</span>
+                <span className={styles.languageOptionLabel}>{tr("lang.vi")}</span>
                 <span className={styles.languageOptionMeta}>
                   {lang == "vi" ? (
                     <>
                       <Checkmark size={16} />
-                      <span>Current</span>
+                      <span>{tr("nav.currentLanguage")}</span>
                     </>
                   ) : (
-                    <span>Switch</span>
+                    <span>{tr("nav.switchLanguage")}</span>
                   )}
                 </span>
               </button>

@@ -1,0 +1,1387 @@
+{
+  "artifactKind": "wallet_coverage",
+  "sourcePath": "../docs/plans/business/benchmark-results/datasets/birdeye-wallet-swap-screen-single-period-2026-07-19.json",
+  "fullyCoveredCount": 13,
+  "results": [
+    {
+      "address": "CVqgGGgNYJiwkbMqE8gSFXZWBTEYZkyuNYa2qLZw2asc",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 86,
+          "pnl": 1974886.9087953905,
+          "volume": 367872.96351610555,
+          "tradeCount": 4593
+        }
+      ],
+      "classification": "data",
+      "swapCount": 3,
+      "durationMs": 5787,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 5787
+        },
+        "overview": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 6363
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 1539
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4051
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1472
+        }
+      },
+      "details": {
+        "overviewValueUsd": 5267.143265998348,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "ARW9NzhpuBVYaYBZo6fW1P1U6LTNwUY6jfi7XC37Sa97",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 87,
+          "pnl": 1185279.7634416888,
+          "volume": 1067772.3066289322,
+          "tradeCount": 2492
+        }
+      ],
+      "classification": "data",
+      "swapCount": 10,
+      "durationMs": 5009,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 5009
+        },
+        "overview": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 6452
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 2115
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4218
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 993
+        }
+      },
+      "details": {
+        "overviewValueUsd": 94844.4944355208,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "CxCTVjvgK3bWcgavMKo8PushR8ycw1atrWiSTruZrdtT",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 91,
+          "pnl": 1632119.5546908025,
+          "volume": 1087912.8435368564,
+          "tradeCount": 1290
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 3350,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3350
+        },
+        "overview": {
+          "classification": "data",
+          "count": 326,
+          "durationMs": 9079
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 326,
+          "durationMs": 7750
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4377
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1000
+        }
+      },
+      "details": {
+        "overviewValueUsd": 49671.37730947037,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "2M2vLX34LXMg24dMEnjWHvRXS1tshpEDRWzmXgV8ENNZ",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 66,
+          "pnl": 4362206.990291392,
+          "volume": 279321.40687710396,
+          "tradeCount": 1233
+        }
+      ],
+      "classification": "data",
+      "swapCount": 5,
+      "durationMs": 4674,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 4674
+        },
+        "overview": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 6035
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 3165
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4323
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1430
+        }
+      },
+      "details": {
+        "overviewValueUsd": 15.87740034674497,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "H87Hk58orfNgTc7st5nxcJmMfLPpLpRHRxK4cnJk8wBY",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 93,
+          "pnl": 1004911.2569927522,
+          "volume": 180817.34211804188,
+          "tradeCount": 979
+        }
+      ],
+      "classification": "data",
+      "swapCount": 8,
+      "durationMs": 3424,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 8,
+          "durationMs": 3424
+        },
+        "overview": {
+          "classification": "data",
+          "count": 64,
+          "durationMs": 11589
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 64,
+          "durationMs": 3525
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4608
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1353
+        }
+      },
+      "details": {
+        "overviewValueUsd": 7995.145339418847,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "CfmbsuBmZiHqFCDD6Msq3MYYWM4yhsCcbH66zsJUAhiA",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 97,
+          "pnl": 876247.5430051611,
+          "volume": 2271823.092544916,
+          "tradeCount": 783
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 4565,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4565
+        },
+        "overview": {
+          "classification": "data",
+          "count": 268,
+          "durationMs": 9436
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 268,
+          "durationMs": 4347
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4038
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1107
+        }
+      },
+      "details": {
+        "overviewValueUsd": 215560.94501651367,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "2ehHEHb8FuUgYNpueJB74QU5m8rFVpysErENpJjv8hh2",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 97,
+          "pnl": 103762.177534655,
+          "volume": 2549159.6294354633,
+          "tradeCount": 643
+        }
+      ],
+      "classification": "data",
+      "swapCount": 1,
+      "durationMs": 24076,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 1,
+          "durationMs": 24076
+        },
+        "overview": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 4758
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 1592
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3032
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1417
+        }
+      },
+      "details": {
+        "overviewValueUsd": 3678.7557514407013,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "ASX57wPnrckrkd6HHHy8ABB5mVKXoz18xdu6LwfHsMnZ",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 80,
+          "pnl": 125793.76131952667,
+          "volume": 128191.3420584928,
+          "tradeCount": 560
+        }
+      ],
+      "classification": "data",
+      "swapCount": 2,
+      "durationMs": 5096,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 5096
+        },
+        "overview": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 5768
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 1492
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4242
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1250
+        }
+      },
+      "details": {
+        "overviewValueUsd": 33295.600034069634,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "Kg8Qw4KAik52oE5FDoj3KGNMUbdXQW1rF1UBRmwNXfw",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 89,
+          "pnl": 1084860.9990978334,
+          "volume": 252157.76937885865,
+          "tradeCount": 504
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 3897,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3897
+        },
+        "overview": {
+          "classification": "data",
+          "count": 17,
+          "durationMs": 5556
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 17,
+          "durationMs": 1600
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 5143
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1231
+        }
+      },
+      "details": {
+        "overviewValueUsd": 149.45581425435,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "4CqecFud362LKgALvChyhj6276he3Sy8yKim1uvFNV1m",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 80,
+          "pnl": 2415009.4563241797,
+          "volume": 182063.94207379248,
+          "tradeCount": 501
+        }
+      ],
+      "classification": "data",
+      "swapCount": 11,
+      "durationMs": 6703,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 11,
+          "durationMs": 6703
+        },
+        "overview": {
+          "classification": "data",
+          "count": 30,
+          "durationMs": 5325
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 30,
+          "durationMs": 2271
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4474
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1023
+        }
+      },
+      "details": {
+        "overviewValueUsd": 112027.44276858823,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "GbrAkyjvvH7NnnfFup2iBBfuttPqQbf1oe6FRRSeqZpp",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 99,
+          "pnl": 838798.8530382258,
+          "volume": 46286.33819044783,
+          "tradeCount": 497
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 4496,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4496
+        },
+        "overview": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 5089
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 1443
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3725
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 986
+        }
+      },
+      "details": {
+        "overviewValueUsd": 1914.396010721685,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "6f7HkywaqVUVWXbaV8Devkkh53WXwtJYLBjWee4kXF3c",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 89,
+          "pnl": 112955.38639316191,
+          "volume": 190400.34320978037,
+          "tradeCount": 439
+        }
+      ],
+      "classification": "data",
+      "swapCount": 1,
+      "durationMs": 3794,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 1,
+          "durationMs": 3794
+        },
+        "overview": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 5131
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 1596
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4224
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1174
+        }
+      },
+      "details": {
+        "overviewValueUsd": 34531.501846656785,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "J6TDXvarvpBdPXTaTU8eJbtso1PUCYKGkVtMKUUY8iEa",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 41,
+          "pnl": 269614.06297504395,
+          "volume": 454285.2518527034,
+          "tradeCount": 431
+        }
+      ],
+      "classification": "data",
+      "swapCount": 4,
+      "durationMs": 4681,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 4,
+          "durationMs": 4681
+        },
+        "overview": {
+          "classification": "data",
+          "count": 979,
+          "durationMs": 17169
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 979,
+          "durationMs": 10702
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4296
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 992
+        }
+      },
+      "details": {
+        "overviewValueUsd": 265725.16964852175,
+        "identity": {
+          "status": "known",
+          "type": "wallet",
+          "name": "Pain @PainCrypt0",
+          "category": "Individual",
+          "tags": []
+        }
+      }
+    }
+  ],
+  "fullyCovered": [
+    {
+      "address": "CVqgGGgNYJiwkbMqE8gSFXZWBTEYZkyuNYa2qLZw2asc",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 86,
+          "pnl": 1974886.9087953905,
+          "volume": 367872.96351610555,
+          "tradeCount": 4593
+        }
+      ],
+      "classification": "data",
+      "swapCount": 3,
+      "durationMs": 5787,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 5787
+        },
+        "overview": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 6363
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 1539
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4051
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1472
+        }
+      },
+      "details": {
+        "overviewValueUsd": 5267.143265998348,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "ARW9NzhpuBVYaYBZo6fW1P1U6LTNwUY6jfi7XC37Sa97",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 87,
+          "pnl": 1185279.7634416888,
+          "volume": 1067772.3066289322,
+          "tradeCount": 2492
+        }
+      ],
+      "classification": "data",
+      "swapCount": 10,
+      "durationMs": 5009,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 5009
+        },
+        "overview": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 6452
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 2115
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4218
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 993
+        }
+      },
+      "details": {
+        "overviewValueUsd": 94844.4944355208,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "CxCTVjvgK3bWcgavMKo8PushR8ycw1atrWiSTruZrdtT",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 91,
+          "pnl": 1632119.5546908025,
+          "volume": 1087912.8435368564,
+          "tradeCount": 1290
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 3350,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3350
+        },
+        "overview": {
+          "classification": "data",
+          "count": 326,
+          "durationMs": 9079
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 326,
+          "durationMs": 7750
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4377
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1000
+        }
+      },
+      "details": {
+        "overviewValueUsd": 49671.37730947037,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "2M2vLX34LXMg24dMEnjWHvRXS1tshpEDRWzmXgV8ENNZ",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 66,
+          "pnl": 4362206.990291392,
+          "volume": 279321.40687710396,
+          "tradeCount": 1233
+        }
+      ],
+      "classification": "data",
+      "swapCount": 5,
+      "durationMs": 4674,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 4674
+        },
+        "overview": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 6035
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 44,
+          "durationMs": 3165
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4323
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1430
+        }
+      },
+      "details": {
+        "overviewValueUsd": 15.87740034674497,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "H87Hk58orfNgTc7st5nxcJmMfLPpLpRHRxK4cnJk8wBY",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 93,
+          "pnl": 1004911.2569927522,
+          "volume": 180817.34211804188,
+          "tradeCount": 979
+        }
+      ],
+      "classification": "data",
+      "swapCount": 8,
+      "durationMs": 3424,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 8,
+          "durationMs": 3424
+        },
+        "overview": {
+          "classification": "data",
+          "count": 64,
+          "durationMs": 11589
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 64,
+          "durationMs": 3525
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4608
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1353
+        }
+      },
+      "details": {
+        "overviewValueUsd": 7995.145339418847,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "CfmbsuBmZiHqFCDD6Msq3MYYWM4yhsCcbH66zsJUAhiA",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 97,
+          "pnl": 876247.5430051611,
+          "volume": 2271823.092544916,
+          "tradeCount": 783
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 4565,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4565
+        },
+        "overview": {
+          "classification": "data",
+          "count": 268,
+          "durationMs": 9436
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 268,
+          "durationMs": 4347
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4038
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1107
+        }
+      },
+      "details": {
+        "overviewValueUsd": 215560.94501651367,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "2ehHEHb8FuUgYNpueJB74QU5m8rFVpysErENpJjv8hh2",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 97,
+          "pnl": 103762.177534655,
+          "volume": 2549159.6294354633,
+          "tradeCount": 643
+        }
+      ],
+      "classification": "data",
+      "swapCount": 1,
+      "durationMs": 24076,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 1,
+          "durationMs": 24076
+        },
+        "overview": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 4758
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 1592
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3032
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1417
+        }
+      },
+      "details": {
+        "overviewValueUsd": 3678.7557514407013,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "ASX57wPnrckrkd6HHHy8ABB5mVKXoz18xdu6LwfHsMnZ",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 80,
+          "pnl": 125793.76131952667,
+          "volume": 128191.3420584928,
+          "tradeCount": 560
+        }
+      ],
+      "classification": "data",
+      "swapCount": 2,
+      "durationMs": 5096,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 2,
+          "durationMs": 5096
+        },
+        "overview": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 5768
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 3,
+          "durationMs": 1492
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4242
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1250
+        }
+      },
+      "details": {
+        "overviewValueUsd": 33295.600034069634,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "Kg8Qw4KAik52oE5FDoj3KGNMUbdXQW1rF1UBRmwNXfw",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 89,
+          "pnl": 1084860.9990978334,
+          "volume": 252157.76937885865,
+          "tradeCount": 504
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 3897,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3897
+        },
+        "overview": {
+          "classification": "data",
+          "count": 17,
+          "durationMs": 5556
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 17,
+          "durationMs": 1600
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 5143
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1231
+        }
+      },
+      "details": {
+        "overviewValueUsd": 149.45581425435,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "4CqecFud362LKgALvChyhj6276he3Sy8yKim1uvFNV1m",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "90d",
+          "rank": 80,
+          "pnl": 2415009.4563241797,
+          "volume": 182063.94207379248,
+          "tradeCount": 501
+        }
+      ],
+      "classification": "data",
+      "swapCount": 11,
+      "durationMs": 6703,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 11,
+          "durationMs": 6703
+        },
+        "overview": {
+          "classification": "data",
+          "count": 30,
+          "durationMs": 5325
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 30,
+          "durationMs": 2271
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4474
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1023
+        }
+      },
+      "details": {
+        "overviewValueUsd": 112027.44276858823,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "GbrAkyjvvH7NnnfFup2iBBfuttPqQbf1oe6FRRSeqZpp",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "30d",
+          "rank": 99,
+          "pnl": 838798.8530382258,
+          "volume": 46286.33819044783,
+          "tradeCount": 497
+        }
+      ],
+      "classification": "data",
+      "swapCount": 20,
+      "durationMs": 4496,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4496
+        },
+        "overview": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 5089
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 5,
+          "durationMs": 1443
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 3725
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 986
+        }
+      },
+      "details": {
+        "overviewValueUsd": 1914.396010721685,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "6f7HkywaqVUVWXbaV8Devkkh53WXwtJYLBjWee4kXF3c",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 89,
+          "pnl": 112955.38639316191,
+          "volume": 190400.34320978037,
+          "tradeCount": 439
+        }
+      ],
+      "classification": "data",
+      "swapCount": 1,
+      "durationMs": 3794,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 1,
+          "durationMs": 3794
+        },
+        "overview": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 5131
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 10,
+          "durationMs": 1596
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4224
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 1174
+        }
+      },
+      "details": {
+        "overviewValueUsd": 34531.501846656785,
+        "identity": {
+          "status": "unknown",
+          "type": null,
+          "name": null,
+          "category": null,
+          "tags": []
+        }
+      }
+    },
+    {
+      "address": "J6TDXvarvpBdPXTaTU8eJbtso1PUCYKGkVtMKUUY8iEa",
+      "source": "birdeye_profitable_traders",
+      "occurrences": [
+        {
+          "period": "1W",
+          "rank": 41,
+          "pnl": 269614.06297504395,
+          "volume": 454285.2518527034,
+          "tradeCount": 431
+        }
+      ],
+      "classification": "data",
+      "swapCount": 4,
+      "durationMs": 4681,
+      "coverage": {
+        "swaps": {
+          "classification": "data",
+          "count": 4,
+          "durationMs": 4681
+        },
+        "overview": {
+          "classification": "data",
+          "count": 979,
+          "durationMs": 17169
+        },
+        "portfolio": {
+          "classification": "data",
+          "count": 979,
+          "durationMs": 10702
+        },
+        "transfers": {
+          "classification": "data",
+          "count": 20,
+          "durationMs": 4296
+        },
+        "identity": {
+          "classification": "data",
+          "count": 0,
+          "durationMs": 992
+        }
+      },
+      "details": {
+        "overviewValueUsd": 265725.16964852175,
+        "identity": {
+          "status": "known",
+          "type": "wallet",
+          "name": "Pain @PainCrypt0",
+          "category": "Individual",
+          "tags": []
+        }
+      }
+    }
+  ]
+}

@@ -1,20 +1,16 @@
 \subsection{Cache và quản lý độ mới}
 \label{subsec:db_cache}
 
-Cache được kiểm soát bằng ba cơ chế. Cơ chế thứ nhất là TTL dựa trên thời điểm cập nhật. Dữ liệu overview, market hoặc kết quả phân tích được trả trực tiếp khi vẫn còn mới; khi hết TTL, service gọi provider và cập nhật lại bản ghi.
+Yoca sử dụng hai cách xác định độ mới. Với snapshot như metadata, market overview hoặc kết quả phân tích, TTL được tính từ thời điểm cập nhật; bản ghi còn hiệu lực được trả trực tiếp, còn bản ghi hết hạn được thay thế sau khi phản hồi provider đã qua kiểm tra schema. Với dữ liệu lịch sử, coverage metadata ghi nhận khoảng thời gian đã đồng bộ. Khi người dùng yêu cầu một kỳ rộng hơn, service chỉ lấy đoạn còn thiếu và hợp nhất với dữ liệu đã có.
 
-Cơ chế thứ hai là coverage metadata. Với lịch sử ví và enhanced transaction, metadata lưu khoảng thời gian đã đồng bộ. Service so sánh khoảng yêu cầu với khoảng đã có, chỉ tải phần còn thiếu rồi hợp nhất coverage. Cách này tránh tải lại toàn bộ lịch sử của ví.
-
-Cơ chế thứ ba là upsert. Market snapshot, chart point và các cache theo khóa nghiệp vụ sử dụng insert kết hợp conflict handling. Bản ghi mới được thêm khi khóa chưa tồn tại; dữ liệu cũ được cập nhật khi cùng address, timestamp hoặc signature.
+Các bản ghi chuỗi thời gian được upsert theo address cùng timestamp hoặc signature. Cách này vừa chống trùng khi provider trả lại dữ liệu cũ, vừa cho phép cập nhật đoạn cuối của lịch sử mà không tải lại toàn bộ ví. Metadata, market snapshot, chart, pool và holder được tách thành các read model riêng vì nguồn và chu kỳ làm mới khác nhau; một phần hết hạn vì vậy không buộc hệ thống gọi lại mọi endpoint liên quan.
 
 \subsection{Toàn vẹn và bảo mật dữ liệu}
 \label{subsec:db_toan_ven}
 
-Primary key tổng hợp được dùng cho dữ liệu chuỗi thời gian và lịch sử, ví dụ address kết hợp timestamp hoặc transaction hash. Unique constraint ngăn một transaction detail hoặc chart point bị ghi nhiều lần. Foreign key với quy tắc cascade áp dụng cho dữ liệu thuộc người dùng như auth account, watchlist, alert và subscription.
+Primary key tổng hợp được dùng cho dữ liệu chuỗi thời gian và lịch sử, chẳng hạn address kết hợp timestamp hoặc transaction hash. Unique constraint ngăn chart point và chi tiết giao dịch bị ghi nhiều lần. Foreign key với quy tắc cascade áp dụng cho dữ liệu thuộc người dùng như auth account, watchlist, alert và subscription. Các trường provider không bảo đảm luôn xuất hiện, như symbol, logo hoặc phần trăm biến động, được phép rỗng sau bước validation thay vì làm thất bại toàn bộ bản ghi.
 
-Không phải mọi liên hệ logic đều được chuyển thành foreign key. Wallet address và token address đến từ blockchain, có thể xuất hiện trước khi metadata tương ứng được tải. Việc bắt buộc foreign key trong trường hợp này sẽ làm gián đoạn luồng đồng bộ. Service chịu trách nhiệm chuẩn hóa address và giữ quy tắc ghép dữ liệu nhất quán.
-
-Dữ liệu công khai từ blockchain được tách khỏi dữ liệu cá nhân. Các truy vấn profile, watchlist, cảnh báo, chat và thanh toán phải được giới hạn theo user ID đã xác thực. Password chỉ được lưu dưới dạng hash; API key và secret của provider không được lưu trong các bảng nghiệp vụ.
+Wallet address và token address có thể xuất hiện trước metadata tương ứng nên không bị buộc vào một bảng cha vật lý. Service chuẩn hóa định danh trước khi đọc hoặc ghi và sử dụng cùng khóa nghiệp vụ để ghép dữ liệu. Dữ liệu công khai từ blockchain được tách khỏi dữ liệu cá nhân; các truy vấn profile, watchlist, cảnh báo, chat và thanh toán luôn giới hạn theo user ID đã xác thực. Password được lưu dưới dạng hash, còn API key và secret của provider nằm trong cấu hình môi trường, không đi vào bảng nghiệp vụ.
 
 % TODO(runtime): Hoàn thiện ghi alert_history sau khi delivery thành công.
 % TODO(runtime): Bổ sung API lấy lịch sử, đánh dấu đã đọc và chống gửi trùng.
@@ -22,4 +18,4 @@ Dữ liệu công khai từ blockchain được tách khỏi dữ liệu cá nh�
 \subsection{Tổng kết thiết kế cơ sở dữ liệu}
 \label{subsec:db_tong_ket}
 
-Thiết kế cơ sở dữ liệu kết hợp dữ liệu quan hệ với các read model cache theo miền nghiệp vụ. Các bảng user, payment và alert ưu tiên ràng buộc quan hệ. Các bảng token và wallet ưu tiên khả năng đồng bộ, truy vấn theo address và tái sử dụng dữ liệu provider. Việc tách overview, history, analysis và transaction detail giúp mỗi endpoint đọc đúng cấu trúc cần thiết thay vì phụ thuộc vào một bảng giao dịch chung.
+Thiết kế cơ sở dữ liệu kết hợp quan hệ sở hữu chặt chẽ với các read model cache theo miền. Cách tổ chức này giữ toàn vẹn cho tài khoản, thanh toán và cảnh báo, đồng thời cho phép token và ví được đồng bộ theo address, thời gian và hạn mức provider. Bốn sơ đồ trong phần này trình bày đủ cấu trúc chính mà không đưa toàn bộ bảng cache vật lý vào một ERD quá rộng.
