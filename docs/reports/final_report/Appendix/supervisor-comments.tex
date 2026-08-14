@@ -1,1 +1,11 @@
-\includepdf[pages=1-3]{25D2-DA-KTPM13.pdf}
+\includepdf[
+    pages=1,
+    pagecommand={
+        \thispagestyle{empty}
+        \phantomsection
+        \addcontentsline{toc}{chapter}{Nhận xét hướng dẫn}
+    }
+]{25D2-DA-KTPM13.pdf}
+\includepdf[
+    pages=2-3
+]{25D2-DA-KTPM13.pdf}

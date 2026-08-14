@@ -84,6 +84,13 @@
 \renewcommand{\listtablename}{Danh sách bảng}
 \renewcommand{\appendixname}{Phụ lục}
 
+% Ghi các danh sách vào mục lục sau khi tiêu đề đã tạo đúng hyperlink anchor.
+\makeatletter
+\patchcmd{\tableofcontents}{\@starttoc{toc}}{\addcontentsline{toc}{chapter}{\contentsname}\@starttoc{toc}}{}{}
+\patchcmd{\listoffigures}{\@starttoc{lof}}{\addcontentsline{toc}{chapter}{\listfigurename}\@starttoc{lof}}{}{}
+\patchcmd{\listoftables}{\@starttoc{lot}}{\addcontentsline{toc}{chapter}{\listtablename}\@starttoc{lot}}{}{}
+\makeatother
+
 \usepackage{longtable}
 
 % Dãn dòng 1.5
@@ -112,29 +119,31 @@
 
 \pagenumbering{roman}
 
-\addcontentsline{toc}{chapter}{Lời cam đoan}
 \include{Appendix/reassurances}
 
-\addcontentsline{toc}{chapter}{Nhận xét hướng dẫn}
 \include{Appendix/supervisor-comments}
 
-\addcontentsline{toc}{chapter}{Nhận xét phản biện}
 \include{Appendix/reviewer-comments}
 
-\addcontentsline{toc}{chapter}{Lời cảm ơn}
 \include{Appendix/thanks}
 
-\addcontentsline{toc}{chapter}{Đề cương chi tiết}
-\includepdf[pages=-]{Appendix/proposal.pdf}
+\includepdf[
+    pages=1,
+    pagecommand={
+        \thispagestyle{empty}
+        \phantomsection
+        \addcontentsline{toc}{chapter}{Đề cương chi tiết}
+    }
+]{Appendix/proposal.pdf}
+\includepdf[
+    pages=2-
+]{Appendix/proposal.pdf}
 
 
-\addcontentsline{toc}{chapter}{Mục lục}
 \tableofcontents
 
-\addcontentsline{toc}{chapter}{Danh sách hình}
 \listoffigures
 
-\addcontentsline{toc}{chapter}{Danh sách bảng}
 \listoftables
 
 \include{Appendix/glossary}
