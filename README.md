@@ -28,7 +28,7 @@
 
 ## Overview
 
-**YOCA** stands for **Y**et **A**nother **O**n-**C**hain **A**nalysis. It is a
+**YOCA** stands for **Y**et another **O**n-**C**hain **A**nalysis. It is a
 web platform built to make fragmented blockchain and market data easier to
 explore, connect, and interpret.
 
