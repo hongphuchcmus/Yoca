@@ -3,7 +3,7 @@
 
   # YOCA
 
-  **Yet Another On-chain Analysis**
+  **Yet another On-chain Analysis**
 
   *From market signals to token, wallet, and on-chain behavior analysis.*
 
